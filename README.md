@@ -20,7 +20,13 @@ This is work in progress - but advanced enough to start uploading it.
 
 ## Why this configuration?
 
-I've already used "kind of" controllers made on Linux server and cron procedures, and it was ok for a while. Then I bought almost cheap Chinese controller, just to find out it is missing most of required stuff, and I already was accustom to be able to see everything over Internet.
-So I've made few attempts with Arduino - it was fine, but since I need remote access - ESP will be much better choice. I've started to work on ESP8266, but being afraid that I will be lacking some GPIOs - I've moved to ESP32. And since price difference is negligible this is the platform of choice for this project.
-It is also beneficial it has build in flash memory, that I can use for all required data - without need of connecting additional SD cards.
+I've already used "kind of" controller made on Linux server and cron procedures, and it was ok.. for a while. Then I bought almost cheap Chinese controller PC410, just to find out, it is missing most of required stuff (that original PC410 should have), and I already was accustom to be able to see everything over Internet.
+So I've made few attempts with Arduino - it was fine, but since I need remote access - ESP will be much better choice. I've started to work on ESP8266, but being afraid that I will be lacking some GPIOs - I've moved to ESP32. And since price difference is negligible, this is the platform of choice for this project.
+It is also beneficial, because it has build in flash memory, that I can use for all required data - without need of connecting additional SD cards.
+
+MAX31855 comparing to more available MAX6675, is better choice since it allow us to work up to 1300C and it has 3,3V logic.
+
+LC12864B is not the best choice, but I simply already had this one and used if before for 3d printer. Perhaps later I'll change it.
+
+Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SSR (probably SSR and mechanical relay) - just to be able to turn off remotely kiln if one of them fails. Anyway, if you are going to use cheap Chinese knock offs, make sure it rated twice the output current you will use.
 
