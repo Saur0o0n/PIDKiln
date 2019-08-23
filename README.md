@@ -26,7 +26,7 @@ It is also beneficial, because it has build in flash memory, that I can use for 
 
 MAX31855 comparing to more available MAX6675, is better choice since it allow us to work up to 1300C and it has 3,3V logic.
 
-LC12864B is not the best choice, but I simply already had this one and used if before for 3d printer. Perhaps later I'll change it.
+LC12864B is not the best choice, but I simply had this one already and used if before for 3d printer. Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V, in my case it does not. But since it's mostly one way communication hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$).
 
 Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SSR (probably SSR and mechanical relay) - just to be able to turn off remotely kiln if one of them fails. Anyway, if you are going to use cheap Chinese knock offs, make sure it rated twice the output current you will use.
 

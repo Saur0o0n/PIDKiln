@@ -1,14 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
 <head>
 <title>Pidkiln main view</title>
 <link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/nav.css">
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+<script type="text/javascript" src="/js/nav.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-<a href="/"> Main view </a> </br>
-<a href="/programs/"> Manage programs </a> </br>
-<br>
-<a href="/preferences.html"> Pidkiln Preferences </a> <br>
-<a href="/debug_board.html"> Debug ESP board </a> <br>
-<a href="/flash"> Flash new Pidkiln </a> <br>
+
+<div class="topnav" id="myTopnav">
+  <a href="/index.html" class="active">Main view</a>
+  <a href="/programs/index.html">Manage programs</a>
+  <a href="/preferences.html">Preferences</a>
+  <a href="/about.html">About</a>
+  <a href="/debug_board.html">Debug ESP</a>
+  <a href="#about">Flash firmware</a>
+  <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
+    <i class="fa fa-bars"></i>
+  </a>
+</div>
+
+<div>
+
+Some main view of kiln working program...
+
+</div>
+
+
 </body>
 </html>

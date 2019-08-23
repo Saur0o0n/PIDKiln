@@ -25,8 +25,8 @@ const char* pver = "Pidklin 0.1 - 2019.08.22";
 //
 const int max_prog_size=10240;  // maximum file size (bytes) that can be uploaded as program
 
-const char* ssid = "Your WiFi SID";  // Replace with your network credentials
-const char* password = "Your WiFi Password";
+const char* ssid = "Your WiFi SSID";  // Replace with your network credentials
+const char* password = "Your Password";
 
 
 // Other variables
@@ -50,13 +50,13 @@ boolean delete_file(File &newFile){
     if(SPIFFS.remove(ntmp)){
       DBG Serial.println("Deleted!");
     }
-    generate_index(); // Just in case user wanted to overwrite exsisting file
+    generate_index(); // Just in case user wanted to overwrite existing file
     return true;
  }else return false;
 }
 
 // Function check is uploaded file has only ASCII characters - this to be modified in future, perhaps to even narrow down.
-// Currently excluded are non printable chaaracters, except new line and []. [] is excluded mostly for testing purpose.
+// Currently excluded are non printable characters, except new line and []. [] is excluded mostly for testing purpose.
 boolean check_valid_chars(byte a){
   if(a==0 || a==9 || a==95) return true; // end of file, tab, _
   if(a==10 || a==13) return true; // new line - Line Feed, Carriage Return
@@ -95,16 +95,22 @@ void setup() {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->redirect("/index.html");
   });
+  
   server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/index.html", String(), false, processor);
+    request->send(SPIFFS, "/index.html", String(), false, parser);
   });
 
+  server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/about.html", String(), false, parser);
+  });
+  
   // Serve some static data
   server.serveStatic("/icons/", SPIFFS, "/icons/");
   server.serveStatic("/js/", SPIFFS, "/js/");
   server.serveStatic("/css/", SPIFFS, "/css/");
-
-  // Set default file for programs to index.html - because webserver was programed by... :/
+  server.serveStatic("/favicon.ico", SPIFFS, "/icons/heat.png");
+ 
+  // Set default file for programs to index.html - because webserver was programmed by... :/
   server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html");
 
   // Upload new programs
@@ -115,6 +121,7 @@ void setup() {
   server.on("/debug_board.html", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/debug_board.html", String(), false, debug_board);
   });
+  
 /*
   server.on("/upload", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/html", "<form method='POST' action='/upload' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");

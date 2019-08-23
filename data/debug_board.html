@@ -1,36 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
 <head>
-<title>Pidkiln board debug page</title>
-<link rel="stylesheet" href="/css/main.css">
+ <title>Pidkiln board debug page</title>
+ <link rel="stylesheet" href="/css/main.css">
+ <link rel="stylesheet" href="/css/nav.css">
+ <link rel="stylesheet" href="/css/font-awesome.min.css">
+ <script type="text/javascript" src="/js/nav.js"></script>
+ <script type="text/javascript" src="/js/programs.js"></script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 
-<table>
-<caption> Main chip information: </caption>
-<tr><td> Chip Id: </td><td> %CHIP_ID% </td></tr>
-<tr><td> Core version: </td><td> %CORE_VERSION% </td></tr>
-<tr><td> SDK version: </td><td> %SDK_VERSION% </td></tr>
-<tr><td> Boot version: </td><td> %BOOT_VERSION% </td></tr>
-<tr><td> Boot mode: </td><td> %BOOT_MODE% </td></tr>
-<tr><td colspan=2> <hr> </td></tr>
-<table>
-<caption> Flash chip information: </caption>
-<tr><td> Flash chip Id: </td><td> %FLASH_CHIP_ID% <br> (for example: Id=001640E0 Manuf=E0, Device=4016 (swap bytes)) </td></tr>
-<tr><td> Sketch thinks Flash RAM is size: </td><td> %SFLASH_RAM% MiB</td></tr>
-<tr><td> Actual size based on chip Id: </td><td> %AFLASH_RAM% MiB ... given by (2^( Device - 1) / 8 / 1024 </td></tr>
-<tr><td> Flash frequency: </td><td> %FLASH_FREQ% Mhz</td></tr>
-<tr><td> Flash write mode: </td><td> %FLASH_WRITE_MODE% </td></tr>
-<tr><td> CPU frequency: </td><td> %CPU_FREQ% Mhz</td></tr>
-<tr><td colspan=2> <hr> </td></tr>
-<table>
-<caption> File system (SPIFFS) information : </caption>
-<tr><td> Total KB: </td><td> %TOTAL_KB% KiB </td></tr>
-<tr><td> Used KB: </td><td> %USER_KB% KiB </td></tr>
-<tr><td> Block size: </td><td> %BLOCK_SIZE% bytes </td></tr>
-<tr><td> Page size: </td><td> %PAGE_SIZE% </td></tr>
-<tr><td> Maximum open files: </td><td> %MAX_OFILES% </td></tr>
-<tr><td> Maximum path length: </td><td> %MAX_PLENGTH% chars </td></tr>
-</table>
+ <div class="topnav" id="myTopnav">
+  <a href="/index.html">Main view</a>
+  <a href="/programs/index.html">Manage programs</a>
+  <a href="/preferences.html">Preferences</a>
+  <a href="/about.html">About</a>
+  <a href="/debug_board.html" class="active">Debug ESP</a>
+  <a href="#about">Flash firmware</a>
+  <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
+    <i class="fa fa-bars"></i>
+  </a>
+ </div>
+
+ <div>
+
+ <table>
+  <caption> Main chip information: </caption>
+  <tr><td> Chip Id: </td><td> %CHIP_ID% </td></tr>
+  <tr><td> Core version: </td><td> %CORE_VERSION% </td></tr>
+  <tr><td> SDK version: </td><td> %SDK_VERSION% </td></tr>
+  <tr><td> Boot version: </td><td> %BOOT_VERSION% </td></tr>
+  <tr><td> Boot mode: </td><td> %BOOT_MODE% </td></tr>
+  <tr><td colspan=2> <hr> </td></tr>
+ </table>
+
+ <table>
+  <caption> Flash chip information: </caption>
+  <tr><td> Flash chip Id: </td><td> %FLASH_CHIP_ID% <br> (for example: Id=001640E0 Manuf=E0, Device=4016 (swap bytes)) </td></tr>
+  <tr><td> Sketch thinks Flash RAM is size: </td><td> %SFLASH_RAM% MiB</td></tr>
+  <tr><td> Actual size based on chip Id: </td><td> %AFLASH_RAM% MiB ... given by (2^( Device - 1) / 8 / 1024 </td></tr>
+  <tr><td> Flash frequency: </td><td> %FLASH_FREQ% Mhz</td></tr>
+  <tr><td> Flash write mode: </td><td> %FLASH_WRITE_MODE% </td></tr>
+  <tr><td> CPU frequency: </td><td> %CPU_FREQ% Mhz</td></tr>
+  <tr><td colspan=2> <hr> </td></tr>
+ </table>
+
+ <table>
+  <caption> File system (SPIFFS) information : </caption>
+  <tr><td> Total KB: </td><td> %TOTAL_KB% KiB </td></tr>
+  <tr><td> Used KB: </td><td> %USER_KB% KiB </td></tr>
+  <tr><td> Block size: </td><td> %BLOCK_SIZE% bytes </td></tr>
+  <tr><td> Page size: </td><td> %PAGE_SIZE% </td></tr>
+  <tr><td> Maximum open files: </td><td> %MAX_OFILES% </td></tr>
+  <tr><td> Maximum path length: </td><td> %MAX_PLENGTH% chars </td></tr>
+ </table>
+
+ </div>
 
 </body>
 </html>

@@ -7,7 +7,7 @@
 // Other variables
 //
 
-// Templare preprocessor for debug screen - debug_board.html
+// Template preprocessor for debug screen - debug_board.html
 //
 String debug_board(const String& var){
  FSInfo fs_info;
@@ -92,19 +92,17 @@ template_str=String();
 }
 
 
-// Template preprocessor for main view - index.html
+// Template preprocessor for main view - index.html, and some others
 //
-String processor(const String& var) {
+String parser(const String& var) {
 String tmp;
 
-  Serial.println(var);
-  if (var == "STATE") {
-    template_str = "OFF";
-    Serial.print(template_str);
-    return template_str;
-  }
-
-  return String();
+  template_str=String();
+  DBG Serial.println(var);
+  if (var == "VERSION") template_str=String(pver);
+  
+  DBG Serial.print(template_str);
+  return template_str;
 }
 
 
