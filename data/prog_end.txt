@@ -1,0 +1,13 @@
+   <tr><th colspan="6"><hr></th></tr>
+</table>
+<address>Pid controller for Mordor Hearth :) </address>
+
+<br>
+
+<form method='POST' action='/upload' enctype='multipart/form-data'>
+ Choose a program file to upload: <br>
+ <input type='file' name='upload' id="upload_program" accept=".txt,.ino" onchange="ValidateSize(this)">
+ <input type='submit' value='Upload new program'>
+</form>
+
+</body></html>

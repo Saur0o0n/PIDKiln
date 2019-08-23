@@ -1,0 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of kilin programs</title>
+  <script type="text/javascript" src="/js/programs.js"></script>
+ </head>
+ <body>
+<h1>Index of programs</h1>
+  <table>
+   <tr><th valign="top"><img src="/icons/heat.png" alt="[ICO]"></th><th>Name</th><th>Size</th><th>Description</th><th>Edit</th><th>Delete</th></tr>
+   <tr><th colspan="6"><hr></th></tr>
