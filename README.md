@@ -1,5 +1,5 @@
 # pidkiln
-Ceramic kiln PID controller based on Arduino/Weemos
+Ceramic kiln PID controller based on Arduino/Weemos board.
 
 This is work in progress - but advanced enough to start uploading it.
 

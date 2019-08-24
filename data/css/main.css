@@ -1,10 +1,19 @@
 
-table {
-  width:500px;
+
+div.debug {
+  max-width: 800px;
+  padding: 10px;
 }
 
-caption {
+table.debug {
+  width: 100%;
+  border: 4px dotted black;
+}
+
+table.debug th {
   font-size: 1.5em;
   font-weight: bold;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
 }
-

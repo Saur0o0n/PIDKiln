@@ -1,16 +1,16 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE html>
 <html>
 <head>
-<title>Pidkiln main view</title>
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/nav.css">
-<link rel="stylesheet" href="/css/font-awesome.min.css">
-<script type="text/javascript" src="/js/nav.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Pidkiln main view</title>
+ <link rel="stylesheet" href="/css/main.css">
+ <link rel="stylesheet" href="/css/nav.css">
+ <script type="text/javascript" src="/js/nav.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 
-<div class="topnav" id="myTopnav">
+ <div class="topnav" id="myTopnav">
   <a href="/index.html" class="active">Main view</a>
   <a href="/programs/index.html">Manage programs</a>
   <a href="/preferences.html">Preferences</a>
@@ -20,14 +20,18 @@
   <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
     <i class="fa fa-bars"></i>
   </a>
-</div>
+ </div>
 
-<div>
+ <div>
 
-Some main view of kiln working program...
+  Some main view of kiln working program...
 
-</div>
+ </div>
 
+ <div style="width:75%;">
+  <canvas id="myChart"></canvas>
+  <script type="text/javascript" src="/js/chart.js"></script>
+ </div>
 
 </body>
 </html>

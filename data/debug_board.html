@@ -23,37 +23,42 @@
   </a>
  </div>
 
- <div>
+ <div class="debug">
 
- <table>
-  <caption> Main chip information: </caption>
-  <tr><td> Chip Id: </td><td> %CHIP_ID% </td></tr>
-  <tr><td> Core version: </td><td> %CORE_VERSION% </td></tr>
-  <tr><td> SDK version: </td><td> %SDK_VERSION% </td></tr>
-  <tr><td> Boot version: </td><td> %BOOT_VERSION% </td></tr>
-  <tr><td> Boot mode: </td><td> %BOOT_MODE% </td></tr>
+ <table class="debug">
+  <tr><th colspan=2> Main chip information: </th></tr>
+  <tr><td> Chip Id: </td><td> ~CHIP_ID~ </td></tr>
+  <tr><td> Chip revsion: </td><td> ~CHIP_REV~ </td></tr>
+  <tr><td> Chip revsion based on fuses: </td><td> ~CHIP_REVF~ </td></tr>
+  <tr><td> CPU frequency: </td><td> ~CPU_FREQ~ Mhz</td></tr>
+  <tr><td> SDK version: </td><td> ~SDK_VERSION~ </td></tr>
   <tr><td colspan=2> <hr> </td></tr>
- </table>
 
- <table>
-  <caption> Flash chip information: </caption>
-  <tr><td> Flash chip Id: </td><td> %FLASH_CHIP_ID% <br> (for example: Id=001640E0 Manuf=E0, Device=4016 (swap bytes)) </td></tr>
-  <tr><td> Sketch thinks Flash RAM is size: </td><td> %SFLASH_RAM% MiB</td></tr>
-  <tr><td> Actual size based on chip Id: </td><td> %AFLASH_RAM% MiB ... given by (2^( Device - 1) / 8 / 1024 </td></tr>
-  <tr><td> Flash frequency: </td><td> %FLASH_FREQ% Mhz</td></tr>
-  <tr><td> Flash write mode: </td><td> %FLASH_WRITE_MODE% </td></tr>
-  <tr><td> CPU frequency: </td><td> %CPU_FREQ% Mhz</td></tr>
+  <tr><th colspan=2> SPI FLASH chip information: </th></tr>
+  <tr><td> Flash size: </td><td> ~SFLASH_RAM~ MiB</td></tr>
+  <tr><td> Flash frequency: </td><td> ~FLASH_FREQ~ Mhz</td></tr>
+  <tr><td> Flash mode: </td><td> ~FLASH_MODE~ </td></tr>
+  <tr><td> Current sketch size: </td><td> ~SKETCH_SIZE~ KiB </td></tr>
+  <tr><td> Total sketch space: </td><td> ~SKETCH_TOTAL~ KiB </td></tr>
   <tr><td colspan=2> <hr> </td></tr>
- </table>
 
- <table>
-  <caption> File system (SPIFFS) information : </caption>
-  <tr><td> Total KB: </td><td> %TOTAL_KB% KiB </td></tr>
-  <tr><td> Used KB: </td><td> %USER_KB% KiB </td></tr>
-  <tr><td> Block size: </td><td> %BLOCK_SIZE% bytes </td></tr>
-  <tr><td> Page size: </td><td> %PAGE_SIZE% </td></tr>
-  <tr><td> Maximum open files: </td><td> %MAX_OFILES% </td></tr>
-  <tr><td> Maximum path length: </td><td> %MAX_PLENGTH% chars </td></tr>
+  <tr><th colspan=2> SPI PSRAM chip information: </th></tr>
+  <tr><td> Total PSRAM size: </td><td> ~TOTAL_PSRAM~ KiB </td></tr>
+  <tr><td> Free PSRAM size: </td><td> ~FREE_PSRAM~ KiB </td></tr>
+  <tr><td> Smallest free PSRAM since boot: </td><td> ~SMALEST_PSRAM~ KiB </td></tr>
+  <tr><td> Largest free PSRAM block now: </td><td> ~LARGEST_PSRAM~ KiB </td></tr>
+  <tr><td colspan=2> <hr> </td></tr>
+
+  <tr><th colspan=2> RAM memory information: </th></tr>
+  <tr><td> Total heap size: </td><td> ~TOTAL_HEAP~ KiB </td></tr>
+  <tr><td> Free heap size: </td><td> ~FREE_HEAP~ KiB </td></tr>
+  <tr><td> Smallest free heap since boot: </td><td> ~SMALEST_HEAP~ KiB </td></tr>
+  <tr><td> Largest free heap block now: </td><td> ~LARGEST_HEAP~ KiB </td></tr>
+  <tr><td colspan=2> <hr> </td></tr>
+
+  <tr><th colspan=2> File system (SPIFFS) information : </th></tr>
+  <tr><td> Total KB: </td><td> ~TOTAL_KB~ KiB </td></tr>
+  <tr><td> Used KB: </td><td> ~USED_KB~ KiB </td></tr>
  </table>
 
  </div>

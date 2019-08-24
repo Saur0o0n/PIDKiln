@@ -5,10 +5,12 @@
 ** (c) 2019 - Adrian Siemieniak
 ** 
 **/
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <WiFiClient.h>
-#include <Regexp.h>
 #include <FS.h>   // Include the SPIFFS library
+#include <SPIFFS.h>
+
+#define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
 #include "ESPAsyncWebServer.h"
 
@@ -16,17 +18,18 @@
 //
 #define DEBUG true
 
-#define PRG_DIRECTORY "/programs/"
+#define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
 #define DBG if(DEBUG)
-const char* pver = "Pidklin 0.1 - 2019.08.22";
+const char* pver = "Pidklin 0.2 - 2019.08.22";
 
 // Static, editable parameters
 //
+#define FORMAT_SPIFFS_IF_FAILED true
 const int max_prog_size=10240;  // maximum file size (bytes) that can be uploaded as program
 
-const char* ssid = "Your WiFi SSID";  // Replace with your network credentials
-const char* password = "Your Password";
+const char* ssid = "";  // Replace with your network credentials
+const char* password = "";
 
 
 // Other variables
@@ -42,8 +45,8 @@ AsyncWebServer server(80);
 //
 boolean delete_file(File &newFile){
  if(newFile){
-    char ntmp[sizeof(newFile.fullName())+1];
-    strcpy(ntmp,newFile.fullName());
+    char ntmp[sizeof(newFile.name())+1];
+    strcpy(ntmp,newFile.name());
     newFile.flush();
     DBG Serial.printf("Deleting uploaded file: \"%s\"\n",ntmp);
     newFile.close();
@@ -76,7 +79,7 @@ void setup() {
   DBG Serial.begin(115200);
 
   // Initialize SPIFFS
-  if (!SPIFFS.begin()) {
+  if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
@@ -121,17 +124,6 @@ void setup() {
   server.on("/debug_board.html", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/debug_board.html", String(), false, debug_board);
   });
-  
-/*
-  server.on("/upload", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/html", "<form method='POST' action='/upload' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
-  });
-*/
-/*  server.on("/programs", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->redirect("/programs/");
-  });
-*/
-
 
   // Start server
   server.begin();
