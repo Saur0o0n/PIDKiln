@@ -27,6 +27,7 @@ const char* password = "";
 #define encoder0Button  32
 #define ENCODER_BUTTON_DELAY 180  // 200ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 130ms between rotate readout
+const unsigned int long_press=1500; // long press button takes 1,5second
 
 /* 
 ** Some definitions - you should not edit this - except DEBUG if you wish 
@@ -40,7 +41,7 @@ const char* password = "";
 #define FORMAT_SPIFFS_IF_FAILED true
 
 const char* pver = "PIDKiln v0.2";
-const char* pdate = "2019.08.25";
+const char* pdate = "2019.08.22";
 
 // Other variables
 //

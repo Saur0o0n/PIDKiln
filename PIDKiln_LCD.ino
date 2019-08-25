@@ -11,8 +11,12 @@
 #include <Wire.h>
 #endif
 
+
+// Other variables
 //
-//Bylo U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ 13, /* data=*/ 11, /* CS=*/ 10, /* reset=*/ 8);
+
+
+//
 //U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ 18, /* data=*/ 23, /* CS=*/ 5, /* reset=*/ 4);
 U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ 5, /* reset=*/ 4);
 
@@ -30,6 +34,16 @@ void load_msg(char msg[20]){
   u8g2.setDrawColor(1);
   u8g2.drawStr(10,45,msg);
   u8g2.sendBuffer();
+}
+
+// Main screeens rotator
+void rotate_main_screen(){
+
+}
+
+// Display menu
+void display_menu(){
+
 }
 
 // Setup LCD screen

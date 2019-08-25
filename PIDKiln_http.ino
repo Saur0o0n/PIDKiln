@@ -209,6 +209,7 @@ static File newFile;
 static boolean abort=false;
 String tmp=PRG_DIRECTORY;
 
+  tmp.concat("/");
   tmp.concat(filename.c_str());
   
   // Abort file upload if file is too large or there are some not allowed characters

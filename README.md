@@ -33,8 +33,9 @@ Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SS
 ## GPIO/PINs connection
 
 **LCD**
+
 ESP32	| LCD
--------   --------
+--------|---------
 +3.3V	| BLA (this can be also +5V if you wish)
 GND	| BLK
 4	| RST
@@ -46,20 +47,25 @@ GND	| GND
 23	| R/W
 
 **Encoder**
-ESP32	to Encoder
-+3.3V	-> 5V/VCC
-GND	-> GND
-32	-> Key
-34	-> S2
-35	-> S1
+
+ESP32	| Encoder
+--------|---------
++3.3V	| 5V/VCC
+GND	| GND
+32	| Key
+34	| S2
+35	| S1
 
 **MAX31855**
+
 EPS32	to MAX31855
 
 **SSR**
+
 ESP32	to SSR
 GND	-> GND
 
 **Thermistor**
+
 ESP32	to thermistor
 
