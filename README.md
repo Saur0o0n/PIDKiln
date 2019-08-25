@@ -30,3 +30,35 @@ LC12864B is not the best choice, but I simply had this one already and used if b
 
 Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SSR (probably SSR and mechanical relay) - just to be able to turn off remotely kiln if one of them fails. Anyway, if you are going to use cheap Chinese knock offs, make sure it rated twice the output current you will use.
 
+## GPIO/PINs connection
+
+**LCD**
+ESP32	to LCD
++3.3V	-> BLA (this can be also +5V if you wish)
+GND	-> BLK
+4	-> RST
+GND	-> PSB
++5V	-> VCC (This should be - for ESP sake - 3.3V, but my LCD doesn't work with lower voltage. Try first with 3.3V)
+GND	-> GND
+5	-> RS
+18	-> E
+23	-> R/W
+
+**Encoder**
+ESP32	to Encoder
++3.3V	-> 5V/VCC
+GND	-> GND
+32	-> Key
+34	-> S2
+35	-> S1
+
+**MAX31855**
+EPS32	to MAX31855
+
+**SSR**
+ESP32	to SSR
+GND	-> GND
+
+**Thermistor**
+ESP32	to thermistor
+

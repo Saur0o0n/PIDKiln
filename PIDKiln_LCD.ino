@@ -2,7 +2,6 @@
 ** LCD Display components
 **
 */
-
 #include <U8g2lib.h>
 
 #ifdef U8X8_HAVE_HW_SPI
@@ -39,7 +38,7 @@ void setup_lcd(void) {
   u8g2.begin();
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(u8g2_font_ncenB08_tr);
-  u8g2.drawStr(28,30,pver);
+  u8g2.drawStr(25,30,pver);
   u8g2.drawStr(38,45,"starting...");
   u8g2.drawFrame(2,2,123,59);
   u8g2.drawFrame(0,0,127,63);

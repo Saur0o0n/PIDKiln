@@ -1,9 +1,10 @@
 /*
 ** HTTP functions
 **
-**/
+*/
 #include <soc/efuse_reg.h>
 #include <Esp.h>
+#include <ESPAsyncWebServer.h>
 
 // Other variables
 //
@@ -190,7 +191,11 @@ String tmp;
 
   template_str=String();
   DBG Serial.println(var);
-  if (var == "VERSION") template_str=(String)sprintf("%s %s",pver,pdate);
+  if (var == "VERSION"){
+    template_str+=pver;
+    template_str+=" ";
+    template_str+=pdate;
+  }
   
   DBG Serial.print(template_str);
   return template_str;

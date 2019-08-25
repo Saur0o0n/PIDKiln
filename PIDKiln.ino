@@ -4,34 +4,43 @@
 **
 ** (c) 2019 - Adrian Siemieniak
 ** 
-**/
+*/
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <FS.h>   // Include the SPIFFS library
 #include <SPIFFS.h>
+#include <ESPAsyncWebServer.h>
+
+/* 
+** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
+** Please set them up before uploading.
+*/
+const int max_prog_size=10240;  // maximum file size (bytes) that can be uploaded as program
+
+const char* ssid = "";  // Replace with your network credentials
+const char* password = "";
 
 #define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
-#include "ESPAsyncWebServer.h"
+#define encoder0PinA    35
+#define encoder0PinB    34
+#define encoder0Button  32
+#define ENCODER_BUTTON_DELAY 180  // 200ms between button press readout
+#define ENCODER_ROTATE_DELAY 120  // 130ms between rotate readout
 
-// Some definitions - you should not edit this - except DEBUG if you wish\
-//
+/* 
+** Some definitions - you should not edit this - except DEBUG if you wish 
+*/
 #define DEBUG true
 
 #define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
 #define DBG if(DEBUG)
-const char* pver = "PIDKiln v0.2";
-const char* pdate = "2019.08.22";
 
-// Static, editable parameters
-//
 #define FORMAT_SPIFFS_IF_FAILED true
-const int max_prog_size=10240;  // maximum file size (bytes) that can be uploaded as program
 
-const char* ssid = "WiFi SSID";  // Replace with your network credentials
-const char* password = "WiFi Password";
-
+const char* pver = "PIDKiln v0.2";
+const char* pdate = "2019.08.25";
 
 // Other variables
 //
@@ -81,6 +90,9 @@ void setup() {
 
   // Setup function for LCD display from PIDKiln_LCD.ino
   setup_lcd();
+
+  // Setup input devices
+  setup_input();
   
   // Initialize SPIFFS
   if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
@@ -105,10 +117,9 @@ void setup() {
   // Setup function for Webserver from PIDKiln_http.ino
   setup_webserver();
 
-
   generate_index();
 }
 
 void loop() {
-
+  input_loop();
 }
