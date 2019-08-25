@@ -33,16 +33,17 @@ Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SS
 ## GPIO/PINs connection
 
 **LCD**
-ESP32	to LCD
-+3.3V	-> BLA (this can be also +5V if you wish)
-GND	-> BLK
-4	-> RST
-GND	-> PSB
-+5V	-> VCC (This should be - for ESP sake - 3.3V, but my LCD doesn't work with lower voltage. Try first with 3.3V)
-GND	-> GND
-5	-> RS
-18	-> E
-23	-> R/W
+ESP32	| LCD
+-------   --------
++3.3V	| BLA (this can be also +5V if you wish)
+GND	| BLK
+4	| RST
+GND	| PSB
++5V	| VCC (This should be - for ESP sake - 3.3V, but my LCD doesn't work with lower voltage. Try first with 3.3V)
+GND	| GND
+5	| RS
+18	| E
+23	| R/W
 
 **Encoder**
 ESP32	to Encoder
