@@ -8,6 +8,17 @@
 // Other variables
 //
 
+
+
+// Template preprocessor for preferences - preferences.html
+//
+String preferences(const String& var){
+
+ return String();
+
+}
+
+
 // Template preprocessor for debug screen - debug_board.html
 //
 String debug_board(const String& var){
@@ -179,7 +190,7 @@ String tmp;
 
   template_str=String();
   DBG Serial.println(var);
-  if (var == "VERSION") template_str=String(pver);
+  if (var == "VERSION") template_str=(String)sprintf("%s %s",pver,pdate);
   
   DBG Serial.print(template_str);
   return template_str;
@@ -234,4 +245,45 @@ String tmp=PRG_DIRECTORY;
     generate_index();
     request->redirect("/programs");
   }
+}
+
+
+void setup_webserver(void) {
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->redirect("/index.html");
+  });
+  
+  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/index.html", String(), false, parser);
+  });
+
+  server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/about.html", String(), false, parser);
+  });
+  
+  // Serve some static data
+  server.serveStatic("/icons/", SPIFFS, "/icons/");
+  server.serveStatic("/js/", SPIFFS, "/js/");
+  server.serveStatic("/css/", SPIFFS, "/css/");
+  server.serveStatic("/favicon.ico", SPIFFS, "/icons/heat.png");
+ 
+  // Set default file for programs to index.html - because webserver was programmed by... :/
+  server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html");
+
+  // Upload new programs
+  server.on("/upload", HTTP_POST, [](AsyncWebServerRequest *request){
+    request->send(200);
+  }, handleUpload);
+
+  server.on("/debug_board.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/debug_board.html", String(), false, debug_board);
+  });
+
+  server.on("/preferences.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/preferences.html", String(), false, preferences);
+  });
+  
+  // Start server
+  server.begin();
 }

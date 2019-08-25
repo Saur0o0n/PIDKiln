@@ -1,6 +1,6 @@
 
 /*
-** PIDKiln v0.1 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.2 - high temperature kiln PID controller for ESP32
 **
 ** (c) 2019 - Adrian Siemieniak
 ** 
@@ -21,15 +21,16 @@
 #define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
 #define DBG if(DEBUG)
-const char* pver = "Pidklin 0.2 - 2019.08.22";
+const char* pver = "PIDKiln v0.2";
+const char* pdate = "2019.08.22";
 
 // Static, editable parameters
 //
 #define FORMAT_SPIFFS_IF_FAILED true
 const int max_prog_size=10240;  // maximum file size (bytes) that can be uploaded as program
 
-const char* ssid = "";  // Replace with your network credentials
-const char* password = "";
+const char* ssid = "WiFi SSID";  // Replace with your network credentials
+const char* password = "WiFi Password";
 
 
 // Other variables
@@ -78,55 +79,32 @@ void setup() {
   // Serial port for debugging purposes
   DBG Serial.begin(115200);
 
+  // Setup function for LCD display from PIDKiln_LCD.ino
+  setup_lcd();
+  
   // Initialize SPIFFS
   if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
+    DBG Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
+
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connecting to WiFi..");
+    load_msg("connecting WiFi..");
+    DBG Serial.println("Connecting to WiFi...");
   }
 
   // Print ESP32 Local IP Address
   DBG Serial.println(WiFi.localIP());
+  char lip[20];
+  sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
+  load_msg(lip);
+  // Setup function for Webserver from PIDKiln_http.ino
+  setup_webserver();
 
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->redirect("/index.html");
-  });
-  
-  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/index.html", String(), false, parser);
-  });
-
-  server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/about.html", String(), false, parser);
-  });
-  
-  // Serve some static data
-  server.serveStatic("/icons/", SPIFFS, "/icons/");
-  server.serveStatic("/js/", SPIFFS, "/js/");
-  server.serveStatic("/css/", SPIFFS, "/css/");
-  server.serveStatic("/favicon.ico", SPIFFS, "/icons/heat.png");
- 
-  // Set default file for programs to index.html - because webserver was programmed by... :/
-  server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html");
-
-  // Upload new programs
-  server.on("/upload", HTTP_POST, [](AsyncWebServerRequest *request){
-    request->send(200);
-  }, handleUpload);
-
-  server.on("/debug_board.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/debug_board.html", String(), false, debug_board);
-  });
-
-  // Start server
-  server.begin();
 
   generate_index();
 }
