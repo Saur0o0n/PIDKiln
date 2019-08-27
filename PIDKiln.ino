@@ -10,6 +10,7 @@
 #include <FS.h>   // Include the SPIFFS library
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
+#include "PIDKiln.h"
 
 /* 
 ** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
@@ -25,23 +26,14 @@ const char* password = "";
 #define encoder0PinA    35
 #define encoder0PinB    34
 #define encoder0Button  32
-#define ENCODER_BUTTON_DELAY 180  // 200ms between button press readout
-#define ENCODER_ROTATE_DELAY 120  // 130ms between rotate readout
-const unsigned int long_press=1500; // long press button takes 1,5second
+#define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
+#define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
+const unsigned int long_press=700; // long press button takes about 0,9 second
 
 /* 
 ** Some definitions - you should not edit this - except DEBUG if you wish 
 */
 #define DEBUG true
-
-#define PRG_DIRECTORY "/programs"
-#define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
-#define DBG if(DEBUG)
-
-#define FORMAT_SPIFFS_IF_FAILED true
-
-const char* pver = "PIDKiln v0.2";
-const char* pdate = "2019.08.22";
 
 // Other variables
 //
