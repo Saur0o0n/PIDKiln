@@ -22,9 +22,9 @@ void ICACHE_RAM_ATTR handleInterrupt ();
 // What to do if button pressed in menu
 //
 void pressed_menu(){
-  switch(lcd_menu){
+  switch(LCD_Menu){
     case M_MAIN_VIEW: LCD_display_main(); break;
-    case M_LIST_PROGRAMS: LCD_display_programs(); break;
+    case M_LIST_PROGRAMS: LCD_display_programs(0); break;
     case M_INFORMATIONS: LCD_display_info(); break;
     case M_ABOUT: LCD_display_about(); break;
     default: break;
@@ -49,27 +49,27 @@ void pressed_program_list(){
 // Just redirect pressed button to separate functions
 //
 void button_pressed(){
-  if(lcd_state==MENU) pressed_menu();
-  else if(lcd_state=MAIN_VIEW) pressed_main_view();
-  else if(lcd_state=PROGRAM_LIST) pressed_program_list();
+  if(LCD_State==MENU) pressed_menu();
+  else if(LCD_State=MAIN_VIEW) pressed_main_view();
+  else if(LCD_State=PROGRAM_LIST) pressed_program_list();
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
 
 // Handle long press on encoder
 //
-void button_long_press(){
+void button_Long_Press(){
 
-  if(lcd_state==MENU){ // we are in menu - switch to main screen
-    lcd_state=MAIN_VIEW;
+  if(LCD_State==MENU){ // we are in menu - switch to main screen
+    LCD_State=MAIN_VIEW;
     LCD_display_main();
     return;
-  }else if(lcd_state==PROGRAM_SHOW){ // if we are showing program - go to program list
-    lcd_state=PROGRAM_LIST;
-    LCD_display_programs(); // lcd_program is global
+  }else if(LCD_State==PROGRAM_SHOW){ // if we are showing program - go to program list
+    LCD_State=PROGRAM_LIST;
+    LCD_display_programs(0); // LCD_Program is global
     return;
   }else{ // If we are in MAIN screen or Program list or in unknown area to to -> menu
-    lcd_state=MENU; // switching to menu
+    LCD_State=MENU; // switching to menu
     LCD_display_menu();
     return;    
   }
@@ -81,28 +81,29 @@ void button_long_press(){
 void rotate(){
 
 // If we are in MAIN screen view
- if(lcd_state==MAIN_VIEW){
+ if(LCD_State==MAIN_VIEW){
   if(encoderValue<0){
-    if(lcd_main>MAIN_VIEW1) lcd_main=(LCD_MAIN_View)((int)lcd_main-1);
+    if(LCD_Main>MAIN_VIEW1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main-1);
     LCD_display_main();
     return;
   }else{
-    if(lcd_main<MAIN_end-1) lcd_main=(LCD_MAIN_View)((int)lcd_main+1);
+    if(LCD_Main<MAIN_end-1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main+1);
     LCD_display_main();
     return;
   }
- }else if(lcd_state==MENU){
-   DBG Serial.printf("Rotate, MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, menu_size,lcd_menu);
+ }else if(LCD_State==MENU){
+   DBG Serial.printf("Rotate, MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
    if(encoderValue<0){
-     if(lcd_menu>M_MAIN_VIEW) lcd_menu=(LCD_MENU_Item)((int)lcd_menu-1);
+     if(LCD_Menu>M_MAIN_VIEW) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu-1);
    }else{
-     if(lcd_menu<M_end-1) lcd_menu=(LCD_MENU_Item)((int)lcd_menu+1);
+     if(LCD_Menu<M_end-1) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu+1);
    }
    LCD_display_menu();
    return;
- }else if(lcd_state==PROGRAM_LIST){
-  
- }else if(lcd_state==PROGRAM_SHOW){
+ }else if(LCD_State==PROGRAM_LIST){
+   DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
+   LCD_display_programs(encoderValue);
+ }else if(LCD_State==PROGRAM_SHOW){
   
  }
 }
@@ -128,13 +129,13 @@ void input_loop() {
 
    if(encoderButton){
       delay(ENCODER_BUTTON_DELAY);
-      if(digitalRead(encoder0Button)==LOW) return; // Button is still pressed - skipp, perhaps it's a long press
-      if(encoderButton+long_press>=millis()){ // quick press
+      if(digitalRead(ENCODER0_BUTTON)==LOW) return; // Button is still pressed - skipp, perhaps it's a long press
+      if(encoderButton+Long_Press>=millis()){ // quick press
         DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
         button_pressed();
       }else{  // long press
         DBG Serial.printf("Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
-        button_long_press();
+        button_Long_Press();
       }
       encoderButton=0;
    }
@@ -151,11 +152,11 @@ void input_loop() {
 //
 void handleInterrupt() {
 
-  if(digitalRead(encoder0Button)==LOW){
+  if(digitalRead(ENCODER0_BUTTON)==LOW){
       encoderButton=millis();
   }else{ // Those two events can be simultanouse - but this is also ok, usualy user does not press and turn
-    int MSB = digitalRead(encoder0PinA); //MSB = most significant bit
-    int LSB = digitalRead(encoder0PinB); //LSB = least significant bit
+    int MSB = digitalRead(ENCODER0_PINA); //MSB = most significant bit
+    int LSB = digitalRead(ENCODER0_PINB); //LSB = least significant bit
     int encoded = (MSB << 1) |LSB; //converting the 2 pin value to single number
     int sum  = (lastEncoded << 2) | encoded; //adding it to the previous encoded value
 
@@ -171,15 +172,15 @@ void handleInterrupt() {
 //
 void setup_input() {
 
-  pinMode(encoder0PinA, INPUT); 
-  pinMode(encoder0PinB, INPUT);
-  pinMode(encoder0Button, INPUT);
+  pinMode(ENCODER0_PINA, INPUT); 
+  pinMode(ENCODER0_PINB, INPUT);
+  pinMode(ENCODER0_BUTTON, INPUT);
 
-  digitalWrite(encoder0PinA, HIGH); //turn pullup resistor on
-  digitalWrite(encoder0PinB, HIGH); //turn pullup resistor on
-  digitalWrite(encoder0Button, HIGH); //turn pullup resistor on
+  digitalWrite(ENCODER0_PINA, HIGH); //turn pullup resistor on
+  digitalWrite(ENCODER0_PINB, HIGH); //turn pullup resistor on
+  digitalWrite(ENCODER0_BUTTON, HIGH); //turn pullup resistor on
 
-  attachInterrupt(encoder0PinA, handleInterrupt, CHANGE);
-  attachInterrupt(encoder0PinB, handleInterrupt, CHANGE);
-  attachInterrupt(encoder0Button, handleInterrupt, FALLING);
+  attachInterrupt(ENCODER0_PINA, handleInterrupt, CHANGE);
+  attachInterrupt(ENCODER0_PINB, handleInterrupt, CHANGE);
+  attachInterrupt(ENCODER0_BUTTON, handleInterrupt, FALLING);
 }

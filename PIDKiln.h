@@ -6,14 +6,14 @@ typedef enum {
   PROGRAM_LIST, // list of all programs
   PROGRAM_SHOW, // showing program conent
   OTHER         // some other screens like about that are stateless
-} LCD_State;
+} LCD_State_enum;
 
 typedef enum { // different main screens
   MAIN_VIEW1,
   MAIN_VIEW2,
   MAIN_VIEW3,
   MAIN_end
-} LCD_MAIN_View;
+} LCD_MAIN_View_enum;
 
 typedef enum { // menu positions
   M_MAIN_VIEW,
@@ -21,16 +21,21 @@ typedef enum { // menu positions
   M_INFORMATIONS,
   M_ABOUT,
   M_end
-} LCD_MENU_Item;
+} LCD_MENU_Item_enum;
 
-LCD_State lcd_state=MAIN_VIEW;      // global variable to keep track on where we are in LCD screen
-LCD_MAIN_View lcd_main=MAIN_VIEW1;  // main screen has some views - where are we
-LCD_MENU_Item lcd_menu=M_MAIN_VIEW; // menu items
+LCD_State_enum LCD_State=MAIN_VIEW;      // global variable to keep track on where we are in LCD screen
+LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;  // main screen has some views - where are we
+LCD_MENU_Item_enum LCD_Menu=M_MAIN_VIEW; // menu items
 
-const char *menu_names[] = {"1) Main view","2) List programs","3) Informations","4) About"};
-const byte menu_size=3;
+const char *Menu_Namess[] = {"1) Main view","2) List programs","3) Informations","4) About"};
+const byte Menu_Size=3;
 
-byte lcd_program=0;
+byte LCD_Program=0;
+
+/*
+** Kiln program variables
+*/
+String selected_program="";   // currently selected program name to open/edit/run
 
 /* 
 ** Some definitions - you should not edit this - except DEBUG if you wish 

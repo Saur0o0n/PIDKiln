@@ -3,7 +3,9 @@
 ** PIDKiln v0.2 - high temperature kiln PID controller for ESP32
 **
 ** (c) 2019 - Adrian Siemieniak
-** 
+**
+** Some coding convention - used functions are in separate files, depending on what they do. So LCD stuff to LCD, HTTP/WWW to HTTP, rotary to INPUT etc. 
+** All variables beeing global are written with capital leter on start of each word. All definitions are capital letters.
 */
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -16,31 +18,31 @@
 ** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
 ** Please set them up before uploading.
 */
-const int max_prog_size=10240;  // maximum file size (bytes) that can be uploaded as program
+const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program
 
 const char* ssid = "";  // Replace with your network credentials
 const char* password = "";
 
 #define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
-#define encoder0PinA    35
-#define encoder0PinB    34
-#define encoder0Button  32
+#define ENCODER0_PINA    35
+#define ENCODER0_PINB    34
+#define ENCODER0_BUTTON  32
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
-const unsigned int long_press=700; // long press button takes about 0,9 second
+const unsigned int Long_Press=700; // long press button takes about 0,9 second
 
-const byte wifi_tries=5;    // how many times (1 per second) tries to connect to wifi before failing
+const byte WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 
 /* 
 ** Some definitions - you should not edit this - except DEBUG if you wish 
 */
-//#define DEBUG true
-#define DEBUG false
+#define DEBUG true
+//#define DEBUG false
 
 // Other variables
 //
-String template_str;  // Stores template pareser output
+
 
 
 // Create AsyncWebServer object on port 80
@@ -107,7 +109,7 @@ void setup() {
     load_msg("connecting WiFi..");
     DBG Serial.println("Connecting to WiFi...");
     
-    for(byte a=0; a<wifi_tries; a++){
+    for(byte a=0; a<WiFi_Tries; a++){
       if (WiFi.status() == WL_CONNECTED){
         wifi_failed=false;
         continue;

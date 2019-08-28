@@ -46,9 +46,9 @@ void load_msg(char msg[20]){
 void LCD_display_main(){
 char sname[40];
 
-  lcd_state=MAIN_VIEW;
+  LCD_State=MAIN_VIEW;
   u8g2.clearBuffer();          // clear the internal memory
-  sprintf(sname,"Main screen %d",(int)lcd_main);
+  sprintf(sname,"Main screen %d",(int)LCD_Main);
   u8g2.setFont(u8g2_font_courB08_tf);
   u8g2.drawStr(25,30,sname);
   u8g2.sendBuffer();          // transfer internal memory to the display 
@@ -59,20 +59,20 @@ char sname[40];
 //
 void LCD_display_menu(){
 char menu[40];
-int m_startpos=lcd_menu;
+int m_startpos=LCD_Menu;
 byte chh,center=5;
 
 
-  DBG Serial.printf("Entering menu (%d) display: %s\n",lcd_menu,menu_names[lcd_menu]);
+  DBG Serial.printf("Entering menu (%d) display: %s\n",LCD_Menu,Menu_Namess[LCD_Menu]);
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(u8g2_font_courB08_tf);
   chh=u8g2.getMaxCharHeight();
   center=floor((SCREEN_H-(chh+MENU_SPACE)*MENU_LINES)/2); // how much we have to move Y to be on the middle with all menu
   DBG Serial.printf("In menu we can print %d lines, with %dpx space, and char height %d\n",MENU_LINES,MENU_SPACE,chh);
   
-  if(lcd_menu>MENU_MIDDLE) m_startpos=lcd_menu-(MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from lcd_menu - MENU_MIDDLE-1
-  else if(lcd_menu<=MENU_MIDDLE) m_startpos=lcd_menu-MENU_MIDDLE+1;  // if current menu pos < middle part - start
-  DBG Serial.printf(" Start pos is %d, choosen position is %d, screen center is %d\n",m_startpos,lcd_menu,center);
+  if(LCD_Menu>MENU_MIDDLE) m_startpos=LCD_Menu-(MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from LCD_Menu - MENU_MIDDLE-1
+  else if(LCD_Menu<=MENU_MIDDLE) m_startpos=LCD_Menu-MENU_MIDDLE+1;  // if current menu pos < middle part - start
+  DBG Serial.printf(" Start pos is %d, choosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
   
   for(int a=1; a<=MENU_LINES; a++){
     if(a==MENU_MIDDLE){   // reverse colors if we print middle part o menu
@@ -81,26 +81,75 @@ byte chh,center=5;
       u8g2.drawBox(0, (a-1)*chh+MENU_SPACE+center+1, SCREEN_W , chh+MENU_SPACE+1);
       u8g2.setDrawColor(0);
     }
-    if(m_startpos<0 || m_startpos>menu_size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,"....");
+    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,"....");
     else{
-      u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,menu_names[m_startpos]);
+      u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,Menu_Namess[m_startpos]);
     }
     u8g2.setDrawColor(1);
     m_startpos++;
   }
-  //u8g2.drawStr(25,30,menu_names[lcd_menu]);
+  //u8g2.drawStr(25,30,Menu_Namess[LCD_Menu]);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
 
 // Display programs list
 //
-void LCD_display_programs(){
-//lcd_program
+void LCD_display_programs(int action){
+static int sel_prg=0;  // this is a bit unsafe to remember program number, since it may change over HTTP - when someone will erase/upload. But doing it otherwise is to complex comparing to propability
+byte chh,y,x=2,cnt=0;
+char msg[40];
+bool drawn=false;
+String tmp_fname;
+File file;
 
+  LCD_State=PROGRAM_LIST;
+  File dir = SPIFFS.open(PRG_DIRECTORY);
+  if(!dir){
+    DBG Serial.printf("Failed to open %s for listing\n",PRG_DIRECTORY);
+    return;
+  }
   u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_profont10_tf);
-  u8g2.drawStr(25,30,"aa");
+  u8g2.setFont(u8g2_font_6x10_tr);
+  y=chh=u8g2.getMaxCharHeight();
+  u8g2.setFontPosBottom();
+
+  DBG Serial.printf("Rotate programs. Action %d, sel_prg %d\n",action,sel_prg);
+  if(sel_prg>0 && action==-1){
+    sel_prg--;  // it's safe to scroll back, will see later if we can scroll forward
+    action=0;
+    DBG Serial.printf("\t\tmoved backward. Action %d, sel_prg %d\n",action,sel_prg);
+  }
+  
+  while((file = dir.openNextFile()) && y<SCREEN_H) {  // if we are outisde screen height - brake
+    // List directory
+    tmp_fname=file.name();
+    
+    tmp_fname=tmp_fname.substring(sizeof(PRG_DIRECTORY));   // remote path from the name
+    if(tmp_fname=="index.html") continue;             // If this is index.html - skip
+
+    if(action==1 && cnt==sel_prg+1){
+      DBG Serial.printf("\t\tmoved forward. Action %d, old sel_prg %d, new sel_prg %d\n",action,sel_prg,cnt);
+      sel_prg=cnt;  // We moved forward in menu
+      action=0;
+    }
+    
+    sprintf(msg,"%-15s %3db",tmp_fname.c_str(),file.size());
+    
+    if(cnt==sel_prg && action!=1){
+      u8g2.drawStr(x,y,msg);
+      u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
+      drawn=true;
+    }else u8g2.drawStr(x,y,msg);
+
+    y+=chh;
+    cnt++;
+  }
+
+  if(!drawn){ // If we havent drawn a frame around program name because we moved outside the file list - do it now (this will happend always on the last file selected)
+    y-=chh; // rewind :)
+    u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
+  }
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
@@ -111,9 +160,9 @@ void LCD_display_info(){
 byte chh,y,x=2;
 char msg[40];
 
-  lcd_state=OTHER;
+  LCD_State=OTHER;
   u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_profont10_tf);
+  u8g2.setFont(u8g2_font_5x8_tr);
   y=chh=u8g2.getMaxCharHeight();
   
   sprintf(msg,"WiFi status: %d",WiFi.isConnected());
@@ -124,7 +173,7 @@ char msg[40];
     sprintf(msg,"WiFi IP: %s",WiFi.localIP().toString().c_str());
     u8g2.drawStr(x,y+=chh,msg);
   }
-  sprintf(msg,"Max prg. size: %d",max_prog_size);
+  sprintf(msg,"Max prg. size: %d",MAX_Prog_Size);
   u8g2.drawStr(x,y+=chh,msg);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
@@ -133,7 +182,7 @@ char msg[40];
 // Display about screen
 //
 void LCD_display_about(){
-  lcd_state=OTHER;    // update what are we showing on screen
+  LCD_State=OTHER;    // update what are we showing on screen
   u8g2.clearBuffer();
   u8g2.setFont(u8g2_font_courB08_tf);
   u8g2.drawStr(28,15,pver);

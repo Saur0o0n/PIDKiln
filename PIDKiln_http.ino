@@ -8,7 +8,7 @@
 
 // Other variables
 //
-
+String template_str;  // Stores template pareser output
 
 
 // Template preprocessor for preferences - preferences.html
@@ -143,6 +143,7 @@ template_str=String();
 
   if(!dir){
     DBG Serial.printf("Failed to open %s for listing\n",PRG_DIRECTORY);
+    return;
   }
   // Copy index head
   if(tmpf=SPIFFS.open("/prog_beg.txt", "r")){
@@ -153,7 +154,6 @@ template_str=String();
     tmpf.close();
   }
 
-  //Serial.printf("Plik kruwa %s\n",file.name());
   while(file = dir.openNextFile()) {
     // List directory
     tmp=file.name();
@@ -220,10 +220,10 @@ String tmp=PRG_DIRECTORY;
     return;
   }
 
-  // Checking how much has been uploaded - if more then max_prog_size - abort
-  if(len+index>max_prog_size){
+  // Checking how much has been uploaded - if more then MAX_Prog_Size - abort
+  if(len+index>MAX_Prog_Size){
      DBG Serial.println("Uploaded file too large! Aborting");
-     request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(max_prog_size)+"<br><br><a href=/>Return to main view</a></body></html");
+     request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_Size)+"<br><br><a href=/>Return to main view</a></body></html");
      abort=true;
      return;
   }
