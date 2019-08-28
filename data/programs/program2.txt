@@ -1,6 +1,6 @@
 # Program 2 - Second program description
 # Some additional informations
 #
-10;20;200
-99;30;100
+10:20:200
+99:30:100
 

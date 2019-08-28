@@ -12,6 +12,9 @@
 #include <Wire.h>
 #endif
 
+#define FONT6 u8g2_font_5x8_tr
+#define FONT7 u8g2_font_6x10_tr
+#define FONT8 u8g2_font_bitcasual_tr
 
 // Other variables
 //
@@ -49,7 +52,7 @@ char sname[40];
   LCD_State=MAIN_VIEW;
   u8g2.clearBuffer();          // clear the internal memory
   sprintf(sname,"Main screen %d",(int)LCD_Main);
-  u8g2.setFont(u8g2_font_courB08_tf);
+  u8g2.setFont(FONT8);
   u8g2.drawStr(25,30,sname);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
@@ -62,33 +65,34 @@ char menu[40];
 int m_startpos=LCD_Menu;
 byte chh,center=5;
 
-
-  DBG Serial.printf("Entering menu (%d) display: %s\n",LCD_Menu,Menu_Namess[LCD_Menu]);
+  LCD_State=MENU;
+  DBG Serial.printf("Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
   u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_courB08_tf);
+  u8g2.setFont(FONT7);
+  u8g2.setFontPosBaseline();
   chh=u8g2.getMaxCharHeight();
   center=floor((SCREEN_H-(chh+MENU_SPACE)*MENU_LINES)/2); // how much we have to move Y to be on the middle with all menu
   DBG Serial.printf("In menu we can print %d lines, with %dpx space, and char height %d\n",MENU_LINES,MENU_SPACE,chh);
   
   if(LCD_Menu>MENU_MIDDLE) m_startpos=LCD_Menu-(MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from LCD_Menu - MENU_MIDDLE-1
   else if(LCD_Menu<=MENU_MIDDLE) m_startpos=LCD_Menu-MENU_MIDDLE+1;  // if current menu pos < middle part - start
-  DBG Serial.printf(" Start pos is %d, choosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
+  DBG Serial.printf(" Start pos is %d, chosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
   
   for(int a=1; a<=MENU_LINES; a++){
     if(a==MENU_MIDDLE){   // reverse colors if we print middle part o menu
       u8g2.setDrawColor(1); /* color 1 for the box */
       DBG Serial.printf("x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+MENU_SPACE+center, SCREEN_W , chh+MENU_SPACE);
-      u8g2.drawBox(0, (a-1)*chh+MENU_SPACE+center+1, SCREEN_W , chh+MENU_SPACE+1);
+      u8g2.drawBox(0, (a-1)*chh+MENU_SPACE+center+1, SCREEN_W , chh+MENU_SPACE);
       u8g2.setDrawColor(0);
     }
     if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,"....");
     else{
-      u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,Menu_Namess[m_startpos]);
+      u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,Menu_Names[m_startpos]);
     }
     u8g2.setDrawColor(1);
     m_startpos++;
   }
-  //u8g2.drawStr(25,30,Menu_Namess[LCD_Menu]);
+  //u8g2.drawStr(25,30,Menu_Names[LCD_Menu]);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
@@ -109,8 +113,8 @@ File file;
     DBG Serial.printf("Failed to open %s for listing\n",PRG_DIRECTORY);
     return;
   }
-  u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_6x10_tr);
+  u8g2.clearBuffer();
+  u8g2.setFont(FONT7);
   y=chh=u8g2.getMaxCharHeight();
   u8g2.setFontPosBottom();
 
@@ -121,12 +125,12 @@ File file;
     DBG Serial.printf("\t\tmoved backward. Action %d, sel_prg %d\n",action,sel_prg);
   }
   
-  while((file = dir.openNextFile()) && y<SCREEN_H) {  // if we are outisde screen height - brake
+  while((file = dir.openNextFile()) && y<SCREEN_H) {  // if we are outside screen height - brake
     // List directory
     tmp_fname=file.name();
     
-    tmp_fname=tmp_fname.substring(sizeof(PRG_DIRECTORY));   // remote path from the name
-    if(tmp_fname=="index.html") continue;             // If this is index.html - skip
+    tmp_fname=tmp_fname.substring(sizeof(PRG_DIRECTORY)); // remove path from the name
+    if(tmp_fname=="index.html") continue;                 // If this is index.html - skip
 
     if(action==1 && cnt==sel_prg+1){
       DBG Serial.printf("\t\tmoved forward. Action %d, old sel_prg %d, new sel_prg %d\n",action,sel_prg,cnt);
@@ -135,10 +139,11 @@ File file;
     }
     
     sprintf(msg,"%-15s %3db",tmp_fname.c_str(),file.size());
-    
+
     if(cnt==sel_prg && action!=1){
       u8g2.drawStr(x,y,msg);
       u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
+      Selected_Program=tmp_fname;     // Assign selected program to global var.
       drawn=true;
     }else u8g2.drawStr(x,y,msg);
 
@@ -146,13 +151,45 @@ File file;
     cnt++;
   }
 
-  if(!drawn){ // If we havent drawn a frame around program name because we moved outside the file list - do it now (this will happend always on the last file selected)
+  if(!drawn){ // If we haven't drawn a frame around program name because we moved outside the file list - do it now (this will happen always on the last file selected)
     y-=chh; // rewind :)
     u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
+    Selected_Program=tmp_fname;     // Assign selected program to global var.
   }
-  u8g2.sendBuffer();          // transfer internal memory to the display 
+  u8g2.sendBuffer();
 }
 
+
+// Display single program info and options
+//
+void LCD_Display_program(){
+char file_path[32];
+byte x=0,y,chh,lnw=0;
+char msg[40];
+
+  LCD_State=PROGRAM_SHOW;
+  DBG Serial.printf("Show single program: %s\n",Selected_Program.c_str());
+  if(!Selected_Program.length()) return;  // program is not selected
+  sprintf(file_path,"%s/%s",PRG_Directory,Selected_Program.c_str());
+  DBG Serial.printf("\tprogram path: %s\n",file_path);
+  if(File file = SPIFFS.open(file_path,"r")){
+    u8g2.clearBuffer();
+    u8g2.setFont(FONT6);
+    y=chh=u8g2.getMaxCharHeight();
+    lnw=floor(SCREEN_W/u8g2.getMaxCharWidth()); // max chars in line
+    sprintf(msg,"Name: %s",Selected_Program.c_str());
+    u8g2.drawStr(x,y,msg);
+    sprintf(msg,"Size: %d b",file.size());
+    if(load_program()){
+      String desc=Program_desc.substring(0,lnw);
+      u8g2.drawStr(x,y+=chh,desc.c_str());
+    }else{
+      u8g2.drawStr(x,y+=chh,"Program load failed!");
+    }
+    file.close();
+    u8g2.sendBuffer();
+  }
+}
 
 // Display information screen
 //
@@ -162,7 +199,7 @@ char msg[40];
 
   LCD_State=OTHER;
   u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_5x8_tr);
+  u8g2.setFont(FONT6);
   y=chh=u8g2.getMaxCharHeight();
   
   sprintf(msg,"WiFi status: %d",WiFi.isConnected());
@@ -184,10 +221,10 @@ char msg[40];
 void LCD_display_about(){
   LCD_State=OTHER;    // update what are we showing on screen
   u8g2.clearBuffer();
-  u8g2.setFont(u8g2_font_courB08_tf);
+  u8g2.setFont(FONT8);
   u8g2.drawStr(28,15,pver);
   u8g2.drawStr(36,30,pdate);
-  u8g2.setFont(u8g2_font_profont10_tf);
+  u8g2.setFont(FONT6);
   u8g2.drawStr(8,45,"Web page:");
   u8g2.drawStr(8,55,"adrian.siemieniak.net");
   u8g2.drawFrame(2,2,123,59);
@@ -218,7 +255,7 @@ void setup_lcd(void) {
   u8g2.begin();
   
   u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_ncenB08_tr);
+  u8g2.setFont(FONT8);
   u8g2.drawStr(25,30,pver);
   u8g2.drawStr(38,45,"starting...");
   u8g2.drawFrame(2,2,123,59);

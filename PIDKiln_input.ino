@@ -35,23 +35,17 @@ void pressed_menu(){
 // What to do if button pressed in main view
 //
 void pressed_main_view(){
-  
-}
-
-
-// What to do if button pressed in program list
-//
-void pressed_program_list(){
-  
+  DBG Serial.printf(" Single press in main view\n");
 }
 
 
 // Just redirect pressed button to separate functions
 //
-void button_pressed(){
+void button_Press(){
+  DBG Serial.printf(" Short press. Current view %d\n",(int)LCD_State);
   if(LCD_State==MENU) pressed_menu();
-  else if(LCD_State=MAIN_VIEW) pressed_main_view();
-  else if(LCD_State=PROGRAM_LIST) pressed_program_list();
+  else if(LCD_State==MAIN_VIEW) pressed_main_view();
+  else if(LCD_State==PROGRAM_LIST) LCD_Display_program();
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
@@ -132,7 +126,7 @@ void input_loop() {
       if(digitalRead(ENCODER0_BUTTON)==LOW) return; // Button is still pressed - skipp, perhaps it's a long press
       if(encoderButton+Long_Press>=millis()){ // quick press
         DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
-        button_pressed();
+        button_Press();
       }else{  // long press
         DBG Serial.printf("Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
         button_Long_Press();
@@ -154,7 +148,7 @@ void handleInterrupt() {
 
   if(digitalRead(ENCODER0_BUTTON)==LOW){
       encoderButton=millis();
-  }else{ // Those two events can be simultanouse - but this is also ok, usualy user does not press and turn
+  }else{ // Those two events can be simultaneous - but this is also ok, usually user does not press and turn
     int MSB = digitalRead(ENCODER0_PINA); //MSB = most significant bit
     int LSB = digitalRead(ENCODER0_PINB); //LSB = least significant bit
     int encoded = (MSB << 1) |LSB; //converting the 2 pin value to single number

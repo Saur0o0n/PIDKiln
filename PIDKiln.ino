@@ -128,7 +128,7 @@ void setup() {
       load_msg(lip);
       setup_webserver(); // Setup function for Webserver from PIDKiln_http.ino
     }
-  }else load_msg("       -- Started! --");
+  }else load_msg("  -- Started! --");
   
   generate_index();
 }

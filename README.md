@@ -14,7 +14,7 @@ Kind of optional:
 - thermistors
 - perhaps a kiln :)
 
-My total expenses for this set was around 40$
+Total expenses for this set should be around 30-40$
 - ESP32 board - 14-15$ if exactly like mine, but other ESP32 you can bought for 6$+
 - MAX31855 board - 2$
 - k-type thermocouple - 1$-10$ - depending on max temperature

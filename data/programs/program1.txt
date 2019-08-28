@@ -1,8 +1,8 @@
 # Program 1 - Full description
 # additional notes
-# target temperature in Celcius;minutes we achieve this temperature;dweling time
-95;100;120
-134;20;30
-360;180;120
-600;200;30
+# target temperature in Celcius:minutes we achieve this temperature:dweling time
+95:100:120
+134:20:30
+360:180:120
+600:200:30
 
