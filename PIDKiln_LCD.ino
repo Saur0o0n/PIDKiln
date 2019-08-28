@@ -172,21 +172,29 @@ char msg[40];
   if(!Selected_Program.length()) return;  // program is not selected
   sprintf(file_path,"%s/%s",PRG_Directory,Selected_Program.c_str());
   DBG Serial.printf("\tprogram path: %s\n",file_path);
-  if(File file = SPIFFS.open(file_path,"r")){
+  if(SPIFFS.exists(file_path)){
     u8g2.clearBuffer();
     u8g2.setFont(FONT6);
     y=chh=u8g2.getMaxCharHeight();
     lnw=floor(SCREEN_W/u8g2.getMaxCharWidth()); // max chars in line
     sprintf(msg,"Name: %s",Selected_Program.c_str());
     u8g2.drawStr(x,y,msg);
-    sprintf(msg,"Size: %d b",file.size());
     if(load_program()){
+      u8g2.drawStr(x,y+=chh,"Description:");
       String desc=Program_desc.substring(0,lnw);
       u8g2.drawStr(x,y+=chh,desc.c_str());
     }else{
       u8g2.drawStr(x,y+=chh,"Program load failed!");
     }
-    file.close();
+    unsigned int max_t=0,total_t=0;
+    for(int a=0;a<Program_size;a++){
+      if(Program[a].temp>max_t) max_t=Program[a].temp;
+      total_t+=Program[a].togo+Program[a].dwell;
+    }
+    sprintf(msg," Max temperature: %dC",max_t);
+    u8g2.drawStr(x,y+=chh,msg);
+    sprintf(msg," Total time: %uh %dm",total_t/60,total_t%60);
+    u8g2.drawStr(x,y+=chh,msg);
     u8g2.sendBuffer();
   }
 }

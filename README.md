@@ -82,3 +82,12 @@ GND	-> GND
 
 ESP32	to thermistor
 
+## Installation
+
+- Assembly hardware, as specified above.
+- Clone git into the Arduino user programs directory (on Linux "/home/username/Arduino/").
+- You have to already have installed ESP32 framework - if don't, do it now (https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md).
+- Don't forget about ESP32FS plugin (drop it to "/home/username/Arduino/tools")
+- Open PIDKiln.ino and edit your WiFi credentials (if you want to use). Compile and upload. Upload data with ESP32FS plugin (Menu->Tools->ESP32 Sketch Data Upload)
+
+

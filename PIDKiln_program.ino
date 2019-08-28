@@ -9,17 +9,35 @@
 
 // Load program from disk to memory - validate it
 //
-boolean add_program_line(String& dupa){
-unsigned int p_temp=0,p_time=0,p_dwell=0;
-char p_line[16];
+boolean add_program_line(String& linia){
+unsigned int prg[3];
+byte a=0,multi=1,pos=2;
 
-
-  // Looking for linex line dddd:dddd:dddd (temperature:time in minutes:time in minutes) - assume max 9999:9999:9999
-  DBG Serial.printf(" Sanitizing line: '%s'\n",dupa.c_str());
-  for(byte a=0;a<sizeof(p_line);a++){
-    
+  // Looking for line dddd:dddd:dddd (temperature:time in minutes:time in minutes) - assume max 1350:9999:9999
+  char p_line[15];
+  strcpy(p_line,linia.c_str());
+  DBG Serial.printf(" Sanitizing line: '%s'\n",p_line);
+  a=linia.length(); // going back to front
+  prg[2]=0;prg[1]=prg[0]=0;
+  while(a--){
+    if(p_line[a]=='\0') continue;
+    DBG Serial.printf(" %d(%d)",(byte)p_line[a],a);
+    if(p_line[a]<48 || p_line[a]>58) return false;  // if this are not numbers or : - exit  
+    if(p_line[a]==58){ // separator :
+      multi=1;
+      pos--;
+    }else{
+//      DBG Serial.printf("pos: %d, multi: %d, prg[%d]: %d\n",pos,multi,pos,prg[pos]);
+      prg[pos]+=multi*(p_line[a]-48);
+      multi*=10;
+    }
   }
-  Program_size++;  
+  Program[Program_size].temp=prg[0];
+  Program[Program_size].togo=prg[1];
+  Program[Program_size].dwell=prg[2];
+  DBG Serial.printf("\n Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
+  Program_size++;
+  return true;
 }
 
 boolean load_program(){

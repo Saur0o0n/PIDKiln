@@ -38,7 +38,7 @@ byte LCD_Program=0;
 String Selected_Program="";   // currently selected program name to open/edit/run
 struct PROGRAM {
   unsigned int temp;
-  unsigned int minutes;
+  unsigned int togo;
   unsigned int dwell;
 };
 PROGRAM Program[40];  // We could use here malloc() and pointers, but since it's not recommended in Arduino and 3*integer is the same as pointers...
