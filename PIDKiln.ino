@@ -30,10 +30,13 @@ const char* password = "";
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
 const unsigned int long_press=700; // long press button takes about 0,9 second
 
+const byte wifi_tries=5;    // how many times (1 per second) tries to connect to wifi before failing
+
 /* 
 ** Some definitions - you should not edit this - except DEBUG if you wish 
 */
-#define DEBUG true
+//#define DEBUG true
+#define DEBUG false
 
 // Other variables
 //
@@ -93,23 +96,38 @@ void setup() {
     return;
   }
 
-
+  DBG Serial.printf("Size of SSID %d",strlen(ssid));
+  
   // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
+  if(strlen(ssid)){
+    bool wifi_failed=true;
+    
+    WiFi.begin(ssid, password);
+    
     load_msg("connecting WiFi..");
     DBG Serial.println("Connecting to WiFi...");
-  }
+    
+    for(byte a=0; a<wifi_tries; a++){
+      if (WiFi.status() == WL_CONNECTED){
+        wifi_failed=false;
+        continue;
+      }
+      delay(1000);
+    }
 
-  // Print ESP32 Local IP Address
-  DBG Serial.println(WiFi.localIP());
-  char lip[20];
-  sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
-  load_msg(lip);
-  // Setup function for Webserver from PIDKiln_http.ino
-  setup_webserver();
-
+    if(wifi_failed){  // if we failed to connect, stop trying
+      WiFi.disconnect();
+      load_msg("WiFi con. failed.");
+      DBG Serial.println("WiFi connection failed");
+    }else{
+      DBG Serial.println(WiFi.localIP()); // Print ESP32 Local IP Address
+      char lip[20];
+      sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
+      load_msg(lip);
+      setup_webserver(); // Setup function for Webserver from PIDKiln_http.ino
+    }
+  }else load_msg("       -- Started! --");
+  
   generate_index();
 }
 

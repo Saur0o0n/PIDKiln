@@ -21,16 +21,15 @@ static byte MENU_LINES=3;   // how many menu lines should be print
 static byte MENU_SPACE=2;   // pixels spaces
 static byte MENU_MIDDLE=2;  // middle of the menu, where choosing will be possible
 
-//
-//U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ 18, /* data=*/ 23, /* CS=*/ 5, /* reset=*/ 4);
-U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ 5, /* reset=*/ 4);
+#define LCD_RESET 4   // RST on LCD
+#define LCD_CS 5      // RS on LCD
+#define LCD_CLOCK 18  // E on LCD
+#define LCD_DATA 23   // R/W on LCD
 
-//U8G2_ST7920_128X64_F_8080 u8g2(U8G2_R0, 8, 9, 10, 11, 4, 5, 6, 7, /*enable=*/ 18 /* A4 */, /*cs=*/ U8X8_PIN_NONE, /*dc/rs=*/ 17 /* A3 */, /*reset=*/ 15 /* A1 */);  // Remember to set R/W to 0 
-//U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 18 /* A4 */ , /* data=*/ 16 /* A2 */, /* CS=*/ 17 /* A3 */, /* reset=*/ U8X8_PIN_NONE);
-//U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 13, /* data=*/ 11, /* CS=*/ 10, /* reset=*/ 8);
-//U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 14, /* data=*/ 13, /* CS=*/ 15, /* reset=*/ 16); // Feather HUZZAH ESP8266, E=clock=14, RW=data=13, RS=CS
-//U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R0, /* CS=*/ 10, /* reset=*/ 8);
-//U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R0, /* CS=*/ 15, /* reset=*/ 16); // Feather HUZZAH ESP8266, E=clock=14, RW=data=13, RS=CS
+// You can switch hardware of software SPI interface to LCD. HW can be up to x10 faster - but requires special pins (and has some errors for me on 5V).
+U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_DATA, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
+//U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
+
 
 // Write short messages during starting
 void load_msg(char msg[20]){
@@ -41,17 +40,20 @@ void load_msg(char msg[20]){
   u8g2.sendBuffer();
 }
 
+
 // Display main screeen(s)
 //
-void LCD_display_main(LCD_MAIN_View screen){
+void LCD_display_main(){
 char sname[40];
 
+  lcd_state=MAIN_VIEW;
   u8g2.clearBuffer();          // clear the internal memory
-  sprintf(sname,"Main screen %d",(int)screen);
+  sprintf(sname,"Main screen %d",(int)lcd_main);
   u8g2.setFont(u8g2_font_courB08_tf);
   u8g2.drawStr(25,30,sname);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
+
 
 // Display menu
 //
@@ -90,21 +92,82 @@ byte chh,center=5;
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
-// Display program list
+
+// Display programs list
 //
 void LCD_display_programs(){
 //lcd_program
 
   u8g2.clearBuffer();          // clear the internal memory
-  u8g2.setFont(u8g2_font_courB08_tf);
+  u8g2.setFont(u8g2_font_profont10_tf);
   u8g2.drawStr(25,30,"aa");
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
+
+// Display information screen
+//
+void LCD_display_info(){
+byte chh,y,x=2;
+char msg[40];
+
+  lcd_state=OTHER;
+  u8g2.clearBuffer();          // clear the internal memory
+  u8g2.setFont(u8g2_font_profont10_tf);
+  y=chh=u8g2.getMaxCharHeight();
+  
+  sprintf(msg,"WiFi status: %d",WiFi.isConnected());
+  u8g2.drawStr(x,y,msg);
+  sprintf(msg,"WiFi ssid: %s",ssid);
+  u8g2.drawStr(x,y+=chh,msg);
+  if(WiFi.isConnected()){
+    sprintf(msg,"WiFi IP: %s",WiFi.localIP().toString().c_str());
+    u8g2.drawStr(x,y+=chh,msg);
+  }
+  sprintf(msg,"Max prg. size: %d",max_prog_size);
+  u8g2.drawStr(x,y+=chh,msg);
+  u8g2.sendBuffer();          // transfer internal memory to the display 
+}
+
+
+// Display about screen
+//
+void LCD_display_about(){
+  lcd_state=OTHER;    // update what are we showing on screen
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_courB08_tf);
+  u8g2.drawStr(28,15,pver);
+  u8g2.drawStr(36,30,pdate);
+  u8g2.setFont(u8g2_font_profont10_tf);
+  u8g2.drawStr(8,45,"Web page:");
+  u8g2.drawStr(8,55,"adrian.siemieniak.net");
+  u8g2.drawFrame(2,2,123,59);
+  u8g2.drawFrame(0,0,127,63);
+  u8g2.sendBuffer();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Setup LCD screen
+//
 void setup_lcd(void) {
   
   u8g2.begin();
+  
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(u8g2_font_ncenB08_tr);
   u8g2.drawStr(25,30,pver);
