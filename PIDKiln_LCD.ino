@@ -164,7 +164,7 @@ File file;
 //
 void LCD_Display_program(){
 char file_path[32];
-byte x=0,y,chh,lnw=0;
+byte x=0,y,chh,lnw=0,err=0;
 char msg[40];
 
   LCD_State=PROGRAM_SHOW;
@@ -179,17 +179,26 @@ char msg[40];
     lnw=floor(SCREEN_W/u8g2.getMaxCharWidth()); // max chars in line
     sprintf(msg,"Name: %s",Selected_Program.c_str());
     u8g2.drawStr(x,y,msg);
-    if(load_program()){
-      u8g2.drawStr(x,y+=chh,"Description:");
+    if(err=load_program()){     // loading program - if >0 - failed with error - see description in PIDKiln.h
+      u8g2.drawStr(x,y+=chh,"Program load failed!");
+      sprintf(msg,"Error: %d",err);
+      u8g2.drawStr(x,y+=chh,msg);
+      u8g2.sendBuffer();
+      return;
+    }
+    u8g2.drawStr(x,y+=chh,"Description:");
+    if(Program_desc.length()>lnw){    // If program description is longer then line width on display - cut it in two
       String desc=Program_desc.substring(0,lnw);
       u8g2.drawStr(x,y+=chh,desc.c_str());
-    }else{
-      u8g2.drawStr(x,y+=chh,"Program load failed!");
-    }
+      desc=Program_desc.substring(lnw,2*lnw);
+      u8g2.drawStr(x,y+=chh,desc.c_str());
+    }else u8g2.drawStr(x,y+=chh,Program_desc.c_str());
+    y+=2; // small space
     unsigned int max_t=0,total_t=0;
     for(int a=0;a<Program_size;a++){
       if(Program[a].temp>max_t) max_t=Program[a].temp;
       total_t+=Program[a].togo+Program[a].dwell;
+      DBG Serial.printf(" PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
     }
     sprintf(msg," Max temperature: %dC",max_t);
     u8g2.drawStr(x,y+=chh,msg);
@@ -198,6 +207,7 @@ char msg[40];
     u8g2.sendBuffer();
   }
 }
+
 
 // Display information screen
 //

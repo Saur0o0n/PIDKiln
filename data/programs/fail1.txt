@@ -1,0 +1,8 @@
+# Short description of fail1
+# Additional notes: this program is to test failure
+# target temperature in Celcius:minutes we achieve this temperature:dweling time
+95:100:120
+134:20:30
+1360:180:120 # This will fail - to big temperature
+600:200:30
+

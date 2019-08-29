@@ -1,6 +1,7 @@
-# Program 1 - Full description
-# additional notes
-# target temperature in Celcius:minutes to achieve this temperature:dwelling time
+# Short, clear description of the program.
+# Full description on as many lines you wish -
+#   just remember about default program limit - 10KiB
+# Program parameters target temperature in Celcius:minutes to achieve this temperature:dwelling time in minutes
 95:30:20
 134:20:30
 # You can add as many comments as you wish
@@ -8,4 +9,3 @@
 600:100:30 # You can even comment each line
 970:120:50
 600:90:0 # But in program you can use only numbers and : sign. Max value for temperature is 1350C
-

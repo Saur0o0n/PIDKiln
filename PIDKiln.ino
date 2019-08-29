@@ -18,13 +18,16 @@
 ** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
 ** Please set them up before uploading.
 */
-const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program
-
 const char* ssid = "";  // Replace with your network credentials
 const char* password = "";
 
-#define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
+#define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW FROM HERE - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
+#define DEBUG true
+//#define DEBUG false
+/* 
+** Some definitions - usually you should not edit this, but you may want to
+*/
 #define ENCODER0_PINA    35
 #define ENCODER0_PINB    34
 #define ENCODER0_BUTTON  32
@@ -34,11 +37,8 @@ const unsigned int Long_Press=500; // long press button takes about 0,9 second
 
 const byte WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 
-/* 
-** Some definitions - you should not edit this - except DEBUG if you wish 
-*/
-#define DEBUG true
-//#define DEBUG false
+const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program
+const int MAX_Temp=1350;        // maximum temperature for kiln/programs
 
 // Other variables
 //

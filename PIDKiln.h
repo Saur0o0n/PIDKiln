@@ -41,10 +41,20 @@ struct PROGRAM {
   unsigned int togo;
   unsigned int dwell;
 };
-PROGRAM Program[40];  // We could use here malloc() and pointers, but since it's not recommended in Arduino and 3*integer is the same as pointers...
+// maxinum number of program lines (this goes to memory - so be carefull)
+#define MAX_PRG_LENGTH 40
+
+PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() and pointers, but since it's not recommended in Arduino and 3*integer is the same as pointers...
 byte Program_size=0;  // number of actual entries in Program
 String Program_desc;  // First line of the program file - it's description
 
+/* Program errors:
+** 1 - failed to load file
+** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
+** 3 - not allowed character in program (only allowed characters are numbers and sperator ":")
+** 4 - exceeded max temperature defined in MAX_Temp
+*/
+ 
 /* 
 ** Some definitions - you should not edit this
 */

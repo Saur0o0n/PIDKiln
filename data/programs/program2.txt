@@ -1,6 +1,7 @@
-# Program 2 - Second program description
-# Some additional informations
-#
+# Second program short description
+# Some additional informations about the second program
+# .....
 10:20:200
 99:30:100
-
+1340:200:10
+700:120:100
