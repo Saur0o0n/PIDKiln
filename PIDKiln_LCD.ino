@@ -81,14 +81,15 @@ byte chh,center=5;
       u8g2.drawBox(0, (a-1)*chh+MENU_SPACE+center+1, SCREEN_W , chh+MENU_SPACE);
       u8g2.setDrawColor(0);
     }
-    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,"....");
+    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center," . . . . ");
     else{
       u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,Menu_Names[m_startpos]);
     }
     u8g2.setDrawColor(1);
     m_startpos++;
   }
-  //u8g2.drawStr(25,30,Menu_Names[LCD_Menu]);
+  
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
@@ -97,7 +98,7 @@ byte chh,center=5;
 // action = direction of rotation
 void LCD_display_programs(int action=0){
 static int sel_prg=0;  // this is a bit unsafe to remember program number, since it may change over HTTP - when someone will erase/upload. But doing it otherwise is to complex comparing to propability
-byte chh,y,x=2,cnt=0;
+byte chh,y=2,x=2,cnt=0;
 char msg[MAX_CHARS_PL];
 bool drawn=false;
 String tmp_fname;
@@ -150,6 +151,8 @@ File file;
     u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
     Selected_Program=tmp_fname;     // Assign selected program to global var.
   }
+  
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();
 }
 
@@ -241,7 +244,9 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     return_LCD_string(msg,rest,-4);
     u8g2.drawStr(x,y,msg);
     u8g2.setDrawColor(1);
-    
+
+    y++; // add some space before description or error
+       
     if(!load_prg && (err=load_program())){     // loading program - if >0 - failed with error - see description in PIDKiln.h
       u8g2.drawStr(x,y+=chh,"Program load failed!");
       sprintf(msg,"Error: %d",err);
@@ -251,7 +256,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
       return;
     }
 
-    y++;
+ 
     strcpy(msg,Program_desc.c_str());   // Show program description - 3 lines max (no limit yet)
     while(return_LCD_string(msg,rest,-4)){
       u8g2.drawStr(x,y+=chh,msg);

@@ -41,9 +41,9 @@ byte LCD_Program=0;
 #define SCREEN_H 64
 #define MAX_CHARS_PL SCREEN_W/3  // char can have min. 3 points on screen
 
-static byte MENU_LINES=3;   // how many menu lines should be print
-static byte MENU_SPACE=2;   // pixels spaces
-static byte MENU_MIDDLE=2;  // middle of the menu, where choosing will be possible
+static byte MENU_LINES=5;   // how many menu lines should be print
+static byte MENU_SPACE=2;   // pixels spaces between lines
+static byte MENU_MIDDLE=3;  // middle of the menu, where choosing will be possible
 
 /*
 ** Kiln program variables
