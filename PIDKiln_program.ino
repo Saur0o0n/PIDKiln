@@ -48,11 +48,13 @@ int multi=1;
   Program[Program_size].temp=prg[0];
   Program[Program_size].togo=prg[1];
   Program[Program_size].dwell=prg[2];
-  DBG Serial.printf("\n Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
+  DBG Serial.printf("Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
   Program_size++;
   return 0;
 }
 
+// Load program in to the array in memory
+//
 byte load_program(){
 String line;
 byte err=0;
@@ -94,5 +96,4 @@ File prg;
     
     return 0;
   }return cleanup_program(1);
-  
 }

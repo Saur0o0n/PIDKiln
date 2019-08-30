@@ -37,7 +37,7 @@ const unsigned int Long_Press=450; // long press button takes about 0,9 second
 
 const byte WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 
-const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program
+const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 const int MAX_Temp=1350;        // maximum temperature for kiln/programs
 
 // Other variables
@@ -52,13 +52,13 @@ AsyncWebServer server(80);
 // Close cleanly file and delete file from SPIFFS
 //
 boolean delete_file(File &newFile){
+char filename[32];
  if(newFile){
-    char ntmp[sizeof(newFile.name())+1];
-    strcpy(ntmp,newFile.name());
+    strcpy(filename,newFile.name());
+    DBG Serial.printf("Deleting uploaded file: \"%s\"\n",filename);
     newFile.flush();
-    DBG Serial.printf("Deleting uploaded file: \"%s\"\n",ntmp);
     newFile.close();
-    if(SPIFFS.remove(ntmp)){
+    if(SPIFFS.remove(filename)){
       DBG Serial.println("Deleted!");
     }
     generate_index(); // Just in case user wanted to overwrite existing file
@@ -66,8 +66,8 @@ boolean delete_file(File &newFile){
  }else return false;
 }
 
-// Function check is uploaded file has only ASCII characters - this to be modified in future, perhaps to even narrow down.
-// Currently excluded are non printable characters, except new line and []. [] is excluded mostly for testing purpose.
+// Function check is uploaded file has only ASCII characters - this to be modified in future, perhaps to even narrowed down.
+// Currently excluded are non printable characters, except new line and [] brackets. [] are excluded mostly for testing purpose.
 boolean check_valid_chars(byte a){
   if(a==0 || a==9 || a==95) return true; // end of file, tab, _
   if(a==10 || a==13) return true; // new line - Line Feed, Carriage Return

@@ -61,6 +61,14 @@ PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() and pointers, bu
 byte Program_size=0;  // number of actual entries in Program
 String Program_desc;  // First line of the program file - it's description
 
+/*
+** Filesystem definintions
+*/
+
+#define MAX_FILENAME 30   // directory+name can be max 32 on SPIFFS
+#define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
+
+
 /* Program errors:
 ** 1 - failed to load file
 ** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why

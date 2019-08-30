@@ -81,7 +81,7 @@ byte chh,center=5;
       u8g2.drawBox(0, (a-1)*chh+MENU_SPACE+center+1, SCREEN_W , chh+MENU_SPACE);
       u8g2.setDrawColor(0);
     }
-    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center," . . . . ");
+    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center," ");  // just to add some top/bottom unselectable menu positions
     else{
       u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,Menu_Names[m_startpos]);
     }
@@ -227,7 +227,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
   }
     
   u8g2.setFontPosBottom();
-  DBG Serial.printf("Show single program (dir %d): %s\n",dir,Selected_Program.c_str());
+  DBG Serial.printf("Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Selected_Program.c_str());
   if(!Selected_Program.length()) return;  // program is not selected
   sprintf(file_path,"%s/%s",PRG_Directory,Selected_Program.c_str());
   DBG Serial.printf("\tprogram path: %s\n",file_path);
@@ -247,14 +247,15 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
 
     y++; // add some space before description or error
        
-    if(!load_prg && (err=load_program())){     // loading program - if >0 - failed with error - see description in PIDKiln.h
-      u8g2.drawStr(x,y+=chh,"Program load failed!");
-      sprintf(msg,"Error: %d",err);
-      u8g2.drawStr(x,y+=chh,msg);
-      u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
-      u8g2.sendBuffer();
-      return;
-    }
+    if(!load_prg)
+      if(err=load_program()){     // loading program - if >0 - failed with error - see description in PIDKiln.h
+        u8g2.drawStr(x,y+=chh,"Program load failed!");
+        sprintf(msg,"Error: %d",err);
+        u8g2.drawStr(x,y+=chh,msg);
+        u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+        u8g2.sendBuffer();
+        return;
+      }else prog_menu=0;
 
  
     strcpy(msg,Program_desc.c_str());   // Show program description - 3 lines max (no limit yet)
@@ -279,6 +280,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     u8g2.drawFrame(SCREEN_W/2-1,y-chh-1,SCREEN_W,chh+2);
     u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
 
+    DBG Serial.printf(" Creating program menu prog_menu:%d dir:%d\n",prog_menu,dir);
     prog_menu+=dir;
     if(prog_menu>=Prog_Menu_Size) prog_menu=Prog_Menu_Size-1;
     else if(prog_menu<0) prog_menu=0;

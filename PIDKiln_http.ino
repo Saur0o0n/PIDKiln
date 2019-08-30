@@ -124,6 +124,7 @@ String debug_board(const String& var){
  DBG return String();
 }
 
+
 // Generates kiln programs index - /programs/index.html
 //
 void generate_index(){
@@ -211,7 +212,7 @@ String tmp=PRG_DIRECTORY;
 
   tmp.concat("/");
   tmp.concat(filename.c_str());
-  
+
   // Abort file upload if file is too large or there are some not allowed characters
   if(abort){
     abort=false;
@@ -230,6 +231,13 @@ String tmp=PRG_DIRECTORY;
     
   if(!index){
     DBG Serial.printf("UploadStart: %s\n", tmp.c_str() );
+    // Abort if filename is too long (otherwise esp will not write file to SPIFFS silently!)
+    if(tmp.length()>MAX_FILENAME){
+      DBG Serial.println("Uploaded filename is too large! Aborting");
+      request->send(200, "text/html", "<html><body><h1>Filename is too long!</h1> Current limit is "+String(MAX_FILENAME)+"letters for directory and filename, so program name can be only "+String(MAX_PROGNAME)+" <br><br><a href=/>Return to main view</a></body></html");
+      abort=true;
+      return;
+    }
     if (newFile) newFile.close();
     newFile = SPIFFS.open( tmp.c_str(), "w");
   }
@@ -238,20 +246,41 @@ String tmp=PRG_DIRECTORY;
     if(!check_valid_chars(data[i])){ // Basic sanitization - check for allowed characters
       request->send(200, "text/html", "<html><body><h1>File contains not allowed character(s)!</h1> You can use all letters, numbers and basic symbols in ASCII code.<br><br><a href=/>Return to main view</a></body></html");
       delete_file(newFile);
+      DBG Serial.printf("Basic program check failed!\n");
       abort=true;
       return;
     }else newFile.write(data[i]);
   }
   if(final){
     newFile.flush();
+    DBG Serial.printf("UploadEnd: %s, %d B\n", newFile.name(), newFile.size());
     newFile.close();
-    DBG Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index+len);
     DBG Serial.printf("Checking uploaded program structure\n");
-    //validate_program();
-    generate_index();
-    request->redirect("/programs");
+    Selected_Program=filename; // assign uploaded program to "selected one" for LCD screen
+    byte err=load_program();
+    if(err){  // program did not validate correctly
+      request->send(200, "text/html", "<html><body><h1>Program stucture is incorrect!</h1> Error code "+String(err)+".<br><br><a href=/programs/>Return to programs</a></body></html");
+      delete_file(newFile=SPIFFS.open( tmp.c_str(), "r"));  // we need to open file again - to close it with already existing function
+      DBG Serial.printf("Detailed program check failed!\n");
+      abort=true; // this will never happend...
+      request->redirect("/programs");
+    }else{ // Everything went fine - commit file
+      generate_index();
+      request->redirect("/programs");
+    }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 void setup_webserver(void) {

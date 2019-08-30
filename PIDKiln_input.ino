@@ -99,7 +99,7 @@ void rotate(){
    DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
    LCD_display_programs(encoderValue);
  }else if(LCD_State==PROGRAM_SHOW){
-   LCD_Display_program_summary(encoderValue);
+   LCD_Display_program_summary(encoderValue,1);
  }
 }
 
