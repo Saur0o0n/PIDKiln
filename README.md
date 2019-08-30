@@ -3,6 +3,14 @@ Ceramic kiln PID controller based on Arduino/Weemos board.
 
 This is work in progress - but advanced enough to start uploading it.
 
+## Key features:
+- interface accessible both from LCD screen and WWW webpage
+- unlimited (only by storage) kiln program number, program limited to 10k size (but this is artificial limit - can be extended)
+- internal ESP storage for programs, data, logs (perhaps later SD - but I'm not sure yet)
+- online monitoring, program management, editing, graphs and kiln control
+- safety features build in (temperature run out protection, probe failure, SSR failure, kiln insulation failure)
+- simply cool and cheap (comparing to commercially available products) all in one solution
+
 ## Required components:
 - ESP32 board
 - MAX31855 breakout board
@@ -21,13 +29,6 @@ Total expenses for this set should be around 30-40$
 - LCD - 5$
 - encoder - 1$
 - SSR - 4$ + 4$ for radiator
-
-## Key features:
-- interface accessible both from LCD and WWW
-- internal ESP storage for programs, data, logs
-- online monitoring, program management, editing, graphs
-- safety features build in (temperature run out protection, probe failure, SSR failure, kiln failure)
-- simply cool and cheap (comparing to commercially available products)
 
 ## Why this configuration?
 
@@ -92,5 +93,10 @@ ESP32	to thermistor
 - Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'
 - Open PIDKiln.ino and edit your WiFi credentials (if you want to use). Compile and upload.
 - Upload sketch data (from data directory) to ESP32 SPIFFS with help of ESP32FS plugin (Menu->Tools->ESP32 Sketch Data Upload)
+
+## Documentation
+
+- Most of the documentation you can find on [PIDKiln github page](https://github.com/Saur0o0n/pidkiln) - so please use it
+- Some less formal updates information and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
 
 
