@@ -29,6 +29,7 @@ U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_
 
 
 // Write short messages during starting
+//
 void load_msg(char msg[MAX_CHARS_PL]){
   u8g2.setDrawColor(0);
   u8g2.drawBox(3, 31, 121, 22);
@@ -93,8 +94,8 @@ byte chh,center=5;
 
 
 // Display programs list
-//
-void LCD_display_programs(int action){
+// action = direction of rotation
+void LCD_display_programs(int action=0){
 static int sel_prg=0;  // this is a bit unsafe to remember program number, since it may change over HTTP - when someone will erase/upload. But doing it otherwise is to complex comparing to propability
 byte chh,y,x=2,cnt=0;
 char msg[MAX_CHARS_PL];
@@ -175,15 +176,55 @@ char out[MAX_CHARS_PL];
 }
 
 
-// Display single program info and options
+// Draw program display menu
 //
-void LCD_Display_program(){
+void LCD_Display_program_menu(byte pos=0){
+byte piece=0,y=0,chh;
+
+  // Prepare menu for program
+  piece=(SCREEN_W-1)/4;
+  chh=u8g2.getMaxCharHeight();
+  u8g2.setFontPosBottom();
+  u8g2.setDrawColor(1);
+  DBG Serial.printf("Creating prg menu. Size:%d Piece:%d Chh:%d\n",Prog_Menu_Size,piece,chh);
+      
+  for(byte a=0; a<Prog_Menu_Size; a++){
+    if(a==pos){
+      if(pos==Prog_Menu_Size-1) u8g2.drawBox(piece*a,SCREEN_H-chh-2, SCREEN_W-piece*a , chh+1); // dirty hack - becasue screen has 127 pixels, not 126 - it's not possible to divice it by 4 - so it wont go till the end of the screen
+      else u8g2.drawBox(piece*a,SCREEN_H-chh-2, piece+1 , chh+1);
+      u8g2.setDrawColor(0);
+      u8g2.drawStr(piece*a+2,SCREEN_H-1,Prog_Menu_Names[a]);
+      u8g2.setDrawColor(1);
+    }else{
+      u8g2.drawStr(piece*a+2,SCREEN_H-1,Prog_Menu_Names[a]);
+    }
+    DBG Serial.printf("Pos x:%d y:%d sel:%d text:%s\n",piece*a,SCREEN_H-1,pos,Prog_Menu_Names[a]);
+  }
+
+}
+
+
+// Display single program info and options
+// Dir - if dial rotated, load_prg - 0 = yes (if first time showing program (from program list)), 1 = no (rotating encoder), 2 = encoder pressed
+//
+void LCD_Display_program_summary(int dir=0,byte load_prg=0){
+static int prog_menu=0;
 char file_path[32];
 byte x=2,y=1,chh,err=0;
 char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should be malloc but ehh
 
   LCD_State=PROGRAM_SHOW;
-  DBG Serial.printf("Show single program: %s\n",Selected_Program.c_str());
+// If the button was pressed - redirect to other screen
+  if(load_prg==2){
+    if(prog_menu==0){ // exit - unload program, go to menu
+      cleanup_program();
+      LCD_display_programs();
+      return;
+    }
+  }
+    
+  u8g2.setFontPosBottom();
+  DBG Serial.printf("Show single program (dir %d): %s\n",dir,Selected_Program.c_str());
   if(!Selected_Program.length()) return;  // program is not selected
   sprintf(file_path,"%s/%s",PRG_Directory,Selected_Program.c_str());
   DBG Serial.printf("\tprogram path: %s\n",file_path);
@@ -193,22 +234,25 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     chh=u8g2.getMaxCharHeight();
     
     u8g2.setDrawColor(1); /* color 1 for the box */
-    u8g2.drawBox(0,y, SCREEN_W , chh+1);
+    u8g2.drawBox(0,0, SCREEN_W , chh+2);
     y+=chh;
     u8g2.setDrawColor(0);
     sprintf(msg,"Name: %s",Selected_Program.c_str());
     return_LCD_string(msg,rest,-4);
     u8g2.drawStr(x,y,msg);
     u8g2.setDrawColor(1);
-    if(err=load_program()){     // loading program - if >0 - failed with error - see description in PIDKiln.h
+    
+    if(!load_prg && (err=load_program())){     // loading program - if >0 - failed with error - see description in PIDKiln.h
       u8g2.drawStr(x,y+=chh,"Program load failed!");
       sprintf(msg,"Error: %d",err);
       u8g2.drawStr(x,y+=chh,msg);
+      u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
       u8g2.sendBuffer();
       return;
     }
-    u8g2.drawStr(x,y+=chh,"Description:");
-    strcpy(msg,Program_desc.c_str());
+
+    y++;
+    strcpy(msg,Program_desc.c_str());   // Show program description - 3 lines max (no limit yet)
     while(return_LCD_string(msg,rest,-4)){
       u8g2.drawStr(x,y+=chh,msg);
       strcpy(msg,rest);
@@ -216,18 +260,25 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     u8g2.drawStr(x,y+=chh,msg);
     
     y+=2; // +small space
-    unsigned int max_t=0,total_t=0;
+    unsigned int max_t=0,total_t=0;     // calculate max temp and total time
     for(int a=0;a<Program_size;a++){
       if(Program[a].temp>max_t) max_t=Program[a].temp;
       total_t+=Program[a].togo+Program[a].dwell;
       DBG Serial.printf(" PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
     }
-    sprintf(msg,"T max:%dC",max_t);
-    u8g2.drawStr(x,y=SCREEN_H-2*chh,msg);
+    sprintf(msg,"Tmax:%dC",max_t);
+    u8g2.drawStr(x,y=SCREEN_H-chh-2,msg);
     sprintf(msg,"Time:%uh %dm",total_t/60,total_t%60);
     u8g2.drawStr((int)SCREEN_W/2,y,msg);
-    u8g2.drawFrame(0,y-chh-1,SCREEN_W,chh+2);
+    u8g2.drawFrame(0,y-chh-1,SCREEN_W/2-1,chh+2);
+    u8g2.drawFrame(SCREEN_W/2-1,y-chh-1,SCREEN_W,chh+2);
     u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+
+    prog_menu+=dir;
+    if(prog_menu>=Prog_Menu_Size) prog_menu=Prog_Menu_Size-1;
+    else if(prog_menu<0) prog_menu=0;
+    
+    LCD_Display_program_menu(prog_menu);
     u8g2.sendBuffer();
   }
 }
@@ -296,7 +347,7 @@ void setup_lcd(void) {
   
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(FONT8);
-  u8g2.drawStr(25,30,pver);
+  u8g2.drawStr(27,30,pver);
   u8g2.drawStr(38,45,"starting...");
   u8g2.drawFrame(2,2,123,59);
   u8g2.drawFrame(0,0,127,63);

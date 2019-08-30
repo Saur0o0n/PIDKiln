@@ -32,6 +32,9 @@ LCD_MENU_Item_enum LCD_Menu=M_MAIN_VIEW; // menu items
 const char *Menu_Names[] = {"1) Main view","2) List programs","3) Information","4) About"};
 const byte Menu_Size=3;
 
+const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
+const byte Prog_Menu_Size=4;
+
 byte LCD_Program=0;
 
 #define SCREEN_W 128   // LCD screen width and height
@@ -84,3 +87,4 @@ const char* pdate = "2019.08.28";
 */
 
 void load_msg(char msg[MAX_CHARS_PL]);
+byte cleanup_program(byte err=0);

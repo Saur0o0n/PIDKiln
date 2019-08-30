@@ -45,7 +45,8 @@ void button_Press(){
   DBG Serial.printf(" Short press. Current view %d\n",(int)LCD_State);
   if(LCD_State==MENU) pressed_menu();
   else if(LCD_State==MAIN_VIEW) pressed_main_view();
-  else if(LCD_State==PROGRAM_LIST) LCD_Display_program();
+  else if(LCD_State==PROGRAM_LIST) LCD_Display_program_summary(0,0);
+  else if(LCD_State==PROGRAM_SHOW) LCD_Display_program_summary(0,2);
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
@@ -60,7 +61,7 @@ void button_Long_Press(){
     return;
   }else if(LCD_State==PROGRAM_SHOW){ // if we are showing program - go to program list
     LCD_State=PROGRAM_LIST;
-    LCD_display_programs(0); // LCD_Program is global
+    LCD_display_programs(); // LCD_Program is global
     return;
   }else{ // If we are in MAIN screen or Program list or in unknown area to to -> menu
     LCD_State=MENU; // switching to menu
@@ -98,7 +99,7 @@ void rotate(){
    DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
    LCD_display_programs(encoderValue);
  }else if(LCD_State==PROGRAM_SHOW){
-  
+   LCD_Display_program_summary(encoderValue);
  }
 }
 
