@@ -1,5 +1,7 @@
 
-// Global value of LCD screen/menu and menu position
+/* 
+** Global value of LCD screen/menu and menu position 
+*/
 typedef enum {
   MAIN_VIEW,    // group of main screens showing running program
   MENU,         // menu
@@ -31,6 +33,14 @@ const char *Menu_Names[] = {"1) Main view","2) List programs","3) Information","
 const byte Menu_Size=3;
 
 byte LCD_Program=0;
+
+#define SCREEN_W 128   // LCD screen width and height
+#define SCREEN_H 64
+#define MAX_CHARS_PL SCREEN_W/3  // char can have min. 3 points on screen
+
+static byte MENU_LINES=3;   // how many menu lines should be print
+static byte MENU_SPACE=2;   // pixels spaces
+static byte MENU_MIDDLE=2;  // middle of the menu, where choosing will be possible
 
 /*
 ** Kiln program variables
@@ -68,3 +78,9 @@ const char* PRG_Directory = PRG_DIRECTORY;
 
 const char* pver = "PIDKiln v0.2";
 const char* pdate = "2019.08.28";
+
+/*
+** Function defs
+*/
+
+void load_msg(char msg[MAX_CHARS_PL]);

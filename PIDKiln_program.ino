@@ -33,13 +33,13 @@ int multi=1;
   prg[2]=0;prg[1]=prg[0]=0;
   while(a--){
     if(p_line[a]=='\0') continue;
-    DBG Serial.printf(" %d(%d)\n",(byte)p_line[a],a);
+    //DBG Serial.printf(" %d(%d)\n",(byte)p_line[a],a);
     if(p_line[a]<48 || p_line[a]>58) return 3;  // if this are not numbers or : - exit  
     if(p_line[a]==58){ // separator :
       multi=1;
       pos--;
     }else{
-      DBG Serial.printf("pos: %d, multi: %d, prg[%d] is %d, current value:%d\n",pos,multi,pos,prg[pos],p_line[a]-48);
+      //DBG Serial.printf("pos: %d, multi: %d, prg[%d] is %d, current value:%d\n",pos,multi,pos,prg[pos],p_line[a]-48);
       prg[pos]+=multi*(p_line[a]-48);
       multi*=10;
     }
@@ -48,7 +48,7 @@ int multi=1;
   Program[Program_size].temp=prg[0];
   Program[Program_size].togo=prg[1];
   Program[Program_size].dwell=prg[2];
-  //DBG Serial.printf("\n Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
+  DBG Serial.printf("\n Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
   Program_size++;
   return 0;
 }
