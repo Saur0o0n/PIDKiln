@@ -64,10 +64,13 @@ struct PROGRAM {
 // maxinum number of program lines (this goes to memory - so be careful)
 #define MAX_PRG_LENGTH 40
 
-PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() and pointers...
+PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() but...
+PROGRAM* Program_run;             // running program (made as copy of selected Program)
 
-uint8_t Program_size=0;  // number of actual entries in Program
-String Program_desc;  // First line of the program file - it's description
+uint8_t Program_size=0;     // number of actual entries in Program
+uint8_t Program_run_size=0; // number of entries in running program
+
+String Program_desc;  // First line of the selected program file - it's description
 
 /* Program errors:
 ** 1 - failed to load file

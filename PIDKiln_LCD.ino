@@ -279,7 +279,8 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
       return;
     }else if(prog_menu==P_LOAD){
       Load_program_to_run();
-      
+      LCD_display_main();
+      return;
     }
   }
   

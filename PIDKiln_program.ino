@@ -77,7 +77,11 @@ File prg;
       DBG Serial.printf("Raw line: '%s'\n",line.c_str());
       if(line.startsWith("#")){ // skip every comment line
         DBG Serial.println("  comment");
-        if(!Program_desc.length()) Program_desc=line.substring(1); // If it's the first line with comment - copy it without trailing #
+        if(!Program_desc.length()){
+          line=line.substring(1);  // If it's the first line with comment - copy it without trailing #
+          line.trim();
+          Program_desc=line;
+        }
       }else{
         // Sanitize every line - if it's have a comment - strip ip, then check if this are only numbers and ":" - otherwise fail
         if(pos=line.indexOf("#")){
@@ -155,6 +159,16 @@ File dir,file;
   return 0;
 }
 
+
+// Copy selected program to RUN program
+//
+void Load_program_to_run(){
+  
+  if(!Program_size) return;
+  Program_run=(PROGRAM *)malloc(sizeof(PROGRAM)*Program_size);
+  for(uint8_t a=0;a<Program_size;a++)
+    Program_run[a]=Program[a];
+}
 
 /*
 ** Helping functions
