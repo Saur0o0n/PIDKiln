@@ -24,7 +24,7 @@ void ICACHE_RAM_ATTR handleInterrupt ();
 void pressed_menu(){
   switch(LCD_Menu){
     case M_MAIN_VIEW: LCD_display_main(); break;
-    case M_LIST_PROGRAMS: LCD_display_programs(0); break;
+    case M_LIST_PROGRAMS: LCD_display_programs(); break;
     case M_INFORMATIONS: LCD_display_info(); break;
     case M_ABOUT: LCD_display_about(); break;
     default: break;
@@ -97,7 +97,8 @@ void rotate(){
    return;
  }else if(LCD_State==PROGRAM_LIST){
    DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
-   LCD_display_programs(encoderValue);
+   rotate_selected_program(encoderValue);
+   LCD_display_programs();
  }else if(LCD_State==PROGRAM_SHOW){
    LCD_Display_program_summary(encoderValue,1);
  }

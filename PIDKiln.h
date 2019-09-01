@@ -35,31 +35,39 @@ const byte Menu_Size=3;
 const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
 const byte Prog_Menu_Size=4;
 
-byte LCD_Program=0;
+uint8_t LCD_Program=0;
 
 #define SCREEN_W 128   // LCD screen width and height
 #define SCREEN_H 64
 #define MAX_CHARS_PL SCREEN_W/3  // char can have min. 3 points on screen
 
-static byte MENU_LINES=5;   // how many menu lines should be print
-static byte MENU_SPACE=2;   // pixels spaces between lines
-static byte MENU_MIDDLE=3;  // middle of the menu, where choosing will be possible
+static uint8_t MENU_LINES=5;   // how many menu lines should be print
+static uint8_t MENU_SPACE=2;   // pixels spaces between lines
+static uint8_t MENU_MIDDLE=3;  // middle of the menu, where choosing will be possible
 
 /*
 ** Kiln program variables
 */
 String Selected_Program="";   // currently selected program name to open/edit/run
+uint16_t Program_sel=0;       // selected program - this is just helper - not acctual selection
+
 struct PROGRAM {
-  unsigned int temp;
-  unsigned int togo;
-  unsigned int dwell;
+  uint16_t temp;
+  uint16_t togo;
+  uint16_t dwell;
 };
-// maxinum number of program lines (this goes to memory - so be carefull)
+// maxinum number of program lines (this goes to memory - so be careful)
 #define MAX_PRG_LENGTH 40
 
 PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() and pointers, but since it's not recommended in Arduino and 3*integer is the same as pointers...
 byte Program_size=0;  // number of actual entries in Program
 String Program_desc;  // First line of the program file - it's description
+/* Program errors:
+** 1 - failed to load file
+** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
+** 3 - not allowed character in program (only allowed characters are numbers and sperator ":")
+** 4 - exceeded max temperature defined in MAX_Temp
+*/
 
 /*
 ** Filesystem definintions
@@ -68,13 +76,20 @@ String Program_desc;  // First line of the program file - it's description
 #define MAX_FILENAME 30   // directory+name can be max 32 on SPIFFS
 #define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
 
+struct DIRECTORY {
+  char filename[21];
+  uint16_t filesize=0;
+  uint8_t sel=0;
+};
 
-/* Program errors:
-** 1 - failed to load file
-** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
-** 3 - not allowed character in program (only allowed characters are numbers and sperator ":")
-** 4 - exceeded max temperature defined in MAX_Temp
+DIRECTORY* Programs_DIR;
+uint16_t Programs_DIR_size=0;
+/* Directory loading errors:
+** 1 - cant open "/programs" directory
+** 2 - file name is too long or too short (this should not happened)
+** 3 - 
 */
+
  
 /* 
 ** Some definitions - you should not edit this
@@ -85,7 +100,7 @@ String Program_desc;  // First line of the program file - it's description
 
 #define FORMAT_SPIFFS_IF_FAILED true
 
-const char* PRG_Directory = PRG_DIRECTORY;
+const char* PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
 
 const char* pver = "PIDKiln v0.2";
 const char* pdate = "2019.08.28";
@@ -95,4 +110,4 @@ const char* pdate = "2019.08.28";
 */
 
 void load_msg(char msg[MAX_CHARS_PL]);
-byte cleanup_program(byte err=0);
+uint8_t cleanup_program(uint8_t err=0);

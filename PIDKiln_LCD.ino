@@ -27,7 +27,6 @@
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_DATA, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
 //U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
 
-
 // Write short messages during starting
 //
 void load_msg(char msg[MAX_CHARS_PL]){
@@ -59,7 +58,7 @@ char sname[40];
 void LCD_display_menu(){
 char menu[MAX_CHARS_PL];
 int m_startpos=LCD_Menu;
-byte chh,center=5;
+uint8_t chh,center=5;
 
   LCD_State=MENU;
   DBG Serial.printf("Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
@@ -96,62 +95,37 @@ byte chh,center=5;
 
 // Display programs list
 // action = direction of rotation
-void LCD_display_programs(int action=0){
-static int sel_prg=0;  // this is a bit unsafe to remember program number, since it may change over HTTP - when someone will erase/upload. But doing it otherwise is to complex comparing to propability
-byte chh,y=2,x=2,cnt=0;
+void LCD_display_programs(){
+uint8_t chh,start_pos=0,max_lines=0;
+uint16_t y=0,x=2;       // if we get bigger screen :)
 char msg[MAX_CHARS_PL];
-bool drawn=false;
 String tmp_fname;
-File file;
 
   LCD_State=PROGRAM_LIST;
-  File dir = SPIFFS.open(PRG_DIRECTORY);
-  if(!dir){
-    DBG Serial.printf("Failed to open %s for listing\n",PRG_DIRECTORY);
-    return;
-  }
+
   u8g2.clearBuffer();
   u8g2.setFont(FONT7);
-  y=chh=u8g2.getMaxCharHeight();
+  chh=u8g2.getMaxCharHeight();
+  max_lines=floor((SCREEN_H-y*2)/chh);
   u8g2.setFontPosBottom();
 
-  DBG Serial.printf("Rotate programs. Action %d, sel_prg %d\n",action,sel_prg);
-  if(sel_prg>0 && action==-1){
-    sel_prg--;  // it's safe to scroll back, will see later if we can scroll forward
-    action=0;
-    DBG Serial.printf("\t\tmoved backward. Action %d, sel_prg %d\n",action,sel_prg);
+  if(Program_sel>=floor(max_lines/2)){
+    start_pos=Program_sel-floor(max_lines/2);
+    max_lines+=start_pos;
+    if(max_lines>Programs_DIR_size) max_lines=Programs_DIR_size;
   }
+  DBG Serial.printf(" Start pos:%d, sel_prg:%d, max_lines:%d\n",start_pos,Program_sel,max_lines);
   
-  while((file = dir.openNextFile()) && y<SCREEN_H) {  // if we are outside screen height - brake
-    // List directory
-    tmp_fname=file.name();
-    
-    tmp_fname=tmp_fname.substring(sizeof(PRG_DIRECTORY)); // remove path from the name
-    if(tmp_fname=="index.html") continue;                 // If this is index.html - skip
-
-    if(action==1 && cnt==sel_prg+1){
-      DBG Serial.printf("\t\tmoved forward. Action %d, old sel_prg %d, new sel_prg %d\n",action,sel_prg,cnt);
-      sel_prg=cnt;  // We moved forward in menu
-      action=0;
-    }
-    sprintf(msg,"%-15s %3db",tmp_fname.c_str(),file.size());
-    if(cnt==sel_prg && action!=1){
-      u8g2.drawStr(x,y,msg);
-      u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
-      Selected_Program=tmp_fname;     // Assign selected program to global var.
-      drawn=true;
-    }else u8g2.drawStr(x,y,msg);
-
-    y+=chh;
-    cnt++;
+  for(start_pos; start_pos<max_lines; start_pos++){
+    if(Programs_DIR[start_pos].filesize<999) sprintf(msg,"%-15.15s %3db",Programs_DIR[start_pos].filename,Programs_DIR[start_pos].filesize);
+    else sprintf(msg,"%-15.15s %2dkb",Programs_DIR[start_pos].filename,(int)(Programs_DIR[start_pos].filesize/1024));
+    DBG Serial.printf(" Program list:%s: sel:%d\n",msg,Programs_DIR[start_pos].sel);
+    if(Programs_DIR[start_pos].sel){
+      u8g2.drawFrame(0,y,SCREEN_W,chh);
+      u8g2.drawStr(x,y+=chh,msg);
+    }else u8g2.drawStr(x,y+=chh,msg);
   }
 
-  if(!drawn){ // If we haven't drawn a frame around program name because we moved outside the file list - do it now (this will happen always on the last file selected)
-    y-=chh; // rewind :)
-    u8g2.drawFrame(0,y-chh,SCREEN_W,chh);
-    Selected_Program=tmp_fname;     // Assign selected program to global var.
-  }
-  
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();
 }
@@ -160,7 +134,7 @@ File file;
 // Cut string for LCD width, return 1 if there's something left
 // (input string, rest to output, screen width modificator)
 boolean return_LCD_string(char* msg,char* rest,int mod=0){
-unsigned int chh,lnw;
+uint16_t chh,lnw;
 char out[MAX_CHARS_PL]; 
 
   chh=u8g2.getMaxCharHeight();
@@ -182,7 +156,7 @@ char out[MAX_CHARS_PL];
 // Draw program display menu
 //
 void LCD_Display_program_menu(byte pos=0){
-byte piece=0,y=0,chh;
+uint8_t piece=0,y=0,chh;
 
   // Prepare menu for program
   piece=(SCREEN_W-1)/4;
@@ -193,7 +167,7 @@ byte piece=0,y=0,chh;
       
   for(byte a=0; a<Prog_Menu_Size; a++){
     if(a==pos){
-      if(pos==Prog_Menu_Size-1) u8g2.drawBox(piece*a,SCREEN_H-chh-2, SCREEN_W-piece*a , chh+1); // dirty hack - becasue screen has 127 pixels, not 126 - it's not possible to divice it by 4 - so it wont go till the end of the screen
+      if(pos==Prog_Menu_Size-1) u8g2.drawBox(piece*a,SCREEN_H-chh-2, SCREEN_W-piece*a , chh+1); // dirty hack - because screen has 127 pixels, not 126 - it's not possible to divide it by 4 - so it wont go till the end of the screen
       else u8g2.drawBox(piece*a,SCREEN_H-chh-2, piece+1 , chh+1);
       u8g2.setDrawColor(0);
       u8g2.drawStr(piece*a+2,SCREEN_H-1,Prog_Menu_Names[a]);
@@ -213,7 +187,7 @@ byte piece=0,y=0,chh;
 void LCD_Display_program_summary(int dir=0,byte load_prg=0){
 static int prog_menu=0;
 char file_path[32];
-byte x=2,y=1,chh,err=0;
+uint8_t x=2,y=1,chh,err=0;
 char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should be malloc but ehh
 
   LCD_State=PROGRAM_SHOW;
@@ -266,7 +240,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     u8g2.drawStr(x,y+=chh,msg);
     
     y+=2; // +small space
-    unsigned int max_t=0,total_t=0;     // calculate max temp and total time
+    uint16_t max_t=0,total_t=0;     // calculate max temp and total time
     for(int a=0;a<Program_size;a++){
       if(Program[a].temp>max_t) max_t=Program[a].temp;
       total_t+=Program[a].togo+Program[a].dwell;
@@ -294,7 +268,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
 // Display information screen
 //
 void LCD_display_info(){
-byte chh,y,x=2;
+uint8_t chh,y,x=2;
 char msg[40];
 
   LCD_State=OTHER;

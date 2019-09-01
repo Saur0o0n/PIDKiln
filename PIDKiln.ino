@@ -33,9 +33,9 @@ const char* password = "";
 #define ENCODER0_BUTTON  32
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
-const unsigned int Long_Press=450; // long press button takes about 0,9 second
+const uint16_t Long_Press=450; // long press button takes about 0,9 second
 
-const byte WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
+const uint8_t WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 
 const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 const int MAX_Temp=1350;        // maximum temperature for kiln/programs

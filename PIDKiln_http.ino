@@ -131,21 +131,17 @@ void generate_index(){
 String tmp;
 template_str=String();
 
-  File dir = SPIFFS.open(PRG_DIRECTORY);
   File index,tmpf,file;
 
-  DBG if(dir.isDirectory()) Serial.printf("Opened directory %s\n",dir.name());
+  if(load_programs_dir()) return; // can't load directory
+
   // Open index for writting
-  tmp=String(PRG_DIRECTORY)+String("/index.html");
+  tmp=String(PRG_Directory)+String("/index.html");
   if(!(index = SPIFFS.open(tmp.c_str(), "w"))){
     DBG Serial.println("Failed to open for writing index.html");
     return;
   }
 
-  if(!dir){
-    DBG Serial.printf("Failed to open %s for listing\n",PRG_DIRECTORY);
-    return;
-  }
   // Copy index head
   if(tmpf=SPIFFS.open("/prog_beg.txt", "r")){
     DBG Serial.println("Head of index - copying...");
@@ -155,21 +151,21 @@ template_str=String();
     tmpf.close();
   }
 
-  while(file = dir.openNextFile()) {
-    // List directory
-    tmp=file.name();
-    //DBG Serial.println(" listing file "+tmp);
-    tmp=tmp.substring(sizeof(PRG_DIRECTORY));       // remote path from the name
-    if(tmp=="index.html") continue;                   // If this is index.html - skip
-
+  for(uint16_t a=0; a<Programs_DIR_size; a++){
+    tmp=String(PRG_Directory)+String("/")+String(Programs_DIR[a].filename);
+    
     template_str += "<tr><td><img src=\"/icons/heat.png\" alt=\"[ICO]\"></td>";
-    template_str += "<td><a href=\""+String(file.name())+"\" target=\"_blank\">"+tmp+"</a></td>";  
-    template_str += "<td>"+String(file.size())+"</td>";
-    template_str += "<td>"+file.readStringUntil('\n')+"</td>";
-    template_str += "<td><a href=/edit/"+tmp+">edit</a></td>";
-    template_str += "<td><a href=/delete/"+tmp+">delete</a></td>";
+    template_str += "<td><a href=\""+tmp+"\" target=\"_blank\">"+String(Programs_DIR[a].filename)+"</a></td>";  
+    template_str += "<td>"+String(Programs_DIR[a].filesize)+"</td>";
+    if(file=SPIFFS.open(tmp.c_str(),"r")){
+      template_str += "<td>"+file.readStringUntil('\n')+"</td>";
+      file.close();
+    }else template_str += "<td> Error opening file to read description </td>";
+    template_str += "<td><a href=/edit/"+String(Programs_DIR[a].filename)+">edit</a></td>";
+    template_str += "<td><a href=/delete/"+String(Programs_DIR[a].filename)+">delete</a></td>";
     template_str += "</tr>\n";
   }
+
   DBG Serial.print(template_str);
   index.print(template_str);
   // Copy end of the index template
@@ -208,7 +204,7 @@ String tmp;
 void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
 static File newFile;
 static boolean abort=false;
-String tmp=PRG_DIRECTORY;
+String tmp=String(PRG_Directory);
 
   tmp.concat("/");
   tmp.concat(filename.c_str());
