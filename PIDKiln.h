@@ -8,6 +8,7 @@ typedef enum {
   PROGRAM_LIST, // list of all programs
   PROGRAM_SHOW, // showing program content
   PROGRAM_DELETE,  // deleting program
+  PROGRAM_FULL, // step by step program display
   OTHER         // some other screens like about that are stateless
 } LCD_State_enum;
 
@@ -43,8 +44,6 @@ typedef enum { // program menu positions
 
 const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
 const uint8_t Prog_Menu_Size=4;
-
-uint8_t LCD_Program=0;
 
 #define SCREEN_W 128   // LCD screen width and height
 #define SCREEN_H 64
@@ -121,5 +120,5 @@ void load_msg(char msg[MAX_CHARS_PL]);
 boolean return_LCD_string(char* msg,char* rest,int mod=0);
 void LCD_Display_program_summary(int dir=0,byte load_prg=0);
 
-uint8_t cleanup_program(uint8_t err=0);
-uint8_t load_program(char *file=0);
+uint8_t Cleanup_program(uint8_t err=0);
+uint8_t Load_program(char *file=0);

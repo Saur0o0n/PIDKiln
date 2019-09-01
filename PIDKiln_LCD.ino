@@ -103,7 +103,7 @@ char msg[MAX_CHARS_PL];
   max_lines=floor((SCREEN_H-y*2)/chh);
   u8g2.setFontPosBottom();
 
-  if((sel=find_selected_program())<0) return;
+  if((sel=Find_selected_program())<0) return;
   
   if(sel>=floor(max_lines/2)){
     start_pos=sel-floor(max_lines/2);
@@ -155,13 +155,13 @@ static boolean yes=false;
   if(!dir && !pressed) yes=false; // reset to default
   if(pressed)
     if(yes){
-      if(erase_program()){  // removed
+      if(Erase_program()){  // removed
         DBG Serial.println(" Program removed!");
         u8g2.drawStr(x,y+2,"File deleted!");
         u8g2.sendBuffer();
         u8g2.clearBuffer();
       }
-      cleanup_program();
+      Cleanup_program();
       generate_index();
       delay(2500);
       LCD_display_programs(); // get back to program listing
@@ -175,7 +175,7 @@ static boolean yes=false;
   else if(dir<0) yes=false;
 
   u8g2.drawStr(x,y,"Delete program?");
-  y+=chh+1;
+  y+=chh;
   // Draw yes/no boxes
   x+=2;
   if(!yes){ // no delete
@@ -223,6 +223,40 @@ uint8_t piece=0,y=0,chh;
 }
 
 
+// Display full program, step by step
+//
+void LCD_Display_program_full(int dir=0){
+uint8_t x=4,y=3,chh,lines;
+static uint8_t pos=0;
+char msg[MAX_CHARS_PL];
+  
+  LCD_State=PROGRAM_FULL;
+  if(dir==0) pos=0;
+  u8g2.clearBuffer();
+  u8g2.setFont(FONT7);
+  u8g2.setFontPosBottom();
+  chh=u8g2.getMaxCharHeight()-1;
+  lines=floor((SCREEN_H-2)/chh)-1;
+  
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+
+  if(dir>0 && (pos+lines-1)<Program_size) pos++;
+  else if(dir<0 && pos>0) pos--;
+  sprintf(msg,"nr Temp  Time  Dwell");
+  u8g2.drawBox(0,1, SCREEN_W, chh);
+  u8g2.setDrawColor(0);
+  y+=chh;
+  u8g2.drawStr(x,y-2,msg);
+  u8g2.setDrawColor(1);
+  
+  for(int a=pos;a<Program_size && (a-pos)<lines;a++){
+    sprintf(msg,"%d t:%4d T:%3d D:%3d",a+1,Program[a].temp,Program[a].togo,Program[a].dwell);
+    u8g2.drawStr(x,y+=chh,msg);
+  }
+  u8g2.sendBuffer();
+}
+
+
 // Display single program info and options
 // Dir - if dial rotated, load_prg - 0 = yes (if first time showing program (from program list)), 1 = no (rotating encoder), 2 = encoder pressed
 //
@@ -237,26 +271,29 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
 // If the button was pressed - redirect to other screen
   if(load_prg==2){
     if(prog_menu==P_EXIT){ // exit - unload program, go to menu
-      cleanup_program();
+      Cleanup_program();
       LCD_display_programs();
       return;
     }else if(prog_menu==P_SHOW){
-      
+      LCD_Display_program_full();
+      return;
     }else if(prog_menu==P_LOAD){
+      Load_program_to_run();
+      
     }
   }
   
   u8g2.setFont(FONT6);
   u8g2.setFontPosBottom();
-  sel=find_selected_program();    // get selected program
+  chh=u8g2.getMaxCharHeight();
+  
+  sel=Find_selected_program();    // get selected program
   DBG Serial.printf("Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Programs_DIR[sel].filename);
   
   sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
   DBG Serial.printf("\tprogram path: %s\n",file_path);
   if(SPIFFS.exists(file_path)){
     u8g2.clearBuffer();
-    u8g2.setFont(FONT6);
-    chh=u8g2.getMaxCharHeight();
     
     u8g2.setDrawColor(1); /* color 1 for the box */
     u8g2.drawBox(0,0, SCREEN_W , chh+2);
@@ -270,7 +307,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     y++; // add some space before description or error
        
     if(!load_prg)
-      if(err=load_program()){     // loading program - if >0 - failed with error - see description in PIDKiln.h
+      if(err=Load_program()){     // loading program - if >0 - failed with error - see description in PIDKiln.h
         u8g2.drawStr(x,y+=chh,"Program load failed!");
         sprintf(msg,"Error: %d",err);
         u8g2.drawStr(x,y+=chh,msg);

@@ -49,7 +49,7 @@ int multi=1;
 
 // Load program in to the array in memory
 //
-uint8_t load_program(char *file){
+uint8_t Load_program(char *file){
 String line;
 char file_path[32];
 uint8_t err=0;
@@ -61,7 +61,7 @@ File prg;
     sprintf(file_path,"%s/%s",PRG_Directory,file);
     DBG Serial.printf("Got pointer to load:'%s'\n",file);
   }else{
-    if((sel=find_selected_program())<0) return cleanup_program(1);
+    if((sel=Find_selected_program())<0) return Cleanup_program(1);
     sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
   }
   DBG Serial.printf("Load program name: '%s'\n",file_path);
@@ -85,8 +85,8 @@ File prg;
           line.trim(); // trim again after removing comment
         }
         
-        if(line.length()>15) return cleanup_program(2);  // program line too long
-        else if(err=add_program_line(line)) return cleanup_program(err); // line adding failed!!
+        if(line.length()>15) return Cleanup_program(2);  // program line too long
+        else if(err=add_program_line(line)) return Cleanup_program(err); // line adding failed!!
         
         DBG Serial.printf("San line: '%s'\n",line.c_str());
       }
@@ -95,13 +95,13 @@ File prg;
     if(!Program_desc.length()) Program_desc="No description";   // if after reading file program still has no description - add it
     
     return 0;
-  }return cleanup_program(1);
+  }return Cleanup_program(1);
 }
 
 
 // Load programs directory into memory - to sort it etc for easier processing
 //
-uint8_t load_programs_dir(){
+uint8_t Load_programs_dir(){
 uint16_t count=0;
 File dir,file;
 
@@ -163,7 +163,7 @@ File dir,file;
 
 // Find selected program
 //
-int find_selected_program(){
+int Find_selected_program(){
   for(uint16_t a=0; a<Programs_DIR_size; a++) if(Programs_DIR[a].sel>0) return a;
   return -1;  // in case there is NO program to be selected (there can be no programs at all)
 }
@@ -172,7 +172,7 @@ int find_selected_program(){
 // Move program selection up/down
 //
 void rotate_selected_program(int dir){
-int a = find_selected_program();
+int a = Find_selected_program();
 
   DBG Serial.printf("Rotating programs. For a:%d, dir: %d, selected?:%d, dir_size:%d\n",a,dir,Programs_DIR[a].sel,Programs_DIR_size);
   if(dir<0 && a>0){   // if we are DOWN down and we can a>0 - do it, if we can't - do nothing
@@ -187,7 +187,7 @@ int a = find_selected_program();
 
 // Short function to cleanup program def. after failed load
 //
-byte cleanup_program(byte err){
+byte Cleanup_program(byte err){
   Program_size=0;
   Program_desc="";
   for(byte a=0;a<MAX_PRG_LENGTH;a++) Program[a].temp=Program[a].togo=Program[a].dwell=0;
@@ -198,10 +198,10 @@ byte cleanup_program(byte err){
 
 // Erase program from disk
 //
-boolean erase_program(){
+boolean Erase_program(){
 char file[32];
 
-  sprintf(file,"%s/%s",PRG_Directory,Programs_DIR[find_selected_program()].filename);
+  sprintf(file,"%s/%s",PRG_Directory,Programs_DIR[Find_selected_program()].filename);
   DBG Serial.printf("!!! Erasing file from disk: %s",file);
   return SPIFFS.remove(file);
 }

@@ -137,7 +137,7 @@ template_str=String();
 
   File index,tmpf,file;
 
-  if(load_programs_dir()) return; // can't load directory
+  if(Load_programs_dir()) return; // can't load directory
 
   // Open index for writting
   tmp=String(PRG_Directory)+String("/index.html");
@@ -259,7 +259,7 @@ String tmp=String(PRG_Directory);
     char fname[22];
     strcpy(fname,filename.c_str());
     DBG Serial.printf("Checking uploaded program structure: '%s'\n",fname); 
-    uint8_t err=load_program(fname);
+    uint8_t err=Load_program(fname);
     
     if(err){  // program did not validate correctly
       request->send(200, "text/html", "<html><body><h1>Program stucture is incorrect!</h1> Error code "+String(err)+".<br><br><a href=/programs/>Return to programs</a></body></html");

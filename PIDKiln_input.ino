@@ -48,6 +48,7 @@ void button_Short_Press(){
   else if(LCD_State==PROGRAM_LIST) LCD_Display_program_summary(0,0);
   else if(LCD_State==PROGRAM_SHOW) LCD_Display_program_summary(0,2);
   else if(LCD_State==PROGRAM_DELETE) LCD_Display_program_delete(0,1);
+  else if(LCD_State==PROGRAM_FULL) LCD_Display_program_summary(0,1);
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
@@ -104,6 +105,8 @@ void rotate(){
     LCD_Display_program_summary(encoderValue,1);
   }else if(LCD_State==PROGRAM_DELETE){
     LCD_Display_program_delete(encoderValue,0);
+  }else if(LCD_State==PROGRAM_FULL){
+    LCD_Display_program_full(encoderValue);
   }
 }
 
