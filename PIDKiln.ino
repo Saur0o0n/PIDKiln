@@ -33,7 +33,7 @@ const char* password = "";
 #define ENCODER0_BUTTON  32
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
-const uint16_t Long_Press=450; // long press button takes about 0,9 second
+const uint16_t Long_Press=400; // long press button takes about 0,9 second
 
 const uint8_t WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 

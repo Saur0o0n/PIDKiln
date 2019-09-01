@@ -7,6 +7,7 @@ typedef enum {
   MENU,         // menu
   PROGRAM_LIST, // list of all programs
   PROGRAM_SHOW, // showing program content
+  PROGRAM_DELETE,  // deleting program
   OTHER         // some other screens like about that are stateless
 } LCD_State_enum;
 
@@ -32,8 +33,16 @@ LCD_MENU_Item_enum LCD_Menu=M_MAIN_VIEW; // menu items
 const char *Menu_Names[] = {"1) Main view","2) List programs","3) Information","4) About"};
 const byte Menu_Size=3;
 
+typedef enum { // program menu positions
+  P_EXIT,
+  P_SHOW,
+  P_LOAD,
+  P_DELETE,
+  P_end
+} LCD_PMENU_Item_enum;
+
 const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
-const byte Prog_Menu_Size=4;
+const uint8_t Prog_Menu_Size=4;
 
 uint8_t LCD_Program=0;
 
@@ -48,9 +57,6 @@ static uint8_t MENU_MIDDLE=3;  // middle of the menu, where choosing will be pos
 /*
 ** Kiln program variables
 */
-String Selected_Program="";   // currently selected program name to open/edit/run
-uint16_t Program_sel=0;       // selected program - this is just helper - not acctual selection
-
 struct PROGRAM {
   uint16_t temp;
   uint16_t togo;
@@ -59,9 +65,11 @@ struct PROGRAM {
 // maxinum number of program lines (this goes to memory - so be careful)
 #define MAX_PRG_LENGTH 40
 
-PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() and pointers, but since it's not recommended in Arduino and 3*integer is the same as pointers...
-byte Program_size=0;  // number of actual entries in Program
+PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() and pointers...
+
+uint8_t Program_size=0;  // number of actual entries in Program
 String Program_desc;  // First line of the program file - it's description
+
 /* Program errors:
 ** 1 - failed to load file
 ** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
@@ -77,7 +85,7 @@ String Program_desc;  // First line of the program file - it's description
 #define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
 
 struct DIRECTORY {
-  char filename[21];
+  char filename[MAX_PROGNAME+1];
   uint16_t filesize=0;
   uint8_t sel=0;
 };
@@ -102,12 +110,16 @@ uint16_t Programs_DIR_size=0;
 
 const char* PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
 
-const char* pver = "PIDKiln v0.2";
-const char* pdate = "2019.08.28";
+const char* PVer = "PIDKiln v0.3";
+const char* PDate = "2019.09.01";
 
 /*
 ** Function defs
 */
 
 void load_msg(char msg[MAX_CHARS_PL]);
+boolean return_LCD_string(char* msg,char* rest,int mod=0);
+void LCD_Display_program_summary(int dir=0,byte load_prg=0);
+
 uint8_t cleanup_program(uint8_t err=0);
+uint8_t load_program(char *file=0);

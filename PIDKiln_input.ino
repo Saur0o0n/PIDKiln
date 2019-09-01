@@ -41,12 +41,13 @@ void pressed_main_view(){
 
 // Just redirect pressed button to separate functions
 //
-void button_Press(){
+void button_Short_Press(){
   DBG Serial.printf(" Short press. Current view %d\n",(int)LCD_State);
   if(LCD_State==MENU) pressed_menu();
   else if(LCD_State==MAIN_VIEW) pressed_main_view();
   else if(LCD_State==PROGRAM_LIST) LCD_Display_program_summary(0,0);
   else if(LCD_State==PROGRAM_SHOW) LCD_Display_program_summary(0,2);
+  else if(LCD_State==PROGRAM_DELETE) LCD_Display_program_delete(0,1);
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
@@ -86,22 +87,24 @@ void rotate(){
     LCD_display_main();
     return;
   }
- }else if(LCD_State==MENU){
-   DBG Serial.printf("Rotate, MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
-   if(encoderValue<0){
-     if(LCD_Menu>M_MAIN_VIEW) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu-1);
-   }else{
-     if(LCD_Menu<M_end-1) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu+1);
-   }
-   LCD_display_menu();
-   return;
- }else if(LCD_State==PROGRAM_LIST){
-   DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
-   rotate_selected_program(encoderValue);
-   LCD_display_programs();
- }else if(LCD_State==PROGRAM_SHOW){
-   LCD_Display_program_summary(encoderValue,1);
- }
+  }else if(LCD_State==MENU){
+    DBG Serial.printf("Rotate, MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
+    if(encoderValue<0){
+      if(LCD_Menu>M_MAIN_VIEW) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu-1);
+    }else{
+      if(LCD_Menu<M_end-1) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu+1);
+    }
+    LCD_display_menu();
+    return;
+  }else if(LCD_State==PROGRAM_LIST){
+    DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
+    rotate_selected_program(encoderValue);
+    LCD_display_programs();
+  }else if(LCD_State==PROGRAM_SHOW){
+    LCD_Display_program_summary(encoderValue,1);
+  }else if(LCD_State==PROGRAM_DELETE){
+    LCD_Display_program_delete(encoderValue,0);
+  }
 }
 
 
@@ -128,7 +131,7 @@ void input_loop() {
       if(digitalRead(ENCODER0_BUTTON)==LOW) return; // Button is still pressed - skipp, perhaps it's a long press
       if(encoderButton+Long_Press>=millis()){ // quick press
         DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
-        button_Press();
+        button_Short_Press();
       }else{  // long press
         DBG Serial.printf("Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
         button_Long_Press();

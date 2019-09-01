@@ -10,6 +10,10 @@
 //
 String template_str;  // Stores template pareser output
 
+/*
+** Core/main HTTP functions
+**
+*/
 
 // Template preprocessor for preferences - preferences.html
 //
@@ -189,9 +193,9 @@ String tmp;
   template_str=String();
   DBG Serial.println(var);
   if (var == "VERSION"){
-    template_str+=pver;
+    template_str+=PVer;
     template_str+=" ";
-    template_str+=pdate;
+    template_str+=PDate;
   }
   
   DBG Serial.print(template_str);
@@ -251,9 +255,12 @@ String tmp=String(PRG_Directory);
     newFile.flush();
     DBG Serial.printf("UploadEnd: %s, %d B\n", newFile.name(), newFile.size());
     newFile.close();
-    DBG Serial.printf("Checking uploaded program structure\n");
-    Selected_Program=filename; // assign uploaded program to "selected one" for LCD screen
-    byte err=load_program();
+
+    char fname[22];
+    strcpy(fname,filename.c_str());
+    DBG Serial.printf("Checking uploaded program structure: '%s'\n",fname); 
+    uint8_t err=load_program(fname);
+    
     if(err){  // program did not validate correctly
       request->send(200, "text/html", "<html><body><h1>Program stucture is incorrect!</h1> Error code "+String(err)+".<br><br><a href=/programs/>Return to programs</a></body></html");
       delete_file(newFile=SPIFFS.open( tmp.c_str(), "r"));  // we need to open file again - to close it with already existing function
@@ -278,7 +285,10 @@ String tmp=String(PRG_Directory);
 
 
 
-
+/* 
+** Setup Webserver screen 
+**
+*/
 void setup_webserver(void) {
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){

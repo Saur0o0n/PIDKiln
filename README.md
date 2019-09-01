@@ -90,13 +90,13 @@ ESP32	to thermistor
 - You have to already have installed ESP32 framework - if don't, do it now (https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md).
 - Don't forget about ESP32FS plugin (drop it to "/home/username/Arduino/tools")
 - Install required additional libraries: [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer),[AsyncTCP](https://github.com/me-no-dev/AsyncTCP) 
-- Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'
+- UPDate (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'
 - Open PIDKiln.ino and edit your WiFi credentials (if you want to use). Compile and upload.
 - Upload sketch data (from data directory) to ESP32 SPIFFS with help of ESP32FS plugin (Menu->Tools->ESP32 Sketch Data Upload)
 
 ## Documentation
 
 - Most of the documentation you can find on [PIDKiln github page](https://github.com/Saur0o0n/pidkiln) - so please use it
-- Some less formal updates information and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
+- Some less formal uPDates information and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
 
 
