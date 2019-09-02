@@ -221,10 +221,10 @@ String tmp=String(PRG_Directory);
     return;
   }
 
-  // Checking how much has been uploaded - if more then MAX_Prog_Size - abort
-  if(len+index>MAX_Prog_Size){
+  // Checking how much has been uploaded - if more then MAX_Prog_File_Size - abort
+  if(len+index>MAX_Prog_File_Size){
      DBG Serial.println("Uploaded file too large! Aborting");
-     request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_Size)+"<br><br><a href=/>Return to main view</a></body></html");
+     request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/>Return to main view</a></body></html");
      abort=true;
      return;
   }

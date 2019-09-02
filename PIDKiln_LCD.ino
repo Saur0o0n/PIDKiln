@@ -32,18 +32,55 @@ U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_
 ** Core/main LCD functions
 **
 */
+void LCD_display_mainv1(){
+char msg[MAX_CHARS_PL];
+uint16_t x=2,y=0;
+uint8_t chh,mch;
+struct tm timeinfo;
+
+  LCD_State=MAIN_VIEW;
+  LCD_Main=MAIN_VIEW1;  // just in case...
+  
+  u8g2.clearBuffer();
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+  u8g2.setFont(FONT7);
+  u8g2.setFontPosBaseline();
+  chh=u8g2.getMaxCharHeight()+1;
+  mch=floor(SCREEN_W-4/u8g2.getMaxCharWidth()); // how many chars per line...
+  sprintf(msg,"%.*s",mch,Program_run_name);
+  u8g2.drawBox(0,0, SCREEN_W, chh+1);
+  u8g2.setDrawColor(0);
+  y+=chh-1;
+  u8g2.drawStr(x,y,msg);
+  u8g2.setDrawColor(1);
+
+  sprintf(msg,"%s",Prog_Run_Names[Program_run_state]);
+  y+=chh;
+  u8g2.drawStr(x+1,y,msg);
+
+  u8g2.drawFrame(0,y-chh+2, SCREEN_W, chh);
+  u8g2.drawFrame(0,y-chh+2, SCREEN_W/2, chh);
+  if(getLocalTime(&timeinfo)) sprintf(msg," %d:%d:%02d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+  else sprintf(msg," No time");
+  u8g2.drawStr(SCREEN_W/2,y,msg);
+  u8g2.sendBuffer();
+}
+
 
 // Display main screeen(s)
 //
-void LCD_display_main(){
+void LCD_display_main_view(){
 char sname[40];
 
   LCD_State=MAIN_VIEW;
-  u8g2.clearBuffer();          // clear the internal memory
-  sprintf(sname,"Main screen %d",(int)LCD_Main);
-  u8g2.setFont(FONT8);
-  u8g2.drawStr(25,30,sname);
-  u8g2.sendBuffer();          // transfer internal memory to the display 
+  if(LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
+  else{
+    u8g2.clearBuffer();          // clear the internal memory
+    sprintf(sname,"Main screen %d",(int)LCD_Main);
+    u8g2.setFont(FONT8);
+    u8g2.drawStr(25,30,sname);
+    u8g2.sendBuffer();          // transfer internal memory to the display 
+  }
 }
 
 
@@ -155,7 +192,7 @@ static boolean yes=false;
   if(!dir && !pressed) yes=false; // reset to default
   if(pressed)
     if(yes){
-      if(Erase_program()){  // removed
+      if(Erase_program_file()){  // removed
         DBG Serial.println(" Program removed!");
         u8g2.drawStr(x,y+2,"File deleted!");
         u8g2.sendBuffer();
@@ -279,7 +316,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
       return;
     }else if(prog_menu==P_LOAD){
       Load_program_to_run();
-      LCD_display_main();
+      LCD_display_main_view();
       return;
     }
   }
@@ -372,7 +409,7 @@ char msg[40];
     sprintf(msg,"WiFi IP: %s",WiFi.localIP().toString().c_str());
     u8g2.drawStr(x,y+=chh,msg);
   }
-  sprintf(msg,"Max prg. size: %d",MAX_Prog_Size);
+  sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
   u8g2.drawStr(x,y+=chh,msg);
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }

@@ -23,6 +23,10 @@ const char* password = "";
 
 #define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW FROM HERE - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
+const char* ntpServer = "pool.ntp.org";
+const uint8_t gmtOffset_sec = 3600;
+const uint8_t daylightOffset_sec = 3600;
+
 #define DEBUG true
 //#define DEBUG false
 /* 
@@ -37,7 +41,7 @@ const uint16_t Long_Press=400; // long press button takes about 0,9 second
 
 const uint8_t WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 
-const int MAX_Prog_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
+const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 const int MAX_Temp=1350;        // maximum temperature for kiln/programs
 
 // Other variables
@@ -102,37 +106,25 @@ void setup() {
   
   // Connect to Wi-Fi
   if(strlen(ssid)){
-    bool wifi_failed=true;
-    
-    WiFi.begin(ssid, password);
-    
     load_msg("connecting WiFi..");
-    DBG Serial.println("Connecting to WiFi...");
-    
-    for(byte a=0; a<WiFi_Tries; a++){
-      if (WiFi.status() == WL_CONNECTED){
-        wifi_failed=false;
-        continue;
-      }
-      delay(1000);
-    }
-
-    if(wifi_failed){  // if we failed to connect, stop trying
-      WiFi.disconnect();
-      load_msg("WiFi con. failed.");
+    if(setup_wifi()){    // !!! Wifi connection FAILED
       DBG Serial.println("WiFi connection failed");
+      load_msg(" WiFi con. failed");
     }else{
       DBG Serial.println(WiFi.localIP()); // Print ESP32 Local IP Address
       char lip[20];
       sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
       load_msg(lip);
-      setup_webserver(); // Setup function for Webserver from PIDKiln_http.ino
     }
   }else load_msg("   -- Started! --");
   
   generate_index();
+
+  // Setup program module
+  program_setup();
 }
 
 void loop() {
   input_loop();
+  program_loop();
 }

@@ -23,7 +23,7 @@ void ICACHE_RAM_ATTR handleInterrupt ();
 //
 void pressed_menu(){
   switch(LCD_Menu){
-    case M_MAIN_VIEW: LCD_display_main(); break;
+    case M_MAIN_VIEW: LCD_display_main_view(); break;
     case M_LIST_PROGRAMS: LCD_display_programs(); break;
     case M_INFORMATIONS: LCD_display_info(); break;
     case M_ABOUT: LCD_display_about(); break;
@@ -59,7 +59,7 @@ void button_Long_Press(){
 
   if(LCD_State==MENU){ // we are in menu - switch to main screen
     LCD_State=MAIN_VIEW;
-    LCD_display_main();
+    LCD_display_main_view();
     return;
   }else if(LCD_State==PROGRAM_SHOW){ // if we are showing program - go to program list
     LCD_State=PROGRAM_LIST;
@@ -81,11 +81,11 @@ void rotate(){
  if(LCD_State==MAIN_VIEW){
   if(encoderValue<0){
     if(LCD_Main>MAIN_VIEW1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main-1);
-    LCD_display_main();
+    LCD_display_main_view();
     return;
   }else{
     if(LCD_Main<MAIN_end-1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main+1);
-    LCD_display_main();
+    LCD_display_main_view();
     return;
   }
   }else if(LCD_State==MENU){
@@ -131,7 +131,7 @@ void input_loop() {
 
    if(encoderButton){
       delay(ENCODER_BUTTON_DELAY);
-      if(digitalRead(ENCODER0_BUTTON)==LOW) return; // Button is still pressed - skipp, perhaps it's a long press
+      if(digitalRead(ENCODER0_BUTTON)==LOW) return; // Button is still pressed - skip, perhaps it's a long press
       if(encoderButton+Long_Press>=millis()){ // quick press
         DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
         button_Short_Press();

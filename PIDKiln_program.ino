@@ -5,7 +5,16 @@
 
 // Other variables
 //
-
+volatile int interruptCounter;
+hw_timer_t * timer = NULL;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+ 
+void IRAM_ATTR onTimer() {
+  portENTER_CRITICAL_ISR(&timerMux);
+  interruptCounter++;
+  portEXIT_CRITICAL_ISR(&timerMux);
+ 
+}
 
 /*
 ** Core/main program functions
@@ -47,6 +56,7 @@ int multi=1;
   return 0;
 }
 
+
 // Load program in to the array in memory
 //
 uint8_t Load_program(char *file){
@@ -60,9 +70,11 @@ File prg;
   if(file){  // if function got an argument - this can happend if you want to validate new program uploaded by http
     sprintf(file_path,"%s/%s",PRG_Directory,file);
     DBG Serial.printf("Got pointer to load:'%s'\n",file);
+    Program_name=String(file);
   }else{
     if((sel=Find_selected_program())<0) return Cleanup_program(1);
     sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
+    Program_name=String(Programs_DIR[sel].filename);
   }
   DBG Serial.printf("Load program name: '%s'\n",file_path);
   
@@ -165,9 +177,18 @@ File dir,file;
 void Load_program_to_run(){
   
   if(!Program_size) return;
+  if(Program_run) free(Program_run);
+  if(Program_run_desc) free(Program_run_desc);
+  if(Program_run_name) free(Program_run_name);
+  
   Program_run=(PROGRAM *)malloc(sizeof(PROGRAM)*Program_size);
   for(uint8_t a=0;a<Program_size;a++)
     Program_run[a]=Program[a];
+  Program_run_desc=(char *)malloc(Program_desc.length()*sizeof(char)+1);
+  strcpy(Program_run_desc,Program_desc.c_str());
+  Program_run_name=(char *)malloc(Program_name.length()*sizeof(char)+1);
+  strcpy(Program_run_name,Program_name.c_str());
+  Program_run_state=PR_READY;
 }
 
 /*
@@ -179,7 +200,7 @@ void Load_program_to_run(){
 //
 int Find_selected_program(){
   for(uint16_t a=0; a<Programs_DIR_size; a++) if(Programs_DIR[a].sel>0) return a;
-  return -1;  // in case there is NO program to be selected (there can be no programs at all)
+  return -1;  // in case there is NO selected program or there can be no programs at all
 }
 
 
@@ -204,6 +225,7 @@ int a = Find_selected_program();
 byte Cleanup_program(byte err){
   Program_size=0;
   Program_desc="";
+  Program_name="";
   for(byte a=0;a<MAX_PRG_LENGTH;a++) Program[a].temp=Program[a].togo=Program[a].dwell=0;
   DBG Serial.printf(" Cleaning up program with error %d\n",err);
   return err;
@@ -212,10 +234,45 @@ byte Cleanup_program(byte err){
 
 // Erase program from disk
 //
-boolean Erase_program(){
+boolean Erase_program_file(){
 char file[32];
 
   sprintf(file,"%s/%s",PRG_Directory,Programs_DIR[Find_selected_program()].filename);
   DBG Serial.printf("!!! Erasing file from disk: %s",file);
   return SPIFFS.remove(file);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+** Main setup and loop function for programs module
+*/
+void program_setup(){
+
+  // Start interupt timer handler - 1s
+  timer = timerBegin(0, 80, true);
+  timerAttachInterrupt(timer, &onTimer, true);
+  timerAlarmWrite(timer, 1000000, true);
+  timerAlarmEnable(timer);
+}
+
+
+void program_loop(){
+
+  // check if timer interup occured
+  if (interruptCounter > 0) {
+    portENTER_CRITICAL(&timerMux);    
+    interruptCounter--;
+    portEXIT_CRITICAL(&timerMux);
+    if(LCD_State==MAIN_VIEW && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
+  }
 }

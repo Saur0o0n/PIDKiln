@@ -65,12 +65,25 @@ struct PROGRAM {
 #define MAX_PRG_LENGTH 40
 
 PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() but...
+uint8_t Program_size=0;           // number of actual entries in Program
+String Program_desc,Program_name; // First line of the selected program file - it's description
+
 PROGRAM* Program_run;             // running program (made as copy of selected Program)
+uint8_t Program_run_size=0;       // number of entries in running program
+char *Program_run_desc,*Program_run_name;
 
-uint8_t Program_size=0;     // number of actual entries in Program
-uint8_t Program_run_size=0; // number of entries in running program
-
-String Program_desc;  // First line of the selected program file - it's description
+typedef enum { // program menu positions
+  PR_NONE,
+  PR_READY,
+  PR_RUNNING,
+  PR_PAUSED,
+  PR_STOPPED,
+  PR_FAILED,
+  PR_ENDED,
+  PR_end
+} PROGRAM_RUN_STATE;
+PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
+const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Stopped","Failed","Ended"};
 
 /* Program errors:
 ** 1 - failed to load file
@@ -110,10 +123,10 @@ uint16_t Programs_DIR_size=0;
 
 #define FORMAT_SPIFFS_IF_FAILED true
 
-const char* PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
+const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
 
-const char* PVer = "PIDKiln v0.3";
-const char* PDate = "2019.09.01";
+const char *PVer = "PIDKiln v0.3";
+const char *PDate = "2019.09.02";
 
 /*
 ** Function defs
