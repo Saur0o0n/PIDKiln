@@ -70,7 +70,7 @@ String Program_desc,Program_name; // First line of the selected program file - i
 
 PROGRAM* Program_run;             // running program (made as copy of selected Program)
 uint8_t Program_run_size=0;       // number of entries in running program
-char *Program_run_desc,*Program_run_name;
+char *Program_run_desc=NULL,*Program_run_name=NULL;
 
 typedef enum { // program menu positions
   PR_NONE,

@@ -1,6 +1,6 @@
 
 /*
-** PIDKiln v0.2 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.3 - high temperature kiln PID controller for ESP32
 **
 ** (c) 2019 - Adrian Siemieniak
 **
@@ -23,9 +23,10 @@ const char* password = "";
 
 #define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW FROM HERE - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
-const char* ntpServer = "pool.ntp.org";
-const uint8_t gmtOffset_sec = 3600;
-const uint8_t daylightOffset_sec = 3600;
+const char* ntpServer1 = "pool.ntp.org";
+const char* ntpServer2 = "2.pl.pool.ntp.org";
+const uint16_t gmtOffset_sec = 3600;
+const uint16_t daylightOffset_sec = 3600;
 
 #define DEBUG true
 //#define DEBUG false
@@ -116,7 +117,11 @@ void setup() {
       sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
       load_msg(lip);
     }
-  }else load_msg("   -- Started! --");
+  }else{
+    // If we don't have Internet - assume there is no time set
+    setup_start_date(); // in PIDKiln_net
+    load_msg("   -- Started! --");
+  }
   
   generate_index();
 

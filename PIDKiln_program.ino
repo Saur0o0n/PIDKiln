@@ -5,15 +5,17 @@
 
 // Other variables
 //
-volatile int interruptCounter;
 hw_timer_t * timer = NULL;
+volatile SemaphoreHandle_t timerSemaphore;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
  
-void IRAM_ATTR onTimer() {
+void IRAM_ATTR onTimer(){
+  // Increment the counter and set the time of ISR
   portENTER_CRITICAL_ISR(&timerMux);
-  interruptCounter++;
   portEXIT_CRITICAL_ISR(&timerMux);
- 
+  // Give a semaphore that we can check in the loop
+  xSemaphoreGiveFromISR(timerSemaphore, NULL);
+  // It is safe to use digitalRead/Write here if you want to toggle an output
 }
 
 /*
@@ -180,6 +182,7 @@ void Load_program_to_run(){
   if(Program_run) free(Program_run);
   if(Program_run_desc) free(Program_run_desc);
   if(Program_run_name) free(Program_run_name);
+  Program_run_size=0;
   
   Program_run=(PROGRAM *)malloc(sizeof(PROGRAM)*Program_size);
   for(uint8_t a=0;a<Program_size;a++)
@@ -188,6 +191,7 @@ void Load_program_to_run(){
   strcpy(Program_run_desc,Program_desc.c_str());
   Program_run_name=(char *)malloc(Program_name.length()*sizeof(char)+1);
   strcpy(Program_run_name,Program_name.c_str());
+  Program_run_size=Program_size;
   Program_run_state=PR_READY;
 }
 
@@ -259,9 +263,22 @@ char file[32];
 void program_setup(){
 
   // Start interupt timer handler - 1s
+  // Create semaphore to inform us when the timer has fired
+  timerSemaphore = xSemaphoreCreateBinary();
+
+  // Use 1st timer of 4 (counted from zero).
+  // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
+  // info).
   timer = timerBegin(0, 80, true);
+
+  // Attach onTimer function to our timer.
   timerAttachInterrupt(timer, &onTimer, true);
+
+  // Set alarm to call onTimer function every second (value in microseconds).
+  // Repeat the alarm (third parameter)
   timerAlarmWrite(timer, 1000000, true);
+
+  // Start an alarm
   timerAlarmEnable(timer);
 }
 
@@ -269,10 +286,12 @@ void program_setup(){
 void program_loop(){
 
   // check if timer interup occured
-  if (interruptCounter > 0) {
-    portENTER_CRITICAL(&timerMux);    
-    interruptCounter--;
+  if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
+    uint32_t isrCount = 0, isrTime = 0;
+    // Read the interrupt count and time
+    portENTER_CRITICAL(&timerMux);
     portEXIT_CRITICAL(&timerMux);
-    if(LCD_State==MAIN_VIEW && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
+
+    if(LCD_State==MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
   }
 }

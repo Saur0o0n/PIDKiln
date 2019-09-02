@@ -32,21 +32,69 @@ U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_
 ** Core/main LCD functions
 **
 */
+// Second main view - program graph
+//
+void LCD_display_mainv2(){
+uint16_t ttime=0,mxtemp=0,mxx=0,mxy=0,x,y,oldx,oldy,scx,scy;
+
+  if(!Program_run_size) return; //  dont go in if no program loaded
+  LCD_State=MAIN_VIEW;
+  LCD_Main=MAIN_VIEW2;  // just in case...
+
+  u8g2.clearBuffer();
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+  u8g2.setFont(FONT6);
+  u8g2.setFontPosBottom();
+  for(uint8_t a=0; a<Program_run_size; a++){
+    ttime+=Program_run[a].togo+Program_run[a].dwell;
+    if(Program_run[a].temp<mxtemp) mxtemp=Program_run[a].temp;
+  }
+
+  mxx=SCREEN_W-2; // max X axis - time
+  mxy=SCREEN_H-5; // max Y axis - temperature
+  scx=(mxx/ttime)*100;  // 1 minute is scx pixels * 100 on graph 
+  scy=(mxy/mxtemp)*100; // 1 celcius is scy pixel * 100
+
+  oldx=oldy=0;
+  for(uint8_t a=0; a<Program_run_size; a++){
+    x=y=0;
+    y=(int)(Program_run[a].temp*scy)/100;
+    x=(int)(Program_run[a].togo*scx)/100;
+    u8g2.drawLine(oldx,oldy,x,y);
+    oldx=x;
+    oldy=y;
+    if(Program_run[a].dwell){
+      x=(int)(Program_run[a].dwell*scx)/100;
+      u8g2.drawLine(oldx,oldy,x,y);
+      oldx=x;
+    }
+  }
+
+  u8g2.sendBuffer();
+}
+
+
+
+// Fist main view - basic running program informations, status, time, start time, eta, temperatures
+//
 void LCD_display_mainv1(){
 char msg[MAX_CHARS_PL];
-uint16_t x=2,y=0;
-uint8_t chh,mch;
+uint16_t x=2,y=1;
+uint8_t chh,chw,mch;
 struct tm timeinfo;
 
+  if(!Program_run_size) return; //  dont go in if no program loaded
   LCD_State=MAIN_VIEW;
   LCD_Main=MAIN_VIEW1;  // just in case...
   
   u8g2.clearBuffer();
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.setFont(FONT7);
-  u8g2.setFontPosBaseline();
-  chh=u8g2.getMaxCharHeight()+1;
-  mch=floor(SCREEN_W-4/u8g2.getMaxCharWidth()); // how many chars per line...
+  u8g2.setFontPosBottom();
+  strcmp(msg," ");
+  chh=u8g2.getMaxCharHeight()+2;
+  chw=u8g2.getMaxCharWidth();
+  mch=floor(SCREEN_W-4/chw); // how many chars per line...
   sprintf(msg,"%.*s",mch,Program_run_name);
   u8g2.drawBox(0,0, SCREEN_W, chh+1);
   u8g2.setDrawColor(0);
@@ -58,11 +106,27 @@ struct tm timeinfo;
   y+=chh;
   u8g2.drawStr(x+1,y,msg);
 
-  u8g2.drawFrame(0,y-chh+2, SCREEN_W, chh);
-  u8g2.drawFrame(0,y-chh+2, SCREEN_W/2, chh);
-  if(getLocalTime(&timeinfo)) sprintf(msg," %d:%d:%02d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+  // Program status & Clock
+  u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
+  u8g2.drawFrame(0,y-chh, SCREEN_W/2, chh+1);
+  if(getLocalTime(&timeinfo)) sprintf(msg," %d:%02d:%02d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
   else sprintf(msg," No time");
   u8g2.drawStr(SCREEN_W/2,y,msg);
+
+  // Start time
+  y+=chh;
+  u8g2.drawFrame(0,y-chh, chw*8, chh+1);
+  u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
+  sprintf(msg,"Start");
+  u8g2.drawStr(x,y,msg);
+
+  //ETA time
+  y+=chh;
+  u8g2.drawFrame(0,y-chh, chw*8, chh+1);
+  u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
+  sprintf(msg,"ETA");
+  u8g2.drawStr(x,y,msg);
+  
   u8g2.sendBuffer();
 }
 
@@ -73,7 +137,8 @@ void LCD_display_main_view(){
 char sname[40];
 
   LCD_State=MAIN_VIEW;
-  if(LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
+  if(Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();    // if any program loaded and view selected
+  else if(Program_run_size && LCD_Main==MAIN_VIEW2) LCD_display_mainv2();
   else{
     u8g2.clearBuffer();          // clear the internal memory
     sprintf(sname,"Main screen %d",(int)LCD_Main);
@@ -394,7 +459,8 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
 //
 void LCD_display_info(){
 uint8_t chh,y,x=2;
-char msg[40];
+char msg[MAX_CHARS_PL];
+struct tm timeinfo;
 
   LCD_State=OTHER;
   u8g2.clearBuffer();          // clear the internal memory
@@ -411,6 +477,11 @@ char msg[40];
   }
   sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
   u8g2.drawStr(x,y+=chh,msg);
+  
+  if(getLocalTime(&timeinfo)) sprintf(msg,"Date:%4d-%02d-%02d %d:%02d:%02d",(1900+timeinfo.tm_year),timeinfo.tm_mon,timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+  else sprintf(msg,"Failed to acquire time");
+  u8g2.drawStr(x,y+=chh,msg);
+    
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 
