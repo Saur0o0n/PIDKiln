@@ -16,7 +16,7 @@ This is work in progress - but advanced enough to start uploading it.
 ## Required components:
 - ESP32 board
 - MAX31855 breakout board
-- k-type thermocouple (1$+ - depending on max temperature)
+- k-type thermocouple
 - 128x65 dot matrix LCD 12864B v2
 - rotary encoder with button
 - DC->AC solid state relay
@@ -25,12 +25,12 @@ Kind of optional:
 - perhaps a kiln :)
 
 Total expenses for this set should be around 30-40$
-- ESP32 board - 14-15$ if exactly like mine, but other ESP32 you can bought for 6$+
-- MAX31855 board - 2$
-- k-type thermocouple - 1$-10$ - depending on max temperature
-- LCD - 5$
-- encoder - 1$
-- SSR - 4$ + 4$ for radiator
+- ESP32 board: 14-15$ if exactly like mine, but other ESP32 you can bought for 6$+
+- MAX31855 board: 2$
+- k-type thermocouple: 1$-10$ - depending on max temperature
+- LCD 12864B: 5$
+- encoder: 1$
+- SSR: 4$ + 4$ for radiator
 
 ## Why this configuration?
 

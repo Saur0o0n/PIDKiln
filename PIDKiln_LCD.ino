@@ -12,6 +12,8 @@
 #include <Wire.h>
 #endif
 
+#define FONT4 u8g2_font_p01type_tr
+#define FONT5 u8g2_font_micro_tr
 #define FONT6 u8g2_font_5x8_tr
 #define FONT7 u8g2_font_6x10_tr
 #define FONT8 u8g2_font_bitcasual_tr
@@ -32,40 +34,63 @@ U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_
 ** Core/main LCD functions
 **
 */
+void DrawVline(uint16_t x,uint16_t y,uint16_t h){
+
+  DBG Serial.printf(" -> Draw V dots: x:%d\t y:%d\t h:%d\n",x,y,h);
+  h+=y;
+  for(uint16_t yy=y;yy<h;yy+=3) u8g2.drawPixel(x,yy);
+}
+
 // Second main view - program graph
 //
 void LCD_display_mainv2(){
-uint16_t ttime=0,mxtemp=0,mxx=0,mxy=0,x,y,oldx,oldy,scx,scy;
+uint16_t ttime=0,mxtemp=0,mxx=0,mxy=0,x,y,oldx,oldy,scx,scy,startx,starty;
+char msg[MAX_CHARS_PL];
 
   if(!Program_run_size) return; //  dont go in if no program loaded
   LCD_State=MAIN_VIEW;
   LCD_Main=MAIN_VIEW2;  // just in case...
 
   u8g2.clearBuffer();
-  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
-  u8g2.setFont(FONT6);
+  u8g2.setFont(FONT4);
   u8g2.setFontPosBottom();
   for(uint8_t a=0; a<Program_run_size; a++){
     ttime+=Program_run[a].togo+Program_run[a].dwell;
-    if(Program_run[a].temp<mxtemp) mxtemp=Program_run[a].temp;
+    if(Program_run[a].temp>mxtemp) mxtemp=Program_run[a].temp;
   }
 
   mxx=SCREEN_W-2; // max X axis - time
   mxy=SCREEN_H-5; // max Y axis - temperature
-  scx=(mxx/ttime)*100;  // 1 minute is scx pixels * 100 on graph 
-  scy=(mxy/mxtemp)*100; // 1 celcius is scy pixel * 100
+  if(ttime) scx=(int)((mxx*100)/ttime);   // 1 minute is scx pixels * 100 on graph 
+  if(mxtemp) scy=(int)((mxy*100)/mxtemp); // 1 celcius is scy pixel * 100
 
-  oldx=oldy=0;
+  DBG Serial.printf("Graph. mxx:%d mxy:%d ttime:%d mxtemp:%d scx:%d scy:%d\n",mxx,mxy,ttime,mxtemp,scx,scy);
+
+  // Draw axies
+  u8g2.drawHLine(1,SCREEN_H-1,mxx);
+  u8g2.drawVLine(1,SCREEN_H-mxy,mxy);
+  u8g2.drawHLine(0,SCREEN_H-mxy,3);
+  sprintf(msg,"%dC",mxtemp);
+  u8g2.drawStr(4,9,msg);
+  
+  startx=1;
+  starty=SCREEN_H-1;  // 0.0 on screen is in left, upper corner - reverse it
+  
+  oldx=startx;
+  oldy=starty;
   for(uint8_t a=0; a<Program_run_size; a++){
-    x=y=0;
-    y=(int)(Program_run[a].temp*scy)/100;
-    x=(int)(Program_run[a].togo*scx)/100;
+    x=startx;y=starty;      // in case of any fuckup - jest go to start point
+    y=starty-(int)(Program_run[a].temp*scy)/100;
+    x=(int)(Program_run[a].togo*scx)/100+oldx;
     u8g2.drawLine(oldx,oldy,x,y);
+    DBG Serial.printf(".Drawing line: x0:%d \t y0:%d \tto\t x1:%d (%d) \t y1:%d (%d) \n",oldx,oldy,x,Program_run[a].togo,y,Program_run[a].temp);
+    DrawVline(x,y,starty-y);
     oldx=x;
     oldy=y;
     if(Program_run[a].dwell){
-      x=(int)(Program_run[a].dwell*scx)/100;
+      x=(int)(Program_run[a].dwell*scx)/100+oldx;
       u8g2.drawLine(oldx,oldy,x,y);
+      DBG Serial.printf("..Drawing line: x0:%d \t y0:%d \tto\t x1:%d (%d) \t y1:%d (%d)\n",oldx,oldy,x,Program_run[a].dwell,y,Program_run[a].temp);
       oldx=x;
     }
   }
@@ -214,7 +239,7 @@ char msg[MAX_CHARS_PL];
   }
   DBG Serial.printf(" Start pos:%d, sel_prg:%d, max_lines:%d\n",start_pos,sel,max_lines);
   
-  for(start_pos; start_pos<max_lines; start_pos++){
+  for(start_pos; start_pos<max_lines && start_pos<Programs_DIR_size; start_pos++){
     if(Programs_DIR[start_pos].filesize<999) sprintf(msg,"%-15.15s %3db",Programs_DIR[start_pos].filename,Programs_DIR[start_pos].filesize);
     else sprintf(msg,"%-15.15s %2dkb",Programs_DIR[start_pos].filename,(int)(Programs_DIR[start_pos].filesize/1024));
     DBG Serial.printf(" Program list:%s: sel:%d\n",msg,Programs_DIR[start_pos].sel);
@@ -309,7 +334,7 @@ uint8_t piece=0,y=0,chh;
   u8g2.setDrawColor(1);
   DBG Serial.printf("Creating prg menu. Size:%d Piece:%d Chh:%d\n",Prog_Menu_Size,piece,chh);
       
-  for(byte a=0; a<Prog_Menu_Size; a++){
+  for(uint8_t a=0; a<Prog_Menu_Size; a++){
     if(a==pos){
       if(pos==Prog_Menu_Size-1) u8g2.drawBox(piece*a,SCREEN_H-chh-2, SCREEN_W-piece*a , chh+1); // dirty hack - because screen has 127 pixels, not 126 - it's not possible to divide it by 4 - so it wont go till the end of the screen
       else u8g2.drawBox(piece*a,SCREEN_H-chh-2, piece+1 , chh+1);
@@ -489,7 +514,7 @@ struct tm timeinfo;
 // Display about screen
 //
 void LCD_display_about(){
-  LCD_State=OTHER;    // uPDate what are we showing on screen
+  LCD_State=ABOUT;   // Update what are we showing on screen
   u8g2.clearBuffer();
   u8g2.setFont(FONT8);
   u8g2.drawStr(28,15,PVer);
@@ -501,7 +526,6 @@ void LCD_display_about(){
   u8g2.drawFrame(0,0,127,63);
   u8g2.sendBuffer();
 }
-
 
 
 

@@ -3,13 +3,14 @@
 ** Global value of LCD screen/menu and menu position 
 */
 typedef enum {
-  MAIN_VIEW,    // group of main screens showing running program
-  MENU,         // menu
-  PROGRAM_LIST, // list of all programs
-  PROGRAM_SHOW, // showing program content
-  PROGRAM_DELETE,  // deleting program
-  PROGRAM_FULL, // step by step program display
-  OTHER         // some other screens like about that are stateless
+  MAIN_VIEW,      // group of main screens showing running program
+  MENU,           // menu
+  PROGRAM_LIST,   // list of all programs
+  PROGRAM_SHOW,   // showing program content
+  PROGRAM_DELETE, // deleting program
+  PROGRAM_FULL,   // step by step program display
+  ABOUT,          // short info screen
+  OTHER           // some other screens like about that are stateless
 } LCD_State_enum;
 
 typedef enum { // different main screens
