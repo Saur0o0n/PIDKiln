@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Pidkiln main view</title>
+ <link rel="stylesheet" href="/css/main.css">
+ <link rel="stylesheet" href="/css/nav.css">
+ <script type="text/javascript" src="/js/nav.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.bundle.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource"></script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+ <div class="topnav" id="myTopnav">
+  <a href="/index.html">Main view</a>
+  <a href="/programs/index.html" class="active">Manage programs</a>
+  <a href="/preferences.html">Preferences</a>
+  <a href="/about.html">About</a>
+  <a href="/debug_board.html">Debug ESP</a>
+  <a href="#about">Flash firmware</a>
+  <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
+    <i class="fa fa-bars"></i>
+  </a>
+ </div>
+
+ <br>
+
+ <div style="width: 40em;margin-top: 30px;padding-bottom: 0px;">
+  <form method="post" action="delete.html">
+   <fieldset style="margin-bottom: 10px;">
+    <legend style="padding-bottom: 10px;">Are you sure, you want to delete "~PROGRAM_NAME~" program?</legend>
+	<input type="hidden" name="prog_name" value="~PROGRAM_NAME~">
+	<input type="submit" name="no" value="Noooo">
+	<input type="submit" name="yes" value="Yes!" style="float: right;">
+   </fieldset>
+  </form>
+
+ </div>
+
+</body>
+</html>

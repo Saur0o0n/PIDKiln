@@ -17,11 +17,14 @@ String template_str;  // Stores template pareser output
 
 // Template preprocessor for preferences - preferences.html
 //
-String preferences(const String& var){
+String preferences_parser(const String& var){
 
  return String();
 
 }
+
+
+
 
 
 // Template preprocessor for debug screen - debug_board.html
@@ -166,7 +169,7 @@ template_str=String();
       file.close();
     }else template_str += "<td> Error opening file to read description </td>";
     template_str += "<td><a href=/edit/"+String(Programs_DIR[a].filename)+">edit</a></td>";
-    template_str += "<td><a href=/delete/"+String(Programs_DIR[a].filename)+">delete</a></td>";
+    template_str += "<td><a href=/delete.html?prog_name="+String(Programs_DIR[a].filename)+">delete</a></td>";
     template_str += "</tr>\n";
   }
 
@@ -242,15 +245,27 @@ static File newFile;
 static boolean abort=false;
 String tmp=String(PRG_Directory);
 
+
   tmp.concat("/");
   tmp.concat(filename.c_str());
 
-  // Abort file upload if file is too large or there are some not allowed characters
+  // Abort file upload if file is too large or there are some not allowed characters in program
   if(abort){
     abort=false;
     delete_file(newFile);
     request->client()->abort();
     return;
+  }
+
+  // Check if declared file size in header is not too large
+  if(request->hasHeader("Content-Length")){
+    AsyncWebHeader* h = request->getHeader("Content-Length");
+    if(h->value().toInt()>MAX_Prog_File_Size){
+      DBG Serial.println("Uploaded file too large! Aborting");
+      request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/>Return to main view</a></body></html");
+      abort=true;
+      return;
+    }
   }
 
   // Checking how much has been uploaded - if more then MAX_Prog_File_Size - abort
@@ -307,12 +322,73 @@ String tmp=String(PRG_Directory);
 }
 
 
+// Handle delete - second run, post - actual deletion
+//
+void delete_handle_post(AsyncWebServerRequest *request){
+
+int params = request->params();
+for(int i=0;i<params;i++){
+  AsyncWebParameter* p = request->getParam(i);
+  if(p->isFile()){ //p->isPost() is also true
+    Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
+  } else if(p->isPost()){
+    Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+  } else {
+    Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+  }
+}
+
+//Check if POST (but not File) parameter exists
+  if(request->hasParam("prog_name", true) && request->hasParam("yes", true)){
+    AsyncWebParameter* p = request->getParam("yes", true);
+    if(p->value().compareTo(String("Yes!"))==0){ // yes user want's to delete program
+      AsyncWebParameter* p = request->getParam("prog_name", true);
+      char path[32];
+      sprintf(path,"%s/%.*s",PRG_Directory,MAX_PROGNAME,p->value().c_str());
+      DBG Serial.printf(" Removing program: %s with fpath:%s\n",p->value().c_str(),path);
+      if(SPIFFS.exists(path)){
+        SPIFFS.remove(path);
+        generate_index();
+      }
+    }
+  }
+
+  request->redirect("/programs");
+}
 
 
+// Handle delete - first run, get - are you sure question
+//
+void delete_handle_get(AsyncWebServerRequest *request){
+File tmpf;
+String tmps;
 
+  DBG Serial.printf(" Request type: %d\n",request->method());
+  DBG Serial.printf(" Request url: %s\n",request->url().c_str());
 
+  if(!request->hasParam("prog_name") || !(tmpf=SPIFFS.open("/delete.html", "r")) ){  // if no program to delete - skip
+    DBG Serial.println(" Failed to find GET or open delete.html");
+    request->redirect("/programs");
+    return;
+  }
+ 
+  AsyncWebParameter* p = request->getParam("prog_name");
+  
+  AsyncResponseStream *response = request->beginResponseStream("text/html");
+  response->addHeader("Server","ESP Async Web Server");
 
+  DBG Serial.printf(" Opened file is %s, program name is:%s\n",tmpf.name(),p->value().c_str());
+  
+  while(tmpf.available()){
+    tmps=tmpf.readStringUntil('\n');
+    tmps.replace("~PROGRAM_NAME~",p->value());
+    //DBG Serial.printf("-:%s:\n",tmps.c_str());
+    response->println(tmps.c_str());
+  }
 
+  tmpf.close();
+  request->send(response);
+}
 
 
 /* 
@@ -350,9 +426,13 @@ void setup_webserver(void) {
   });
 
   server.on("/preferences.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/preferences.html", String(), false, preferences);
+    request->send(SPIFFS, "/preferences.html", String(), false, preferences_parser);
   });
 
+  server.on("/delete.html", HTTP_GET, delete_handle_get);
+  
+  server.on("/delete.html", HTTP_POST, delete_handle_post);
+  
   // Serve some static data
   server.serveStatic("/icons/", SPIFFS, "/icons/");
   server.serveStatic("/js/", SPIFFS, "/js/");
