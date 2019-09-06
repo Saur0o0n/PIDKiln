@@ -8,7 +8,15 @@
 hw_timer_t * timer = NULL;
 volatile SemaphoreHandle_t timerSemaphore;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
- 
+
+
+/*
+** Core/main program functions
+**
+*/
+
+// Setup timer function
+//
 void IRAM_ATTR onTimer(){
   // Increment the counter and set the time of ISR
   portENTER_CRITICAL_ISR(&timerMux);
@@ -18,10 +26,6 @@ void IRAM_ATTR onTimer(){
   // It is safe to use digitalRead/Write here if you want to toggle an output
 }
 
-/*
-** Core/main program functions
-**
-*/
 
 // Load program from disk to memory - validate it
 //

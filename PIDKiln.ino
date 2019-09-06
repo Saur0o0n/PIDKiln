@@ -18,15 +18,7 @@
 ** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
 ** Please set them up before uploading.
 */
-const char* ssid = "";  // Replace with your network credentials
-const char* password = "";
-
 #define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW FROM HERE - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
-
-const char* ntpServer1 = "pool.ntp.org";
-const char* ntpServer2 = "2.pl.pool.ntp.org";
-const uint16_t gmtOffset_sec = 3600;
-const uint16_t daylightOffset_sec = 3600;
 
 #define DEBUG true
 //#define DEBUG false
@@ -39,8 +31,6 @@ const uint16_t daylightOffset_sec = 3600;
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
 const uint16_t Long_Press=400; // long press button takes about 0,9 second
-
-const uint8_t WiFi_Tries=5;    // how many times (1 per second) tries to connect to wifi before failing
 
 const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 const int MAX_Temp=1350;        // maximum temperature for kiln/programs
@@ -71,8 +61,10 @@ char filename[32];
  }else return false;
 }
 
+
 // Function check is uploaded file has only ASCII characters - this to be modified in future, perhaps to even narrowed down.
 // Currently excluded are non printable characters, except new line and [] brackets. [] are excluded mostly for testing purpose.
+// This way it should be faster then traversing char array
 boolean check_valid_chars(byte a){
   if(a==0 || a==9 || a==95) return true; // end of file, tab, _
   if(a==10 || a==13) return true; // new line - Line Feed, Carriage Return
@@ -87,26 +79,43 @@ boolean check_valid_chars(byte a){
 }
 
 
+// Check filename if it has only letters, numbers and . _ characters - other are not allowed for easy parsing and transfering
+//
+boolean valid_filename(char *file){
+char c;
+  while (c = *file++){
+    if(strchr(allowed_chars_in_filename,c)) continue; // if every letter is on allowed list - we are good to go
+    else return false;
+  }
+  return true;
+}
+
+
+// Main setup that invokes other subsetups to initialize other modules
+//
 void setup() {
   // Serial port for debugging purposes
   DBG Serial.begin(115200);
 
-  // Setup function for LCD display from PIDKiln_LCD.ino
-  setup_lcd();
-
-  // Setup input devices
-  setup_input();
-  
   // Initialize SPIFFS
   if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
     DBG Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
 
-  DBG Serial.printf("Size of SSID %d",strlen(ssid));
+  // Load all preferences
+  setup_prefs();
+  
+  // Setup function for LCD display from PIDKiln_LCD.ino
+  setup_lcd();
+
+  // Setup input devices
+  setup_input();
+  
+  DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
   
   // Connect to Wi-Fi
-  if(strlen(ssid)){
+  if(Prefs[PRF_WIFI_SSID].type){
     load_msg("connecting WiFi..");
     if(setup_wifi()){    // !!! Wifi connection FAILED
       DBG Serial.println("WiFi connection failed");

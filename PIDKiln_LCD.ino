@@ -494,7 +494,7 @@ struct tm timeinfo;
   
   sprintf(msg,"WiFi status: %d",WiFi.isConnected());
   u8g2.drawStr(x,y,msg);
-  sprintf(msg,"WiFi ssid: %s",ssid);
+  sprintf(msg,"WiFi ssid: %s",Prefs[PRF_WIFI_SSID].value.str);
   u8g2.drawStr(x,y+=chh,msg);
   if(WiFi.isConnected()){
     sprintf(msg,"WiFi IP: %s",WiFi.localIP().toString().c_str());

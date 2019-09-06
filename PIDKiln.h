@@ -100,6 +100,8 @@ const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Stopped","
 #define MAX_FILENAME 30   // directory+name can be max 32 on SPIFFS
 #define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
 
+const char allowed_chars_in_filename[]="abcdefghijklmnoprstuwxyzABCDEFGHIJKLMNOPRSTUWXYZ1234567890._";
+
 struct DIRECTORY {
   char filename[MAX_PROGNAME+1];
   uint16_t filesize=0;
@@ -128,6 +130,60 @@ const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... s
 
 const char *PVer = "PIDKiln v0.3";
 const char *PDate = "2019.09.02";
+
+/*
+**  Preference definitions
+*/
+#define PREFS_FILE "/etc/pidkiln.conf"
+
+// Other variables
+//
+typedef enum { // program menu positions
+  PRF_NONE,
+  PRF_WIFI_SSID,
+  PRF_WIFI_PASS,
+  PRF_WIFI_MODE,      // 0 - connect to AP if failed, be AP; 1 - connect only to AP; 2 - be only AP
+  PRF_WIFI_RETRY_CNT,
+  PRF_WIFI_AP_NAME,
+  PRF_WIFI_AP_USERNAME,
+  PRF_WIFI_AP_PASS,
+
+  PRF_NTPSERVER1,
+  PRF_NTPSERVER2,
+  PRF_NTPSERVER3,
+  PRF_GMT_OFFSET,
+  PRF_DAYLIGHT_OFFSET,
+  
+  PRF_MIN_TEMP,
+  PRF_MAX_TEMP,
+  PRF_end
+} PREFERENCES;
+
+const char *PrefsName[]={
+"None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
+"NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec",
+"MIN_Temperature","MAX_Temperature"
+};
+
+typedef enum {
+ NONE,        // when this value is set - prefs item is off
+ UINT8,
+ UINT16,
+ STRING,
+} TYPE;
+    
+struct PrefsStruct {
+  TYPE type=NONE;
+  union {
+    uint8_t uint8;
+    uint16_t uint16;
+    char *str;
+  } value;
+};
+
+struct PrefsStruct Prefs[PRF_end];
+
+
 
 /*
 ** Function defs

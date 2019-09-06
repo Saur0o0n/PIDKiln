@@ -8,12 +8,12 @@
 boolean start_wifi(){
 bool wifi_failed=true;
 
-  if(!strlen(ssid)) return 1;
+  if(!strlen(Prefs[PRF_WIFI_SSID].value.str)) return 1;
     
-  WiFi.begin(ssid, password);
+  WiFi.begin(Prefs[PRF_WIFI_SSID].value.str, Prefs[PRF_WIFI_PASS].value.str);
   DBG Serial.println("Connecting to WiFi...");
     
-  for(byte a=0; a<WiFi_Tries; a++){
+  for(byte a=0; a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){
     delay(1000);
     if (WiFi.status() == WL_CONNECTED){
       wifi_failed=false;
@@ -51,10 +51,10 @@ struct tm mytm;
 boolean setup_wifi(){
 struct tm timeinfo;
 
-  if(strlen(ssid)){
+  if(strlen(Prefs[PRF_WIFI_SSID].value.str)){
     if(start_wifi()) return 1;  // if we failed to connect, stop trying
     
-    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2); // configure RTC clock with NTP server - ot at least try
+    configTime(Prefs[PRF_GMT_OFFSET].value.uint16, Prefs[PRF_DAYLIGHT_OFFSET].value.uint16, Prefs[PRF_NTPSERVER1].value.str, Prefs[PRF_NTPSERVER2].value.str, Prefs[PRF_NTPSERVER3].value.str); // configure RTC clock with NTP server - ot at least try
     if(!getLocalTime(&timeinfo)) setup_start_date();    // if failed to setup NTP time - start default clock
     
     setup_webserver(); // Setup function for Webserver from PIDKiln_http.ino

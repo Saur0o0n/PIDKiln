@@ -220,9 +220,9 @@ char *str;
 }
 
 
-// Template preprocessor for main view - index.html, and some others
+// Template preprocessor for main view - index.html, about and perhaps others
 //
-String parser(const String& var) {
+String main_parser(const String& var) {
 String tmp;
 
   template_str=String();
@@ -252,39 +252,52 @@ String tmp=String(PRG_Directory);
   // Abort file upload if file is too large or there are some not allowed characters in program
   if(abort){
     abort=false;
-    delete_file(newFile);
+    if(newFile) delete_file(newFile);
     request->client()->abort();
     return;
   }
 
-  // Check if declared file size in header is not too large
-  if(request->hasHeader("Content-Length")){
-    AsyncWebHeader* h = request->getHeader("Content-Length");
-    if(h->value().toInt()>MAX_Prog_File_Size){
-      DBG Serial.println("Uploaded file too large! Aborting");
-      request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/>Return to main view</a></body></html");
-      abort=true;
-      return;
-    }
-  }
 
   // Checking how much has been uploaded - if more then MAX_Prog_File_Size - abort
   if(len+index>MAX_Prog_File_Size){
      DBG Serial.println("Uploaded file too large! Aborting");
-     request->send(200, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/>Return to main view</a></body></html");
+     request->send(406, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/>Return to main view</a></body></html");
      abort=true;
      return;
   }
     
   if(!index){
     DBG Serial.printf("UploadStart: %s\n", tmp.c_str() );
+    
+    // Check if declared file size in header is not too large
+    if(request->hasHeader("Content-Length")){
+      AsyncWebHeader* h = request->getHeader("Content-Length");
+      if(h->value().toInt()>MAX_Prog_File_Size){
+        DBG Serial.println("Uploaded file too large! Aborting");
+        request->send(406, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/programs/>Return to programs view</a></body></html");
+        abort=true;
+        return;
+      }
+    }
+
     // Abort if filename is too long (otherwise esp will not write file to SPIFFS silently!)
     if(tmp.length()>MAX_FILENAME){
       DBG Serial.println("Uploaded filename is too large! Aborting");
-      request->send(200, "text/html", "<html><body><h1>Filename is too long!</h1> Current limit is "+String(MAX_FILENAME)+"letters for directory and filename, so program name can be only "+String(MAX_PROGNAME)+" <br><br><a href=/>Return to main view</a></body></html");
+      request->send(406, "text/html", "<html><body><h1>Filename is too long!</h1> Current limit is "+String(MAX_FILENAME)+"letters for directory and filename, so program name can be only "+String(MAX_PROGNAME)+" <br><br><a href=/programs/>Return to programs view</a></body></html");
       abort=true;
       return;
     }
+
+    char tmp_filename[MAX_PROGNAME];
+    strcpy(tmp_filename,filename.c_str());
+    // Abort if filename contains not allowed characters or trys to overwrite index.html
+    if(!valid_filename(tmp_filename) || filename.compareTo("index.html")==0){
+      DBG Serial.println("Uploaded filename containg bad characters! Aborting");
+      request->send(406, "text/html", "<html><body><h1>Filename is bad!</h1> Filename contains not allowed characters - use letters, numbers and . _ signs <br><br><a href=/programs/>Return to programs view</a></body></html");
+      abort=true;
+      return;
+    }
+    
     if (newFile) newFile.close();
     newFile = SPIFFS.open( tmp.c_str(), "w");
   }
@@ -326,19 +339,19 @@ String tmp=String(PRG_Directory);
 //
 void delete_handle_post(AsyncWebServerRequest *request){
 
-int params = request->params();
-for(int i=0;i<params;i++){
-  AsyncWebParameter* p = request->getParam(i);
-  if(p->isFile()){ //p->isPost() is also true
-    Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
-  } else if(p->isPost()){
-    Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-  } else {
-    Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+  int params = request->params();
+  for(int i=0;i<params;i++){
+    AsyncWebParameter* p = request->getParam(i);
+    if(p->isFile()){ //p->isPost() is also true
+      Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
+    } else if(p->isPost()){
+      Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+    } else {
+      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+    }
   }
-}
 
-//Check if POST (but not File) parameter exists
+  //Check if POST (but not File) parameter exists
   if(request->hasParam("prog_name", true) && request->hasParam("yes", true)){
     AsyncWebParameter* p = request->getParam("yes", true);
     if(p->value().compareTo(String("Yes!"))==0){ // yes user want's to delete program
@@ -352,7 +365,6 @@ for(int i=0;i<params;i++){
       }
     }
   }
-
   request->redirect("/programs");
 }
 
@@ -402,18 +414,18 @@ void setup_webserver(void) {
   });
   
   server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/index.html", String(), false, parser);
+    request->send(SPIFFS, "/index.html", String(), false, main_parser);
   });
 
   server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/about.html", String(), false, parser);
+    request->send(SPIFFS, "/about.html", String(), false, main_parser);
   });
   
   server.on("/js/chart.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/js/chart.js", String(), false, chart_parser);
   });
   
-  // Set default file for programs to index.html - because webserver was programmed by... :/
+  // Set default file for programs to index.html - because webserver was programmed by some Windows @%$$# :/
   server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html");
 
   // Upload new programs
