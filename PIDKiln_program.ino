@@ -53,7 +53,7 @@ int multi=1;
       multi*=10;
     }
   }
-  if(prg[0]>MAX_Temp) return 4;   // check if we do not exceed max temperature
+  if(prg[0]>Prefs[PRF_MAX_TEMP].value.uint16) return 4;   // check if we do not exceed max temperature
   Program[Program_size].temp=prg[0];
   Program[Program_size].togo=prg[1];
   Program[Program_size].dwell=prg[2];
@@ -296,6 +296,6 @@ void program_loop(){
     portENTER_CRITICAL(&timerMux);
     portEXIT_CRITICAL(&timerMux);
 
-    if(LCD_State==MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
+    if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
   }
 }

@@ -37,13 +37,16 @@ int pos=0;
               if(Prefs[a].type==STRING){
                 if(Prefs[a].value.str) free(Prefs[a].value.str);
                 Prefs[a].value.str=strdup(value.c_str());
-                DBG Serial.printf("  -> saved STRING item value:%s type:%d\n",Prefs[a].value.str,(int)Prefs[a].type);
+                DBG Serial.printf("  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
               }else if(Prefs[a].type==UINT8){
                 Prefs[a].value.uint8=(uint8_t)value.toInt();
-                DBG Serial.printf("  -> saved UINT8 item value:%d type:%d\n",Prefs[a].value.uint8,(int)Prefs[a].type);
+                DBG Serial.printf("  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
               }else if(Prefs[a].type==UINT16){
                 Prefs[a].value.uint16=(uint16_t)value.toInt();
-                DBG Serial.printf("  -> saved UINT16 item value:%d type:%d\n",Prefs[a].value.uint16,(int)Prefs[a].type);
+                DBG Serial.printf("  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+              }else if(Prefs[a].type==INT16){
+                Prefs[a].value.int16=(uint16_t)value.toInt();
+                DBG Serial.printf("  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
               }
             }
           }
@@ -55,7 +58,9 @@ int pos=0;
     DBG Serial.println("-=-=-= PREFS DISPLAY =-=-=-");
     for(uint16_t a=0; a<PRF_end; a++){
       if(Prefs[a].type==STRING) DBG Serial.printf(" %d) '%s' = '%s'\t%d\n",a,PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
-      if(Prefs[a].type==UINT8 || Prefs[a].type==UINT16) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+      if(Prefs[a].type==UINT8) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+      if(Prefs[a].type==UINT16) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+      if(Prefs[a].type==INT16) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
     }
 }
 
@@ -79,8 +84,8 @@ char tmp[30];
         Prefs[PRF_WIFI_PASS].value.str=strdup("");
         break;
       case PRF_WIFI_MODE:
-        Prefs[PRF_WIFI_RETRY_CNT].type=UINT8;
-        Prefs[PRF_WIFI_RETRY_CNT].value.uint8=1;
+        Prefs[PRF_WIFI_MODE].type=UINT8;
+        Prefs[PRF_WIFI_MODE].value.uint8=1;
         break;
       case PRF_WIFI_RETRY_CNT:
         Prefs[PRF_WIFI_RETRY_CNT].type=UINT8;
@@ -100,12 +105,22 @@ char tmp[30];
         Prefs[PRF_NTPSERVER3].value.str=strdup("");
         break;
       case PRF_GMT_OFFSET:
-        Prefs[PRF_GMT_OFFSET].type=UINT16;
-        Prefs[PRF_GMT_OFFSET].value.uint16=0;
+        Prefs[PRF_GMT_OFFSET].type=INT16;
+        Prefs[PRF_GMT_OFFSET].value.int16=0;
         break;
       case PRF_DAYLIGHT_OFFSET:
-        Prefs[PRF_DAYLIGHT_OFFSET].type=UINT16;
-        Prefs[PRF_DAYLIGHT_OFFSET].value.uint16=0;
+        Prefs[PRF_DAYLIGHT_OFFSET].type=INT16;
+        Prefs[PRF_DAYLIGHT_OFFSET].value.int16=0;
+        break;
+
+
+      case PRF_MIN_TEMP:
+        Prefs[PRF_MIN_TEMP].type=UINT8;
+        Prefs[PRF_MIN_TEMP].value.uint8=10;
+        break;
+      case PRF_MAX_TEMP:
+        Prefs[PRF_MAX_TEMP].type=UINT16;
+        Prefs[PRF_MAX_TEMP].value.uint16=1350;
         break;
       default:
         break;

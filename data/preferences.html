@@ -22,9 +22,107 @@
   </a>
  </div>
 
- <div>
+ <div class="container">
+  <form method="post" action="preferences.html">
+   <fieldset>
+    <legend> WiFi configuration </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="WiFi_SSID"> WiFi access point SSID </label>
+      </div>
+      <div class="col-75">
+	<input type="tex" name="WiFi_SSID" value="~WiFi_SSID~" width="20">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="WiFi_Password"> WiFi AP password </label>
+      </div>
+      <div class="col-75">
+	<input type="password" name="WiFi_Password" value="~WiFi_Password~" width="20">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="WiFi_Mode"> WiFi Mode </label>
+      </div>
+      <div class="col-75">
+	<input type="radio" name="WiFi_Mode" value="0" ~WiFi_Mode0~> 0 - connect to AP - if failed, be AP<br>
+	<input type="radio" name="WiFi_Mode" value="1" ~WiFi_Mode1~> 1 - connect only to AP (default) <br>
+	<input type="radio" name="WiFi_Mode" value="2" ~WiFi_Mode2~> 2 - be only AP<br>
+      </div>
+     </div>
+   </fieldset>
 
+   <fieldset>
+    <legend> Time configuration </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="NTP_Server1"> NTP Server1 </label>
+      </div>
+      <div class="col-75">
+	<input type="text" name="NTP_Server1" value="~NTP_Server1~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="NTP_Server1"> NTP Server2 </label>
+      </div>
+      <div class="col-75">
+	<input type="text" name="NTP_Server2" value="~NTP_Server2~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="NTP_Server1"> NTP Server3 </label>
+      </div>
+      <div class="col-75">
+	<input type="text" name="NTP_Server3" value="~NTP_Server3~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="GMT_Offset_sec"> Difference (in seconds) from GMT time </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="GMT_Offset_sec" min="-39600" max="50400" value="~GMT_Offset_sec~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="Daylight_Offset_sec"> Daylight Saving Time difference (in seconds) </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="Daylight_Offset_sec" min="-3600" max="3600" value="~Daylight_Offset_sec~">
+      </div>
+     </div>
+   </fieldset>
 
+   <fieldset>
+    <legend> Program configuration </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="MIN_Temperature"> Minimal temperature </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="MAX_Temperature"> Maximum temperature </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~">
+      </div>
+     </div>
+    </fieldset>
+
+    <div class="row">
+	<input type="submit" value="Save changes">
+    </div>
+
+  </form>
  </div>
 
 

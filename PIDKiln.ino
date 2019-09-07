@@ -1,6 +1,6 @@
 
 /*
-** PIDKiln v0.3 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.4 - high temperature kiln PID controller for ESP32
 **
 ** (c) 2019 - Adrian Siemieniak
 **
@@ -33,7 +33,6 @@
 const uint16_t Long_Press=400; // long press button takes about 0,9 second
 
 const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
-const int MAX_Temp=1350;        // maximum temperature for kiln/programs
 
 // Other variables
 //
@@ -114,7 +113,7 @@ void setup() {
   
   DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
   
-  // Connect to Wi-Fi
+  // Connect to Wi-Fi if enabled
   if(Prefs[PRF_WIFI_SSID].type){
     load_msg("connecting WiFi..");
     if(setup_wifi()){    // !!! Wifi connection FAILED
@@ -131,7 +130,8 @@ void setup() {
     setup_start_date(); // in PIDKiln_net
     load_msg("   -- Started! --");
   }
-  
+
+  // (re)generate programs index file /programs/index.html
   generate_index();
 
   // Setup program module

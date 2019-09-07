@@ -22,8 +22,8 @@
   </a>
  </div>
 
- <div>
+ <div class="container">
  <h1>Index of programs</h1>
   <table>
-   <tr><th valign="top"><img src="/icons/heat.png" alt="[ICO]"></th><th>Name</th><th>Size</th><th>Description</th><th>Edit</th><th>Delete</th></tr>
-   <tr><th colspan="6"><hr></th></tr>
+   <tr><th valign="top"> </th><th>Name</th><th>Size</th><th>Description</th><th>Edit</th><th>Delete</th></tr>
+   <tr><td colspan="6"><hr></td></tr>

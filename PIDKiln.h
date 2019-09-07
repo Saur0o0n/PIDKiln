@@ -3,14 +3,15 @@
 ** Global value of LCD screen/menu and menu position 
 */
 typedef enum {
-  MAIN_VIEW,      // group of main screens showing running program
-  MENU,           // menu
-  PROGRAM_LIST,   // list of all programs
-  PROGRAM_SHOW,   // showing program content
-  PROGRAM_DELETE, // deleting program
-  PROGRAM_FULL,   // step by step program display
-  ABOUT,          // short info screen
-  OTHER           // some other screens like about that are stateless
+  SCR_MAIN_VIEW,      // group of main screens showing running program
+  SCR_MENU,           // menu
+  SCR_PROGRAM_LIST,   // list of all programs
+  SCR_PROGRAM_SHOW,   // showing program content
+  SCR_PROGRAM_DELETE, // deleting program
+  SCR_PROGRAM_FULL,   // step by step program display
+  SCR_ABOUT,          // short info screen
+  SCR_PREFERENCES,    // show current preferences
+  SCR_OTHER           // some other screens like about that are stateless
 } LCD_State_enum;
 
 typedef enum { // different main screens
@@ -21,19 +22,20 @@ typedef enum { // different main screens
 } LCD_MAIN_View_enum;
 
 typedef enum { // menu positions
-  M_MAIN_VIEW,
+  M_SCR_MAIN_VIEW,
   M_LIST_PROGRAMS,
   M_INFORMATIONS,
+  M_PREFERENCES,
   M_ABOUT,
   M_end
-} LCD_MENU_Item_enum;
+} LCD_SCR_MENU_Item_enum;
 
-LCD_State_enum LCD_State=MAIN_VIEW;      // global variable to keep track on where we are in LCD screen
+LCD_State_enum LCD_State=SCR_MAIN_VIEW;      // global variable to keep track on where we are in LCD screen
 LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;  // main screen has some views - where are we
-LCD_MENU_Item_enum LCD_Menu=M_MAIN_VIEW; // menu items
+LCD_SCR_MENU_Item_enum LCD_Menu=M_SCR_MAIN_VIEW; // menu items
 
-const char *Menu_Names[] = {"1) Main view","2) List programs","3) Information","4) About"};
-const byte Menu_Size=3;
+const char *Menu_Names[] = {"1) Main view","2) List programs","3) Informations","4) Preferences","5) About"};
+const byte Menu_Size=4;
 
 typedef enum { // program menu positions
   P_EXIT,
@@ -41,7 +43,7 @@ typedef enum { // program menu positions
   P_LOAD,
   P_DELETE,
   P_end
-} LCD_PMENU_Item_enum;
+} LCD_PSCR_MENU_Item_enum;
 
 const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
 const uint8_t Prog_Menu_Size=4;
@@ -50,9 +52,9 @@ const uint8_t Prog_Menu_Size=4;
 #define SCREEN_H 64
 #define MAX_CHARS_PL SCREEN_W/3  // char can have min. 3 points on screen
 
-static uint8_t MENU_LINES=5;   // how many menu lines should be print
-static uint8_t MENU_SPACE=2;   // pixels spaces between lines
-static uint8_t MENU_MIDDLE=3;  // middle of the menu, where choosing will be possible
+const uint8_t SCR_MENU_LINES=5;   // how many menu lines should be print
+const uint8_t SCR_MENU_SPACE=2;   // pixels spaces between lines
+const uint8_t SCR_MENU_MIDDLE=3;  // middle of the menu, where choosing will be possible
 
 /*
 ** Kiln program variables
@@ -128,8 +130,8 @@ uint16_t Programs_DIR_size=0;
 
 const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
 
-const char *PVer = "PIDKiln v0.3";
-const char *PDate = "2019.09.02";
+const char *PVer = "PIDKiln v0.4";
+const char *PDate = "2019.09.06";
 
 /*
 **  Preference definitions
@@ -169,6 +171,7 @@ typedef enum {
  NONE,        // when this value is set - prefs item is off
  UINT8,
  UINT16,
+ INT16,
  STRING,
 } TYPE;
     
@@ -177,6 +180,7 @@ struct PrefsStruct {
   union {
     uint8_t uint8;
     uint16_t uint16;
+    int16_t int16;
     char *str;
   } value;
 };

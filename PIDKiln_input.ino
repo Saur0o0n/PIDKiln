@@ -23,10 +23,11 @@ void ICACHE_RAM_ATTR handleInterrupt ();
 //
 void pressed_menu(){
   switch(LCD_Menu){
-    case M_MAIN_VIEW: LCD_display_main_view(); break;
+    case M_SCR_MAIN_VIEW: LCD_display_main_view(); break;
     case M_LIST_PROGRAMS: LCD_display_programs(); break;
-    case M_INFORMATIONS: LCD_display_info(); break;
-    case M_ABOUT: LCD_display_about(); break;
+    case M_INFORMATIONS: LCD_Display_info(); break;
+    case M_ABOUT: LCD_Display_about(); break;
+    case M_PREFERENCES: LCD_Display_prefs(); break;
     default: break;
   }
 }
@@ -43,12 +44,12 @@ void pressed_main_view(){
 //
 void button_Short_Press(){
   DBG Serial.printf(" Short press. Current view %d\n",(int)LCD_State);
-  if(LCD_State==MENU) pressed_menu();
-  else if(LCD_State==MAIN_VIEW) pressed_main_view();
-  else if(LCD_State==PROGRAM_LIST) LCD_Display_program_summary(0,0);
-  else if(LCD_State==PROGRAM_SHOW) LCD_Display_program_summary(0,2);
-  else if(LCD_State==PROGRAM_DELETE) LCD_Display_program_delete(0,1);
-  else if(LCD_State==PROGRAM_FULL) LCD_Display_program_summary(0,1);
+  if(LCD_State==SCR_MENU) pressed_menu();
+  else if(LCD_State==SCR_MAIN_VIEW) pressed_main_view();
+  else if(LCD_State==SCR_PROGRAM_LIST) LCD_Display_program_summary(0,0);
+  else if(LCD_State==SCR_PROGRAM_SHOW) LCD_Display_program_summary(0,2);
+  else if(LCD_State==SCR_PROGRAM_DELETE) LCD_Display_program_delete(0,1);
+  else if(LCD_State==SCR_PROGRAM_FULL) LCD_Display_program_summary(0,1);
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
@@ -57,16 +58,16 @@ void button_Short_Press(){
 //
 void button_Long_Press(){
 
-  if(LCD_State==MENU){ // we are in menu - switch to main screen
-    LCD_State=MAIN_VIEW;
+  if(LCD_State==SCR_MENU){ // we are in menu - switch to main screen
+    LCD_State=SCR_MAIN_VIEW;
     LCD_display_main_view();
     return;
-  }else if(LCD_State==PROGRAM_SHOW){ // if we are showing program - go to program list
-    LCD_State=PROGRAM_LIST;
+  }else if(LCD_State==SCR_PROGRAM_SHOW){ // if we are showing program - go to program list
+    LCD_State=SCR_PROGRAM_LIST;
     LCD_display_programs(); // LCD_Program is global
     return;
   }else{ // If we are in MAIN screen or Program list or in unknown area to to -> menu
-    LCD_State=MENU; // switching to menu
+    LCD_State=SCR_MENU; // switching to menu
     LCD_display_menu();
     return;    
   }
@@ -78,7 +79,7 @@ void button_Long_Press(){
 void rotate(){
 
 // If we are in MAIN screen view
- if(LCD_State==MAIN_VIEW){
+ if(LCD_State==SCR_MAIN_VIEW){
   if(encoderValue<0){
     if(LCD_Main>MAIN_VIEW1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main-1);
     LCD_display_main_view();
@@ -88,25 +89,27 @@ void rotate(){
     LCD_display_main_view();
     return;
   }
-  }else if(LCD_State==MENU){
-    DBG Serial.printf("Rotate, MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
+  }else if(LCD_State==SCR_MENU){
+    DBG Serial.printf("Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
     if(encoderValue<0){
-      if(LCD_Menu>M_MAIN_VIEW) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu-1);
+      if(LCD_Menu>M_SCR_MAIN_VIEW) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu-1);
     }else{
-      if(LCD_Menu<M_end-1) LCD_Menu=(LCD_MENU_Item_enum)((int)LCD_Menu+1);
+      if(LCD_Menu<M_end-1) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu+1);
     }
     LCD_display_menu();
     return;
-  }else if(LCD_State==PROGRAM_LIST){
+  }else if(LCD_State==SCR_PROGRAM_LIST){
     DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
     rotate_selected_program(encoderValue);
     LCD_display_programs();
-  }else if(LCD_State==PROGRAM_SHOW){
+  }else if(LCD_State==SCR_PROGRAM_SHOW){
     LCD_Display_program_summary(encoderValue,1);
-  }else if(LCD_State==PROGRAM_DELETE){
+  }else if(LCD_State==SCR_PROGRAM_DELETE){
     LCD_Display_program_delete(encoderValue,0);
-  }else if(LCD_State==PROGRAM_FULL){
+  }else if(LCD_State==SCR_PROGRAM_FULL){
     LCD_Display_program_full(encoderValue);
+  }else if(LCD_State==SCR_PREFERENCES){
+    LCD_Display_prefs(encoderValue);
   }
 }
 

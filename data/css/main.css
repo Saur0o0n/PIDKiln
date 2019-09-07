@@ -1,19 +1,98 @@
 
-
 div.debug {
   max-width: 800px;
-  padding: 10px;
+  padding: 20px;
+  background-color: #fafafa;
+  border: 4px dotted black;
+  margin-top: 12px;
 }
 
 table.debug {
   width: 100%;
-  border: 4px dotted black;
 }
 
 table.debug th {
-  font-size: 1.5em;
+  font-size: 1.4em;
   font-weight: bold;
   background-color: #4CAF50;
   color: white;
   padding: 10px;
+  border-radius: 7px;
 }
+
+
+/* Style for forms
+*/
+.container {
+  border: 4px dotted black;
+  background-color: #fafafa;
+  padding: 10px 20px;
+  width: 80%;
+  margin-top: 12px;
+}
+
+legend, h1 {
+  font-size: 1.4em;
+  font-weight: bold;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  padding-left: 20px;
+  width: 98%;
+  border-radius: 7px;
+}
+
+fieldset {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+label {
+  padding: 8px 12px 8px 0;
+  display: inline-block;
+}
+
+input[type=number] {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+input[type=submit] {
+  padding: 4px 20px;
+  cursor: pointer;
+  float: right;
+  margin-top: 2px;
+}
+
+input[type=submit]:hover {
+  background-color: #4CAF50;
+  border-radius: 7px;
+}
+
+.col-25 {
+  float: left;
+  width: 25%;
+  margin-top: 6px;
+}
+
+.col-75 {
+  float: left;
+  width: 75%;
+  margin-top: 6px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .col-25, .col-75, input[type=submit] {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+

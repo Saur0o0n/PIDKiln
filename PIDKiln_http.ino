@@ -19,6 +19,20 @@ String template_str;  // Stores template pareser output
 //
 String preferences_parser(const String& var){
 
+      if(var=="WiFi_SSID") return String(Prefs[PRF_WIFI_SSID].value.str);
+ else if(var=="WiFi_Password") return String(Prefs[PRF_WIFI_PASS].value.str);
+ else if(var=="WiFi_Mode0" && Prefs[PRF_WIFI_MODE].value.uint8==0) return "checked";
+ else if(var=="WiFi_Mode1" && Prefs[PRF_WIFI_MODE].value.uint8==1) return "checked";
+ else if(var=="WiFi_Mode2" && Prefs[PRF_WIFI_MODE].value.uint8==2) return "checked";
+
+ else if(var=="NTP_Server1") return String(Prefs[PRF_NTPSERVER1].value.str);
+ else if(var=="NTP_Server2") return String(Prefs[PRF_NTPSERVER2].value.str);
+ else if(var=="NTP_Server3") return String(Prefs[PRF_NTPSERVER3].value.str);
+ else if(var=="GMT_Offset_sec") return String(Prefs[PRF_GMT_OFFSET].value.int16);
+ else if(var=="Daylight_Offset_sec") return String(Prefs[PRF_DAYLIGHT_OFFSET].value.int16);
+ 
+ else if(var=="MIN_Temperature") return String(Prefs[PRF_MIN_TEMP].value.uint8);
+ else if(var=="MAX_Temperature") return String(Prefs[PRF_MAX_TEMP].value.uint16);
  return String();
 
 }

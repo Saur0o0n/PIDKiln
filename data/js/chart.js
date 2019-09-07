@@ -55,7 +55,7 @@ var config = {
 				},
 				scaleLabel: {
 					display: true,
-					labelString: 'Temperature (°C)'
+					labelString: 'Temperature (&deg;C)'
 				}
 			}]
 		},

@@ -48,7 +48,7 @@ uint16_t ttime=0,mxtemp=0,mxx=0,mxy=0,x,y,oldx,oldy,scx,scy,startx,starty;
 char msg[MAX_CHARS_PL];
 
   if(!Program_run_size) return; //  dont go in if no program loaded
-  LCD_State=MAIN_VIEW;
+  LCD_State=SCR_MAIN_VIEW;
   LCD_Main=MAIN_VIEW2;  // just in case...
 
   u8g2.clearBuffer();
@@ -109,7 +109,7 @@ uint8_t chh,chw,mch;
 struct tm timeinfo;
 
   if(!Program_run_size) return; //  dont go in if no program loaded
-  LCD_State=MAIN_VIEW;
+  LCD_State=SCR_MAIN_VIEW;
   LCD_Main=MAIN_VIEW1;  // just in case...
   
   u8g2.clearBuffer();
@@ -156,12 +156,12 @@ struct tm timeinfo;
 }
 
 
-// Display main screeen(s)
+// Display main screeens
 //
 void LCD_display_main_view(){
 char sname[40];
 
-  LCD_State=MAIN_VIEW;
+  LCD_State=SCR_MAIN_VIEW;
   if(Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();    // if any program loaded and view selected
   else if(Program_run_size && LCD_Main==MAIN_VIEW2) LCD_display_mainv2();
   else{
@@ -181,29 +181,29 @@ char menu[MAX_CHARS_PL];
 int m_startpos=LCD_Menu;
 uint8_t chh,center=5;
 
-  LCD_State=MENU;
+  LCD_State=SCR_MENU;
   DBG Serial.printf("Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(FONT7);
   u8g2.setFontPosBaseline();
   chh=u8g2.getMaxCharHeight();
-  center=floor((SCREEN_H-(chh+MENU_SPACE)*MENU_LINES)/2); // how much we have to move Y to be on the middle with all menu
-  DBG Serial.printf("In menu we can print %d lines, with %dpx space, and char height %d\n",MENU_LINES,MENU_SPACE,chh);
+  center=floor((SCREEN_H-(chh+SCR_MENU_SPACE)*SCR_MENU_LINES)/2); // how much we have to move Y to be on the middle with all menu
+  DBG Serial.printf("In menu we can print %d lines, with %dpx space, and char height %d\n",SCR_MENU_LINES,SCR_MENU_SPACE,chh);
   
-  if(LCD_Menu>MENU_MIDDLE) m_startpos=LCD_Menu-(MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from LCD_Menu - MENU_MIDDLE-1
-  else if(LCD_Menu<=MENU_MIDDLE) m_startpos=LCD_Menu-MENU_MIDDLE+1;  // if current menu pos < middle part - start
+  if(LCD_Menu>SCR_MENU_MIDDLE) m_startpos=LCD_Menu-(SCR_MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from LCD_Menu - SCR_MENU_MIDDLE-1
+  else if(LCD_Menu<=SCR_MENU_MIDDLE) m_startpos=LCD_Menu-SCR_MENU_MIDDLE+1;  // if current menu pos < middle part - start
   DBG Serial.printf(" Start pos is %d, chosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
   
-  for(int a=1; a<=MENU_LINES; a++){
-    if(a==MENU_MIDDLE){   // reverse colors if we print middle part o menu
+  for(int a=1; a<=SCR_MENU_LINES; a++){
+    if(a==SCR_MENU_MIDDLE){   // reverse colors if we print middle part o menu
       u8g2.setDrawColor(1); /* color 1 for the box */
-      DBG Serial.printf("x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+MENU_SPACE+center, SCREEN_W , chh+MENU_SPACE);
-      u8g2.drawBox(0, (a-1)*chh+MENU_SPACE+center+1, SCREEN_W , chh+MENU_SPACE);
+      DBG Serial.printf("x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+SCR_MENU_SPACE+center, SCREEN_W , chh+SCR_MENU_SPACE);
+      u8g2.drawBox(0, (a-1)*chh+SCR_MENU_SPACE+center+1, SCREEN_W , chh+SCR_MENU_SPACE);
       u8g2.setDrawColor(0);
     }
-    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+MENU_SPACE+center," ");  // just to add some top/bottom unselectable menu positions
+    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+SCR_MENU_SPACE+center," ");  // just to add some top/bottom unselectable menu positions
     else{
-      u8g2.drawStr(15,(a*chh)+MENU_SPACE+center,Menu_Names[m_startpos]);
+      u8g2.drawStr(15,(a*chh)+SCR_MENU_SPACE+center,Menu_Names[m_startpos]);
     }
     u8g2.setDrawColor(1);
     m_startpos++;
@@ -222,7 +222,7 @@ uint16_t y=1,x=2;       // if we get bigger screen :)
 int sel;
 char msg[MAX_CHARS_PL];
 
-  LCD_State=PROGRAM_LIST;
+  LCD_State=SCR_PROGRAM_LIST;
 
   u8g2.clearBuffer();
   u8g2.setFont(FONT7);
@@ -264,7 +264,7 @@ uint16_t x,y,h;
 uint8_t chh,half;
 static boolean yes=false;
 
-  LCD_State=PROGRAM_DELETE;
+  LCD_State=SCR_PROGRAM_DELETE;
   
   u8g2.setFont(FONT7);
   u8g2.setFontPosBottom();
@@ -357,7 +357,7 @@ uint8_t x=4,y=3,chh,lines;
 static uint8_t pos=0;
 char msg[MAX_CHARS_PL];
   
-  LCD_State=PROGRAM_FULL;
+  LCD_State=SCR_PROGRAM_FULL;
   if(dir==0) pos=0;
   u8g2.clearBuffer();
   u8g2.setFont(FONT7);
@@ -394,7 +394,7 @@ uint8_t x=2,y=1,chh,err=0;
 uint16_t sel;
 char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should be malloc but ehh
 
-  LCD_State=PROGRAM_SHOW;
+  LCD_State=SCR_PROGRAM_SHOW;
 // If the button was pressed - redirect to other screen
   if(load_prg==2){
     if(prog_menu==P_EXIT){ // exit - unload program, go to menu
@@ -482,16 +482,17 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
 
 // Display information screen
 //
-void LCD_display_info(){
-uint8_t chh,y,x=2;
+void LCD_Display_info(){
+uint8_t chh,y=1,x=2;
 char msg[MAX_CHARS_PL];
 struct tm timeinfo;
 
-  LCD_State=OTHER;
+  LCD_State=SCR_OTHER;
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(FONT6);
-  y=chh=u8g2.getMaxCharHeight();
-  
+  y+=chh=u8g2.getMaxCharHeight();
+
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   sprintf(msg,"WiFi status: %d",WiFi.isConnected());
   u8g2.drawStr(x,y,msg);
   sprintf(msg,"WiFi ssid: %s",Prefs[PRF_WIFI_SSID].value.str);
@@ -511,10 +512,50 @@ struct tm timeinfo;
 }
 
 
+// Display currently loaded preferences on LCD screen
+//
+void LCD_Display_prefs(int dir=0){
+uint8_t x=4,y=3,chh,chw,lines;
+static uint8_t pos=1;
+char msg[MAX_CHARS_PL*2],rest[MAX_CHARS_PL];
+  
+  LCD_State=SCR_PREFERENCES;
+  if(dir==0) pos=1;
+  u8g2.clearBuffer();
+  u8g2.setFont(FONT6);
+  u8g2.setFontPosBottom();
+  chh=u8g2.getMaxCharHeight()-1;
+  lines=floor((SCREEN_H-2)/chh)-1;
+  
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+
+  if(dir>0 && (pos+lines-1)<PRF_end) pos++;
+  else if(dir<0 && pos>1) pos--;
+  sprintf(msg,"loaded /etc/pidkiln.h");  
+  u8g2.drawBox(0,1, SCREEN_W, chh);
+  u8g2.setDrawColor(0);
+  y+=chh;
+  u8g2.drawStr(x,y-2,msg);
+  u8g2.setDrawColor(1);
+  
+  for(int a=pos;a<=PRF_end && (a-pos)<lines && y<SCREEN_H-8;a++){
+    if(Prefs[a].type==STRING) sprintf(msg,"%s = %s",PrefsName[a],Prefs[a].value.str);
+    else if(a==PRF_end) sprintf(msg," ");
+    else sprintf(msg,"%s = %d",PrefsName[a],Prefs[a].value.str);
+    if(return_LCD_string(msg,rest,-4)){
+      u8g2.drawStr(x,y+=chh,msg);
+      y+=chh;
+      if(y<SCREEN_H-8) u8g2.drawStr(x,y,rest);
+    }else u8g2.drawStr(x,y+=chh,msg);
+  }
+  u8g2.sendBuffer();  
+}
+
+
 // Display about screen
 //
-void LCD_display_about(){
-  LCD_State=ABOUT;   // Update what are we showing on screen
+void LCD_Display_about(){
+  LCD_State=SCR_ABOUT;   // Update what are we showing on screen
   u8g2.clearBuffer();
   u8g2.setFont(FONT8);
   u8g2.drawStr(28,15,PVer);
