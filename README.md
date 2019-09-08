@@ -13,6 +13,8 @@ This is work in progress - but advanced enough to start uploading it.
 - safety features build in (temperature run out protection, probe failure, SSR failure, kiln insulation failure)
 - simply cool and cheap (comparing to commercially available products) all in one solution
 
+![LCD menu sample](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/images/PIDKiln_LCD_sample.png)
+
 ## Required components:
 - ESP32 board
 - MAX31855 breakout board
