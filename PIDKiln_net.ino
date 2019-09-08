@@ -41,10 +41,10 @@ void Setup_start_date(){
 struct timeval tv;
 struct tm mytm;
 uint8_t pos;
-char *tmp;
+char *tmp,msg[20];
 
-
-  tmp=strtok(Prefs[PRF_INIT_DATE].value.str,".-:");
+  strcpy(msg,Prefs[PRF_INIT_DATE].value.str);
+  tmp=strtok(msg,".-:");
   DBG Serial.printf("Y:%s ",tmp);
   mytm.tm_year = atoi(tmp)-1900;  // year after 1900
   
@@ -56,7 +56,8 @@ char *tmp;
   DBG Serial.printf("D:%s ",tmp);
   mytm.tm_mday = atoi(tmp);       //1-31 - depending on month
 
-  tmp=strtok(Prefs[PRF_INIT_TIME].value.str,".-:");
+  strcpy(msg,Prefs[PRF_INIT_TIME].value.str);
+  tmp=strtok(msg,".-:");
   DBG Serial.printf("\tH:%s ",tmp);
   mytm.tm_hour = atoi(tmp);       //0-23
 
@@ -83,7 +84,7 @@ char *tmp;
 //
 boolean setup_wifi(){
 struct tm timeinfo;
-
+Setup_start_date();
   if(strlen(Prefs[PRF_WIFI_SSID].value.str)){
     if(start_wifi()){
       Setup_start_date();

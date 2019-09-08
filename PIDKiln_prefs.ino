@@ -8,7 +8,7 @@
 //
 boolean Change_prefs_value(String item, String value){
   for(uint16_t a=0; a<PRF_end; a++){
-    if(item.equalsIgnoreCase(String(PrefsName[a]))){  // we have found na maching prefs value
+    if(item.equalsIgnoreCase(String(PrefsName[a]))){  // we have found an matching prefs value
       if(Prefs[a].type==STRING){
         if(Prefs[a].value.str) free(Prefs[a].value.str);
         Prefs[a].value.str=strdup(value.c_str());
@@ -106,7 +106,7 @@ void setup_prefs(void){
 char tmp[30];
 
   // Fill the preferences with default values - if there is such a need
-  DBG Serial.println("Preference initizalization");
+  DBG Serial.println("Preference initialization");
   for(uint16_t a=1; a<PRF_end; a++)
     switch(a){
       case PRF_WIFI_SSID:

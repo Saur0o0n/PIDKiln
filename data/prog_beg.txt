@@ -24,6 +24,6 @@
 
  <div class="container">
  <h1>Index of programs</h1>
-  <table>
+  <table style="margin-left: 2em;">
    <tr><th valign="top"> </th><th>Name</th><th>Size</th><th>Description</th><th>Edit</th><th>Delete</th></tr>
    <tr><td colspan="6"><hr></td></tr>

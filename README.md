@@ -7,7 +7,7 @@ This is work in progress - but advanced enough to start uploading it.
 - interface accessible both from LCD screen and WWW webpage
 - unlimited (only by storage) kiln programs number, program file size limited to 10KiB (but this is artificial limit - can be extended)
 - internal ESP storage for programs, data, logs (perhaps later SD - but I'm not sure yet)
-- local preferences in NV memory
+- local preferences on disk, editable with Web interface
 - online monitoring, program management, editing, graphs and kiln control
 - build in clock synchronised with NTP servers (if Internet connected)
 - safety features build in (temperature run out protection, probe failure, SSR failure, kiln insulation failure)
