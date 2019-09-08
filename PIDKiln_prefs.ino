@@ -4,6 +4,58 @@
 */
 
 
+// Find and change item in preferences
+//
+boolean Change_prefs_value(String item, String value){
+  for(uint16_t a=0; a<PRF_end; a++){
+    if(item.equalsIgnoreCase(String(PrefsName[a]))){  // we have found na maching prefs value
+      if(Prefs[a].type==STRING){
+        if(Prefs[a].value.str) free(Prefs[a].value.str);
+        Prefs[a].value.str=strdup(value.c_str());
+        DBG Serial.printf("  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
+        return true;
+      }else if(Prefs[a].type==UINT8){
+        Prefs[a].value.uint8=(uint8_t)value.toInt();
+        DBG Serial.printf("  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+        return true;
+      }else if(Prefs[a].type==UINT16){
+        Prefs[a].value.uint16=(uint16_t)value.toInt();
+        DBG Serial.printf("  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+        return true;
+      }else if(Prefs[a].type==INT16){
+        Prefs[a].value.int16=(uint16_t)value.toInt();
+        DBG Serial.printf("  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
+// Save prefs to file
+//
+void Save_prefs(){
+File prf;
+
+  DBG Serial.println(" Writing prefs to file");
+  if(prf=SPIFFS.open(PREFS_FILE,"w")){
+    for(uint16_t a=1; a<PRF_end; a++){
+      if(Prefs[a].type==STRING){
+        prf.printf("%s = %s\n",PrefsName[a],Prefs[a].value.str);
+      }else if(Prefs[a].type==UINT8){
+        prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.uint8);
+      }else if(Prefs[a].type==UINT16){
+        prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.uint16);
+      }else if(Prefs[a].type==INT16){
+        prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.int16);
+      }
+    }
+    prf.flush();
+    prf.close();
+  }
+}
+
 
 // Read prefs from file
 //
@@ -31,26 +83,7 @@ int pos=0;
         value.trim();
         //DBG Serial.printf("Preference (=@%d) item: '%s' = '%s'\n",pos,item.c_str(),value.c_str());
         
-        if(item.length()>2 && value.length()>0){
-          for(uint16_t a=0; a<PRF_end; a++){
-            if(item.equalsIgnoreCase(String(PrefsName[a]))){  // we have found na maching prefs value
-              if(Prefs[a].type==STRING){
-                if(Prefs[a].value.str) free(Prefs[a].value.str);
-                Prefs[a].value.str=strdup(value.c_str());
-                DBG Serial.printf("  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
-              }else if(Prefs[a].type==UINT8){
-                Prefs[a].value.uint8=(uint8_t)value.toInt();
-                DBG Serial.printf("  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
-              }else if(Prefs[a].type==UINT16){
-                Prefs[a].value.uint16=(uint16_t)value.toInt();
-                DBG Serial.printf("  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
-              }else if(Prefs[a].type==INT16){
-                Prefs[a].value.int16=(uint16_t)value.toInt();
-                DBG Serial.printf("  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
-              }
-            }
-          }
-        }
+        if(item.length()>2 && value.length()>0) Change_prefs_value(item,value);
       }
     }
 
@@ -63,6 +96,7 @@ int pos=0;
       if(Prefs[a].type==INT16) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
     }
 }
+
 
 /* 
 ** Setup preferences for PIDKiln
@@ -89,7 +123,7 @@ char tmp[30];
         break;
       case PRF_WIFI_RETRY_CNT:
         Prefs[PRF_WIFI_RETRY_CNT].type=UINT8;
-        Prefs[PRF_WIFI_RETRY_CNT].value.uint8=5;
+        Prefs[PRF_WIFI_RETRY_CNT].value.uint8=6;
         break;
 
       case PRF_NTPSERVER1:
@@ -112,7 +146,14 @@ char tmp[30];
         Prefs[PRF_DAYLIGHT_OFFSET].type=INT16;
         Prefs[PRF_DAYLIGHT_OFFSET].value.int16=0;
         break;
-
+      case PRF_INIT_DATE:
+        Prefs[PRF_INIT_DATE].type=STRING;
+        Prefs[PRF_INIT_DATE].value.str=strdup("2019-09-08");
+        break;
+      case PRF_INIT_TIME:
+        Prefs[PRF_INIT_TIME].type=STRING;
+        Prefs[PRF_INIT_TIME].value.str=strdup("12:00:00");
+        break;
 
       case PRF_MIN_TEMP:
         Prefs[PRF_MIN_TEMP].type=UINT8;

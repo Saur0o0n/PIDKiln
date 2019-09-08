@@ -38,7 +38,6 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 //
 
 
-
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -55,7 +54,7 @@ char filename[32];
     if(SPIFFS.remove(filename)){
       DBG Serial.println("Deleted!");
     }
-    generate_index(); // Just in case user wanted to overwrite existing file
+    Generate_INDEX(); // Just in case user wanted to overwrite existing file
     return true;
  }else return false;
 }
@@ -111,10 +110,10 @@ void setup() {
   // Setup input devices
   setup_input();
   
-  DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
+  DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_MODE].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
   
   // Connect to Wi-Fi if enabled
-  if(Prefs[PRF_WIFI_SSID].type){
+  if(Prefs[PRF_WIFI_SSID].type && strlen(Prefs[PRF_WIFI_SSID].value.str) && strlen(Prefs[PRF_WIFI_PASS].value.str)){
     load_msg("connecting WiFi..");
     if(setup_wifi()){    // !!! Wifi connection FAILED
       DBG Serial.println("WiFi connection failed");
@@ -127,12 +126,12 @@ void setup() {
     }
   }else{
     // If we don't have Internet - assume there is no time set
-    setup_start_date(); // in PIDKiln_net
+    Setup_start_date(); // in PIDKiln_net
     load_msg("   -- Started! --");
   }
 
   // (re)generate programs index file /programs/index.html
-  generate_index();
+  Generate_INDEX();
 
   // Setup program module
   program_setup();

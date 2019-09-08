@@ -289,7 +289,7 @@ static boolean yes=false;
         u8g2.clearBuffer();
       }
       Cleanup_program();
-      generate_index();
+      Generate_INDEX();
       delay(2500);
       LCD_display_programs(); // get back to program listing
       return;
@@ -504,10 +504,10 @@ struct tm timeinfo;
   sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
   u8g2.drawStr(x,y+=chh,msg);
   
-  if(getLocalTime(&timeinfo)) sprintf(msg,"Date:%4d-%02d-%02d %d:%02d:%02d",(1900+timeinfo.tm_year),timeinfo.tm_mon,timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+  if(getLocalTime(&timeinfo)) sprintf(msg,"Date:%4d-%02d-%02d %d:%02d:%02d",(1900+timeinfo.tm_year),(timeinfo.tm_mon+1),timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
   else sprintf(msg,"Failed to acquire time");
   u8g2.drawStr(x,y+=chh,msg);
-    
+
   u8g2.sendBuffer();          // transfer internal memory to the display 
 }
 

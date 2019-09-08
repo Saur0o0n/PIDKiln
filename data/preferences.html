@@ -23,6 +23,7 @@
  </div>
 
  <div class="container">
+  ~ERRORS~
   <form method="post" action="preferences.html">
    <fieldset>
     <legend> WiFi configuration </legend>
@@ -39,7 +40,10 @@
 	<label for="WiFi_Password"> WiFi AP password </label>
       </div>
       <div class="col-75">
-	<input type="password" name="WiFi_Password" value="~WiFi_Password~" width="20">
+       <div style="display: inline-block;">
+	<input type="password" id="WiFi_Password" name="WiFi_Password" value="~WiFi_Password~" width="20">
+	<span id="pass_toggler" class="fa fa-fw fa-eye-slash field-icon toggle-password" onclick="toggle_password(WiFi_Password)"></span>
+       </div>
       </div>
      </div>
      <div class="row">
@@ -50,6 +54,14 @@
 	<input type="radio" name="WiFi_Mode" value="0" ~WiFi_Mode0~> 0 - connect to AP - if failed, be AP<br>
 	<input type="radio" name="WiFi_Mode" value="1" ~WiFi_Mode1~> 1 - connect only to AP (default) <br>
 	<input type="radio" name="WiFi_Mode" value="2" ~WiFi_Mode2~> 2 - be only AP<br>
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="WiFi_Retry_cnt"> WiFi connection timout <br><sup>(0 - unlimited)</sup> </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="WiFi_Retry_cnt" value="~WiFi_Retry_cnt~" min="0" max="254"> seconds
       </div>
      </div>
    </fieldset>
@@ -96,6 +108,22 @@
 	<input type="number" name="Daylight_Offset_sec" min="-3600" max="3600" value="~Daylight_Offset_sec~">
       </div>
      </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="Initial_Date"> Initial date - if no NTP </label>
+      </div>
+      <div class="col-75">
+	<input type="date" name="Initial_Date" value="~Initial_Date~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="Initial_Time"> Initial time - if no NTP </label>
+      </div>
+      <div class="col-75">
+	<input type="time" name="Initial_Time" value="~Initial_Time~" step="1">
+      </div>
+     </div>
    </fieldset>
 
    <fieldset>
@@ -119,9 +147,13 @@
     </fieldset>
 
     <div class="row">
-	<input type="submit" value="Save changes">
+      <div class="col-25">
+	<input type="submit" name="update" value="Remember changes" title="For this session only"><br>
+      </div>
+      <div class="col-75">
+	<input type="submit" name="save" value="Save preferences" title="Write it on disk">
+      </div>
     </div>
-
   </form>
  </div>
 

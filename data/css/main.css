@@ -20,6 +20,18 @@ table.debug th {
   border-radius: 7px;
 }
 
+/* Error
+*/
+.error {
+  font-size: 1.4em;
+  font-weight: bold;
+  background-color: #C2624D;
+  color: white;
+  padding: 10px;
+  padding-left: 20px;
+  width: 98%;
+  border-radius: 7px;
+}
 
 /* Style for forms
 */
@@ -52,7 +64,7 @@ label {
   display: inline-block;
 }
 
-input[type=number] {
+input {
   padding-top: 8px;
   padding-bottom: 8px;
 }
@@ -96,3 +108,11 @@ input[type=submit]:hover {
   }
 }
 
+.field-icon {
+  float: right;
+  margin-left: -25px;
+  margin-top: 0.6em;
+  margin-right: 0.2em;
+  position: relative;
+  z-index: 2;
+}

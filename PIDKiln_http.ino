@@ -9,6 +9,7 @@
 // Other variables
 //
 String template_str;  // Stores template pareser output
+char *Errors;         // pointer to string if there are some errors during POST
 
 /*
 ** Core/main HTTP functions
@@ -17,28 +18,33 @@ String template_str;  // Stores template pareser output
 
 // Template preprocessor for preferences - preferences.html
 //
-String preferences_parser(const String& var){
+String Preferences_parser(const String& var){
 
       if(var=="WiFi_SSID") return String(Prefs[PRF_WIFI_SSID].value.str);
  else if(var=="WiFi_Password") return String(Prefs[PRF_WIFI_PASS].value.str);
  else if(var=="WiFi_Mode0" && Prefs[PRF_WIFI_MODE].value.uint8==0) return "checked";
  else if(var=="WiFi_Mode1" && Prefs[PRF_WIFI_MODE].value.uint8==1) return "checked";
  else if(var=="WiFi_Mode2" && Prefs[PRF_WIFI_MODE].value.uint8==2) return "checked";
-
+ else if(var=="WiFi_Retry_cnt") return String(Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
+ 
  else if(var=="NTP_Server1") return String(Prefs[PRF_NTPSERVER1].value.str);
  else if(var=="NTP_Server2") return String(Prefs[PRF_NTPSERVER2].value.str);
  else if(var=="NTP_Server3") return String(Prefs[PRF_NTPSERVER3].value.str);
  else if(var=="GMT_Offset_sec") return String(Prefs[PRF_GMT_OFFSET].value.int16);
  else if(var=="Daylight_Offset_sec") return String(Prefs[PRF_DAYLIGHT_OFFSET].value.int16);
+ else if(var=="Initial_Date") return String(Prefs[PRF_INIT_DATE].value.str);
+ else if(var=="Initial_Time") return String(Prefs[PRF_INIT_TIME].value.str);
  
  else if(var=="MIN_Temperature") return String(Prefs[PRF_MIN_TEMP].value.uint8);
  else if(var=="MAX_Temperature") return String(Prefs[PRF_MAX_TEMP].value.uint16);
+ else if(var=="ERRORS" && Errors){
+  String out="<div class=error> There where errors: "+String(Errors)+"</div>";
+  DBG Serial.printf("Errors pointer1:%p\n",Errors);
+  free(Errors);Errors=NULL;
+  return out;
+ }
  return String();
-
 }
-
-
-
 
 
 // Template preprocessor for debug screen - debug_board.html
@@ -148,7 +154,7 @@ String debug_board(const String& var){
 
 // Generates kiln programs index - /programs/index.html
 //
-void generate_index(){
+void Generate_INDEX(){
 String tmp;
 template_str=String();
 
@@ -204,7 +210,7 @@ template_str=String();
 
 // Template preprocessor for chart.js
 //
-String chart_parser(const String& var) {
+String Chart_parser(const String& var) {
 String tmp;
 struct tm timeinfo;
 time_t current_time;
@@ -342,7 +348,7 @@ String tmp=String(PRG_Directory);
       abort=true; // this will never happend...
       request->redirect("/programs");
     }else{ // Everything went fine - commit file
-      generate_index();
+      Generate_INDEX();
       request->redirect("/programs");
     }
   }
@@ -352,18 +358,6 @@ String tmp=String(PRG_Directory);
 // Handle delete - second run, post - actual deletion
 //
 void delete_handle_post(AsyncWebServerRequest *request){
-
-  int params = request->params();
-  for(int i=0;i<params;i++){
-    AsyncWebParameter* p = request->getParam(i);
-    if(p->isFile()){ //p->isPost() is also true
-      Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
-    } else if(p->isPost()){
-      Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-    } else {
-      Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-    }
-  }
 
   //Check if POST (but not File) parameter exists
   if(request->hasParam("prog_name", true) && request->hasParam("yes", true)){
@@ -375,7 +369,7 @@ void delete_handle_post(AsyncWebServerRequest *request){
       DBG Serial.printf(" Removing program: %s with fpath:%s\n",p->value().c_str(),path);
       if(SPIFFS.exists(path)){
         SPIFFS.remove(path);
-        generate_index();
+        Generate_INDEX();
       }
     }
   }
@@ -417,6 +411,45 @@ String tmps;
 }
 
 
+// Handle prefs upload
+//
+void handlePrefs(AsyncWebServerRequest *request){
+boolean save=false;
+  
+  int params = request->params();
+  for(int i=0;i<params;i++){
+    AsyncWebParameter* p = request->getParam(i);
+    if(p->isPost()){
+      Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      if(p->name().equalsIgnoreCase("save")){
+        save=true;
+        continue;
+      }else if(p->name().equalsIgnoreCase("update")){
+        continue;
+      }else if(!Change_prefs_value(p->name(),p->value())){
+        DBG Serial.printf("!!! We have post error for %s with '%s'\n",p->name().c_str(),p->value().c_str());
+        // we have some errors add new field to error list
+        if(Errors!=NULL){
+          DBG Serial.printf(" Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
+          Errors=(char *)realloc(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
+          strcat(Errors," ");
+          strcat(Errors,p->name().c_str());
+          DBG Serial.printf(" Errors now:%s\n",Errors);
+        }else{
+          DBG Serial.printf(" Malloc call of size %d\n",(p->name().length()+3)*sizeof(char));
+          Errors=strdup(p->name().c_str());
+          DBG Serial.printf(" Errors now:%s\n",Errors);
+        }
+      }
+    }
+  }
+  if(save){
+    Save_prefs();
+  }
+  request->send(SPIFFS, "/preferences.html", String(), false, Preferences_parser);
+}
+
+
 /* 
 ** Setup Webserver screen 
 **
@@ -436,7 +469,7 @@ void setup_webserver(void) {
   });
   
   server.on("/js/chart.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/js/chart.js", String(), false, chart_parser);
+    request->send(SPIFFS, "/js/chart.js", String(), false, Chart_parser);
   });
   
   // Set default file for programs to index.html - because webserver was programmed by some Windows @%$$# :/
@@ -452,9 +485,11 @@ void setup_webserver(void) {
   });
 
   server.on("/preferences.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/preferences.html", String(), false, preferences_parser);
+    request->send(SPIFFS, "/preferences.html", String(), false, Preferences_parser);
   });
 
+  server.on("/preferences.html", HTTP_POST, handlePrefs);
+  
   server.on("/delete.html", HTTP_GET, delete_handle_get);
   
   server.on("/delete.html", HTTP_POST, delete_handle_post);

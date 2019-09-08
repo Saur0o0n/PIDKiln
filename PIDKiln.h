@@ -120,7 +120,7 @@ uint16_t Programs_DIR_size=0;
 
  
 /* 
-** Some definitions - you should not edit this
+** Spiffs settings
 */
 #define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
@@ -129,9 +129,6 @@ uint16_t Programs_DIR_size=0;
 #define FORMAT_SPIFFS_IF_FAILED true
 
 const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
-
-const char *PVer = "PIDKiln v0.4";
-const char *PDate = "2019.09.06";
 
 /*
 **  Preference definitions
@@ -155,6 +152,8 @@ typedef enum { // program menu positions
   PRF_NTPSERVER3,
   PRF_GMT_OFFSET,
   PRF_DAYLIGHT_OFFSET,
+  PRF_INIT_DATE,
+  PRF_INIT_TIME,
   
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
@@ -163,7 +162,7 @@ typedef enum { // program menu positions
 
 const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
-"NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec",
+"NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "MIN_Temperature","MAX_Temperature"
 };
 
@@ -188,6 +187,11 @@ struct PrefsStruct {
 struct PrefsStruct Prefs[PRF_end];
 
 
+/*
+** Other stuff
+*/
+const char *PVer = "PIDKiln v0.4";
+const char *PDate = "2019.09.07";
 
 /*
 ** Function defs
