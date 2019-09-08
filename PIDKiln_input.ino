@@ -57,7 +57,7 @@ void button_Short_Press(){
 // Handle long press on encoder
 //
 void button_Long_Press(){
-
+  
   if(LCD_State==SCR_MENU){ // we are in menu - switch to main screen
     LCD_State=SCR_MAIN_VIEW;
     LCD_display_main_view();
