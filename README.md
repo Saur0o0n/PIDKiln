@@ -17,7 +17,7 @@ This is work in progress - but advanced enough to start uploading it.
 
 ## Required components:
 - ESP32 board
-- MAX31855 breakout boardAdafruit-MAX31855-library
+- MAX31855 breakout board
 - k-type thermocouple
 - 128x65 dot matrix LCD 12864B v2
 - rotary encoder with button
@@ -53,6 +53,7 @@ Thermistors are to measure outside kiln temperature. In case of insulation failu
 **LCD**
 
 Connected to on of tree SPI on ESP32 - called VSPI (MOSI-23, MISO-19, CLK-18, CS-5)
+
 ESP32	| LCD
 --------|---------
 +3.3V	| BLA (this can be also +5V if you wish)
@@ -78,6 +79,7 @@ GND	| GND
 **MAX31855**
 
 Connected to on of tree SPI on ESP32 - called HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+
 EPS32	| MAX31855
 --------|---------
 +3.3V	| VCC
@@ -103,13 +105,14 @@ ESP32	to thermistor
 - Clone git into the Arduino user programs directory (on Linux "/home/username/Arduino/").
 - You have to already have installed ESP32 framework - if don't, do it now (https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md).
 - Don't forget about ESP32FS plugin (drop it to "/home/username/Arduino/tools")
-- Install required additional libraries (all can be installed from Arduino IDE Library Manager): [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer),[AsyncTCP](https://github.com/me-no-dev/AsyncTCP), [PID Library](https://github.com/br3ttb/Arduino-PID-Library/), [Adafruit-MAX31855-library](https://github.com/adafruit/Adafruit-MAX31855-library)
-- Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'
-- Open PIDKiln.ino and edit your WiFi credentials (if you want to use). Compile and upload.
-- Upload sketch data (from data directory) to ESP32 SPIFFS with help of ESP32FS plugin (Menu->Tools->ESP32 Sketch Data Upload)
+- Install required additional libraries (all can be installed from Arduino IDE Library Manager): [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWeb.Server),[AsyncTCP](https://github.com/me-no-dev/AsyncTCP), [PID Library](https://github.com/br3ttb/Arduino-PID-Library/), [Adafruit-MAX31855-library](https://github.com/adafruit/Adafruit-MAX31855-library).
+- Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'.
+- Compile and upload.
+- Open data/etc/pidkiln.conf and edit your WiFi credentials (if you want to use) and, if you want, some additional parameters.
+- Upload sketch data (from data directory) to ESP32 SPIFFS with help of ESP32FS plugin (Menu->Tools->ESP32 Sketch Data Upload).
 
 ## Documentation
 
 - Most of the documentation you can find on [PIDKiln github page](https://github.com/Saur0o0n/pidkiln) - so please use it
-- Some less formal updates informations and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
+- Some less formal updates information and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
 
