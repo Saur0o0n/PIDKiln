@@ -2,6 +2,15 @@
 ** Pidkiln input (rotary encoder, buttons) subsystem
 **
 */
+#include <PID_v1.h>
+#include <SPI.h>
+#include <Adafruit_MAX31855.h>
+
+// PID variables
+
+// MAX31855 variables/defs
+#define MAXCS   15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+Adafruit_MAX31855 thermocouple(MAXCS);
 
 // Other variables
 //
