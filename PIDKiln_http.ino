@@ -499,6 +499,7 @@ void setup_webserver(void) {
   server.serveStatic("/js/", SPIFFS, "/js/");
   server.serveStatic("/css/", SPIFFS, "/css/");
   server.serveStatic("/log/", SPIFFS, "/log/");
+  server.serveStatic(PREFS_FILE, SPIFFS, PREFS_FILE);
   server.serveStatic("/favicon.ico", SPIFFS, "/icons/heat.png");
 
   // Start server

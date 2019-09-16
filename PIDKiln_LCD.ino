@@ -529,23 +529,23 @@ char msg[MAX_CHARS_PL*2],rest[MAX_CHARS_PL];
   
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
 
-  if(dir>0 && (pos+lines-1)<PRF_end) pos++;
+  if(dir>0 && (pos+lines-2)<PRF_end) pos++;
   else if(dir<0 && pos>1) pos--;
-  sprintf(msg,"loaded /etc/pidkiln.h");  
+  sprintf(msg,"Prefs:%s",PREFS_FILE);  
   u8g2.drawBox(0,1, SCREEN_W, chh);
   u8g2.setDrawColor(0);
   y+=chh;
   u8g2.drawStr(x,y-2,msg);
   u8g2.setDrawColor(1);
   
-  for(int a=pos;a<=PRF_end && (a-pos)<lines && y<SCREEN_H-8;a++){
+  for(int a=pos;a<=PRF_end && (a-pos)<lines && y<SCREEN_H-5;a++){
     if(Prefs[a].type==STRING) sprintf(msg,"%s = %s",PrefsName[a],Prefs[a].value.str);
-    else if(a==PRF_end) sprintf(msg," ");
+    else if(a>=PRF_end) sprintf(msg," ");
     else sprintf(msg,"%s = %d",PrefsName[a],Prefs[a].value.str);
     if(return_LCD_string(msg,rest,-4)){
       u8g2.drawStr(x,y+=chh,msg);
       y+=chh;
-      if(y<SCREEN_H-8) u8g2.drawStr(x,y,rest);
+      if(y<SCREEN_H-4) u8g2.drawStr(x,y,rest);
     }else u8g2.drawStr(x,y+=chh,msg);
   }
   u8g2.sendBuffer();  

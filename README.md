@@ -18,21 +18,30 @@ This is work in progress - but advanced enough to start uploading it.
 ## Required components:
 - ESP32 board
 - MAX31855 breakout board
-- k-type thermocouple
-- 128x65 dot matrix LCD 12864B v2
-- rotary encoder with button
+- K-type thermocouple
 - DC->AC solid state relay
-Kind of optional:
-- thermistors
-- perhaps a kiln :)
+
+Kind of optional, but recommended:
+- 128x65 dot matrix LCD 12864B v2
+- Rotary encoder with button
+
+Optional:
+- DC/AC secondary relay - like SLA-05VDC-SL-C (240V/30A) mechanical relay. This one is 5V - so 3,3V->5V translator required
+- Thermistors
+- Perhaps a kiln :)
+
+## BOM and expenses
 
 Total expenses for this set should be around 30-40$
 - ESP32 board: 14-15$ if exactly like mine, but other ESP32 you can bought for 6$+
 - MAX31855 board: 2$
-- k-type thermocouple: 1$-10$ - depending on max temperature
+- K-type thermocouple: 1$-10$ - depending on max temperature
 - LCD 12864B: 5$
-- encoder: 1$
+- Encoder: 1$
 - SSR: 4$ + 4$ for radiator
+
+- Mechanical relay SLA-05VDC-SL-C (Songle): 3$
+- Thermistors: 1$
 
 ## Why this configuration?
 
@@ -42,11 +51,11 @@ It is also beneficial, because it has build in flash memory, that I can use for 
 
 MAX31855 comparing to more available MAX6675, is better choice since it allow us to work up to 1350C and it has 3,3V logic.
 
-LC12864B is not the best choice, but I simply had this one already and used if before for 3d printer. Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V, in my case it does not. But since it's mostly one way communication hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$).
+LC12864B is perhaps not the best choice, but I simply had this one already (I've used if before for my 3D printer). Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V (depending on version), in my case it does not work correctly. But since it's one way communication (only MISO) hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$) - I'm planing that, as soon as I get my ordered board.
 
 Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SSR (probably SSR and mechanical relay) - just to be able to turn off remotely kiln if one of them fails. Anyway, if you are going to use cheap Chinese knock offs, make sure it rated twice the output current you will use.
 
-Thermistors are to measure outside kiln temperature. In case of insulation failure - we can shut it of. This are extremely cheap (used in 3d printing) thermistors.
+Thermistors are to measure outside kiln temperature. In case of insulation failure - we can shut it off. This are extremely cheap (used in 3d printing) thermistors.
 
 ## GPIO/PINs connection
 
