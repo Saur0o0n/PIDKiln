@@ -105,7 +105,8 @@ const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Stopped","
 ** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
 ** 3 - not allowed character in program (only allowed characters are numbers and sperator ":")
 ** 4 - exceeded max temperature defined in MAX_Temp
-** 5 - failed to read K-probe temperature
+** 5 - failed to read MAX31855 internal temperature
+** 6 - failed to read K-probe temperature
 */
 
 /*
@@ -207,7 +208,7 @@ struct PrefsStruct Prefs[PRF_end];
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.4";
+const char *PVer = "PIDKiln v0.5";
 const char *PDate = "2019.09.17";
 
 /*

@@ -1,6 +1,6 @@
 
 /*
-** PIDKiln v0.4 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.5 - high temperature kiln PID controller for ESP32
 **
 ** (c) 2019 - Adrian Siemieniak
 **
@@ -24,6 +24,8 @@
 
 #define DEBUG true
 //#define DEBUG false
+
+
 /* 
 ** Some definitions - usually you should not edit this, but you may want to
 */
@@ -38,10 +40,6 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 
 // Other variables
 //
-
-
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
 
 
 // Close cleanly file and delete file from SPIFFS
@@ -139,6 +137,9 @@ void setup() {
   program_setup();
 }
 
+
+// Just a tiny loop ;)
+//
 void loop() {
   input_loop();
   program_loop();

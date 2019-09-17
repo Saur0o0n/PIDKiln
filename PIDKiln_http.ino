@@ -11,6 +11,11 @@
 String template_str;  // Stores template pareser output
 char *Errors;         // pointer to string if there are some errors during POST
 
+
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+
+
 /*
 ** Core/main HTTP functions
 **

@@ -53,7 +53,8 @@ MAX31855 comparing to more available MAX6675, is better choice since it allow us
 
 LC12864B is perhaps not the best choice, but I simply had this one already (I've used if before for my 3D printer). Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V (depending on version), in my case it does not work correctly. But since it's one way communication (only MISO) hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$) - I'm planing that, as soon as I get my ordered board.
 
-Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often. Also if you are going to use cheap Chinese knock offs, make sure it rated twice the output current of your heater. All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage mechanical relay in case of SSR failure. This will allow to turn off the kiln in case of SSR failure with mechanical one (and or other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
+Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often - SSR can do it, but it will get hot, so make sure you have good radiator. Also if you are going to use cheap Chinese knock offs, make sure it rated twice the output current of your heater.
+All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage mechanical relay in case of SSR failure. It's mechanical, so it won't get hot. This will allow to turn off the kiln in case of SSR failure with mechanical one (and other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
 
 Thermistors are to measure outside kiln temperature. In case of insulation failure - we can shut it off. This are extremely cheap (used in 3d printing) thermistors.
 
@@ -61,7 +62,7 @@ Thermistors are to measure outside kiln temperature. In case of insulation failu
 
 **LCD**
 
-Connected to on of tree SPI on ESP32 - called VSPI (MOSI-23, MISO-19, CLK-18, CS-5)
+Connected to one of three SPI on ESP32 - called VSPI (MOSI-23, MISO-19, CLK-18, CS-5)
 
 ESP32	| LCD
 --------|---------
@@ -69,7 +70,7 @@ ESP32	| LCD
 GND	| BLK
 4	| RST
 GND	| PSB
-+5V	| VCC (This should be - for ESP sake - 3.3V, but my LCD doesn't work with lower voltage. Try first with 3.3V)
++5V	| VCC (This should be - for ESP sake - 3,3V, but my LCD doesn't work with lower voltage. Try first with 3,3V)
 GND	| GND
 5	| RS
 18	| E
@@ -87,7 +88,7 @@ GND	| GND
 
 **MAX31855**
 
-Connected to on of tree SPI on ESP32 - called HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+Connected to one of three SPI on ESP32 - called HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
 
 EPS32	| MAX31855
 --------|---------
