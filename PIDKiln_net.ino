@@ -26,6 +26,7 @@ bool wifi_failed=true;
   return 1;
 }
 
+
 void printLocalTime(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -34,6 +35,7 @@ void printLocalTime(){
   }
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }
+
 
 // Set some default time - if there is no NTP
 //

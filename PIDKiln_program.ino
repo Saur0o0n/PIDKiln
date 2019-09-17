@@ -4,13 +4,7 @@
 */
 #include <PID_v1.h>
 #include <SPI.h>
-#include <Adafruit_MAX31855.h>
 
-// PID variables
-
-// MAX31855 variables/defs
-#define MAXCS   15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
-Adafruit_MAX31855 thermocouple(MAXCS);
 
 // Other variables
 //
@@ -261,10 +255,14 @@ char file[32];
 }
 
 
+// Abort program if something goes wrong
+//
+void ABORT_Program(uint8_t error){
 
-
-
-
+  // Turn off heater
+  // Set program status to aborted
+  // Send a message
+}
 
 
 
@@ -307,5 +305,7 @@ void program_loop(){
     portEXIT_CRITICAL(&timerMux);
 
     if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
+    // Update temperature readout
+    Update_temperature();
   }
 }

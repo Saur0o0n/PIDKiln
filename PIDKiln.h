@@ -1,6 +1,17 @@
+/*
+** Relays and thermocouple defs.
+**
+*/
 
-/* 
-** Global value of LCD screen/menu and menu position 
+#define MECH_RELAY_PIN 21
+#define SSR_RELAY_PIN 19
+
+// MAX31855 variables/defs
+#define MAXCS   15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+
+/*
+** Global value of LCD screen/menu and menu position
+**
 */
 typedef enum {
   SCR_MAIN_VIEW,      // group of main screens showing running program
@@ -58,6 +69,7 @@ const uint8_t SCR_MENU_MIDDLE=3;  // middle of the menu, where choosing will be 
 
 /*
 ** Kiln program variables
+**
 */
 struct PROGRAM {
   uint16_t temp;
@@ -93,12 +105,13 @@ const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Stopped","
 ** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
 ** 3 - not allowed character in program (only allowed characters are numbers and sperator ":")
 ** 4 - exceeded max temperature defined in MAX_Temp
+** 5 - failed to read K-probe temperature
 */
 
 /*
 ** Filesystem definintions
+**
 */
-
 #define MAX_FILENAME 30   // directory+name can be max 32 on SPIFFS
 #define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
 
@@ -121,6 +134,7 @@ uint16_t Programs_DIR_size=0;
  
 /* 
 ** Spiffs settings
+**
 */
 #define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
@@ -166,6 +180,7 @@ const char *PrefsName[]={
 "MIN_Temperature","MAX_Temperature"
 };
 
+// Preferences types definitions
 typedef enum {
  NONE,        // when this value is set - prefs item is off
  UINT8,
@@ -173,7 +188,8 @@ typedef enum {
  INT16,
  STRING,
 } TYPE;
-    
+
+// Structure for keeping preferences values
 struct PrefsStruct {
   TYPE type=NONE;
   union {
@@ -189,17 +205,19 @@ struct PrefsStruct Prefs[PRF_end];
 
 /*
 ** Other stuff
+**
 */
 const char *PVer = "PIDKiln v0.4";
-const char *PDate = "2019.09.07";
+const char *PDate = "2019.09.17";
 
 /*
 ** Function defs
+**
 */
-
 void load_msg(char msg[MAX_CHARS_PL]);
 boolean return_LCD_string(char* msg,char* rest,int mod=0);
 void LCD_Display_program_summary(int dir=0,byte load_prg=0);
 
 uint8_t Cleanup_program(uint8_t err=0);
 uint8_t Load_program(char *file=0);
+void ABORT_Program(uint8_t error=0);

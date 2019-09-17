@@ -26,7 +26,7 @@ Kind of optional, but recommended:
 - Rotary encoder with button
 
 Optional:
-- DC/AC secondary relay - like SLA-05VDC-SL-C (240V/30A) mechanical relay. This one is 5V - so 3,3V->5V translator required
+- DC/AC secondary relay - like SLA-05VDC-SL-C (240V/30A) mechanical relay
 - Thermistors
 - Perhaps a kiln :)
 
@@ -53,7 +53,7 @@ MAX31855 comparing to more available MAX6675, is better choice since it allow us
 
 LC12864B is perhaps not the best choice, but I simply had this one already (I've used if before for my 3D printer). Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V (depending on version), in my case it does not work correctly. But since it's one way communication (only MISO) hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$) - I'm planing that, as soon as I get my ordered board.
 
-Some notes about SSR - I'm not sure yet, but perhaps I'll implement two stage SSR (probably SSR and mechanical relay) - just to be able to turn off remotely kiln if one of them fails. Anyway, if you are going to use cheap Chinese knock offs, make sure it rated twice the output current you will use.
+Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often. Also if you are going to use cheap Chinese knock offs, make sure it rated twice the output current of your heater. All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage mechanical relay in case of SSR failure. This will allow to turn off the kiln in case of SSR failure with mechanical one (and or other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
 
 Thermistors are to measure outside kiln temperature. In case of insulation failure - we can shut it off. This are extremely cheap (used in 3d printing) thermistors.
 
@@ -97,12 +97,20 @@ GND	| GND
 15	| CS (chip select)
 14	| SCK (clock)
 
-**SSR**
+**Relays**
 
 ESP32	| SSR
 --------|-------
 GND	| GND
-	| VIN
+5V      | VIN
+21      | IN
+
+ESP32   | SLA-05VDC-SL-C
+--------|----------------
+GND     | GND
+5V      | VIN
+19      | IN
+
 
 **Thermistors**
 
@@ -114,7 +122,8 @@ ESP32	to thermistor
 - Clone git into the Arduino user programs directory (on Linux "/home/username/Arduino/").
 - You have to already have installed ESP32 framework - if don't, do it now (https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md).
 - Don't forget about ESP32FS plugin (drop it to "/home/username/Arduino/tools")
-- Install required additional libraries (all can be installed from Arduino IDE Library Manager): [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWeb.Server),[AsyncTCP](https://github.com/me-no-dev/AsyncTCP), [PID Library](https://github.com/br3ttb/Arduino-PID-Library/), [Adafruit-MAX31855-library](https://github.com/adafruit/Adafruit-MAX31855-library).
+- Install required additional libraries (all can be installed from Arduino IDE Library Manager): [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWeb.Server),[AsyncTCP](https://github.com/me-no-dev/AsyncTCP), [PID Library](https://github.com/br3ttb/Arduino-PID-Library/)
+- Install also [my clone of Adafruit-MAX31855-library](https://github.com/Saur0o0n/Adafruit-MAX31855-library) - this implements HW SPI
 - Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'.
 - Compile and upload.
 - Open data/etc/pidkiln.conf and edit your WiFi credentials (if you want to use) and, if you want, some additional parameters.
