@@ -130,7 +130,7 @@ void rotate(){
 
 // Main input loop
 //
-void input_loop() {
+void Input_Loop() {
 
    if(encoderButton){
       delay(ENCODER_BUTTON_DELAY);
@@ -175,7 +175,7 @@ void handleInterrupt() {
 
 // Setup all input pins and interrupts
 //
-void setup_input() {
+void Setup_Input() {
 
   pinMode(ENCODER0_PINA, INPUT); 
   pinMode(ENCODER0_PINB, INPUT);

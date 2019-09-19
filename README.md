@@ -40,7 +40,7 @@ Total expenses for this set should be around 30-40$
 - Encoder: 1$
 - SSR: 4$ + 4$ for radiator
 
-- Mechanical relay SLA-05VDC-SL-C (Songle): 3$
+- Mechanical relay EMR SLA-05VDC-SL-C (Songle): 3$
 - Thermistors: 1$
 
 ## Why this configuration?
@@ -54,7 +54,7 @@ MAX31855 comparing to more available MAX6675, is better choice since it allow us
 LC12864B is perhaps not the best choice, but I simply had this one already (I've used if before for my 3D printer). Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V (depending on version), in my case it does not work correctly. But since it's one way communication (only MISO) hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$) - I'm planing that, as soon as I get my ordered board.
 
 Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often - SSR can do it, but it will get hot, so make sure you have good radiator. Also if you are going to use cheap Chinese knock offs, make sure it rated twice the output current of your heater.
-All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage mechanical relay in case of SSR failure. It's mechanical, so it won't get hot. This will allow to turn off the kiln in case of SSR failure with mechanical one (and other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
+All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage EMR (Electromechanical Relay) relay in case of SSR failure. It's mechanical, so it won't get hot. This will allow to turn off the kiln in case of SSR failure with EMR one (and other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
 
 Thermistors are to measure outside kiln temperature. In case of insulation failure - we can shut it off. This are extremely cheap (used in 3d printing) thermistors.
 
@@ -106,7 +106,7 @@ GND	| GND
 5V      | VIN
 21      | IN
 
-ESP32   | SLA-05VDC-SL-C
+ESP32   | EMR (SLA-05VDC-SL-C)
 --------|----------------
 GND     | GND
 5V      | VIN
@@ -124,11 +124,12 @@ ESP32	to thermistor
 - You have to already have installed ESP32 framework - if don't, do it now (https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md).
 - Don't forget about ESP32FS plugin (drop it to "/home/username/Arduino/tools")
 - Install required additional libraries (all can be installed from Arduino IDE Library Manager): [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWeb.Server),[AsyncTCP](https://github.com/me-no-dev/AsyncTCP), [PID Library](https://github.com/br3ttb/Arduino-PID-Library/)
-- Install also [my clone of Adafruit-MAX31855-library](https://github.com/Saur0o0n/Adafruit-MAX31855-library) - this implements HW SPI
+- Install also [my clone of Adafruit-MAX31855-library](https://github.com/Saur0o0n/Adafruit-MAX31855-library) - this implements second HW SPI for ESP32
 - Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'.
+- For production use, disable serial debug in PIDKiln.ino - set it on false (''#define DEBUG false'')
 - Compile and upload.
 - Open data/etc/pidkiln.conf and edit your WiFi credentials (if you want to use) and, if you want, some additional parameters.
-- Upload sketch data (from data directory) to ESP32 SPIFFS with help of ESP32FS plugin (Menu->Tools->ESP32 Sketch Data Upload).
+- Upload sketch data (from data directory) to ESP32 SPIFFS with help of ESP32FS plugin (in Arduino IDE go to Menu->Tools->ESP32 Sketch Data Upload).
 
 ## Documentation
 

@@ -102,13 +102,13 @@ void setup() {
   }
 
   // Load all preferences
-  setup_prefs();
+  Setup_Prefs();
   
   // Setup function for LCD display from PIDKiln_LCD.ino
-  setup_lcd();
+  Setup_LCD();
 
   // Setup input devices
-  setup_input();
+  Setup_Input();
   
   DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_MODE].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
   
@@ -134,13 +134,17 @@ void setup() {
   Generate_INDEX();
 
   // Setup program module
-  program_setup();
+  Program_Setup();
+
+  // Setup all sensors/relays
+  Setup_Addons();
+  Serial.printf("Wersja arduino: %d\n",ARDUINO);
 }
 
 
 // Just a tiny loop ;)
 //
 void loop() {
-  input_loop();
-  program_loop();
+  Input_Loop();
+  Program_Loop();
 }

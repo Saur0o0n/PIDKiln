@@ -3,11 +3,17 @@
 **
 */
 
-#define MECH_RELAY_PIN 21
+#define EMR_RELAY_PIN 21
 #define SSR_RELAY_PIN 19
 
 // MAX31855 variables/defs
 #define MAXCS   15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+
+/*
+** Temperature, PID and probes variables/definitions
+*/
+// Temperature & PID variables
+double int_temp=20,kiln_temp=20,case_temp=20;
 
 /*
 ** Global value of LCD screen/menu and menu position

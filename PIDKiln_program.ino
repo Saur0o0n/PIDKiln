@@ -260,6 +260,8 @@ char file[32];
 void ABORT_Program(uint8_t error){
 
   // Turn off heater
+  Disable_SSR();
+  Disable_EMR();
   // Set program status to aborted
   // Send a message
 }
@@ -272,7 +274,7 @@ void ABORT_Program(uint8_t error){
 /*
 ** Main setup and loop function for programs module
 */
-void program_setup(){
+void Program_Setup(){
 
   // Start interupt timer handler - 1s
   // Create semaphore to inform us when the timer has fired
@@ -295,7 +297,7 @@ void program_setup(){
 }
 
 
-void program_loop(){
+void Program_Loop(){
 
   // check if timer interup occured
   if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
@@ -306,6 +308,6 @@ void program_loop(){
 
     if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
     // Update temperature readout
-    Update_temperature();
+    Update_Temperature();
   }
 }

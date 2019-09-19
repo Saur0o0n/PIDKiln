@@ -151,6 +151,11 @@ struct tm timeinfo;
   u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
   sprintf(msg,"ETA");
   u8g2.drawStr(x,y,msg);
+
+  // Temperatures - current, target, environment, shell
+  y+=chh+1;
+  sprintf(msg,"%4.0fC 0000C %2.0fC",kiln_temp,int_temp);
+  u8g2.drawStr(x,y,msg);
   
   u8g2.sendBuffer();
 }
@@ -617,7 +622,7 @@ void load_msg(char msg[MAX_CHARS_PL]){
 ** Setup LCD screen 
 **
 */
-void setup_lcd(void) {
+void Setup_LCD(void) {
   
   u8g2.begin();
   

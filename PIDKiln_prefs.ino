@@ -102,7 +102,7 @@ int pos=0;
 ** Setup preferences for PIDKiln
 **
 */
-void setup_prefs(void){
+void Setup_Prefs(void){
 char tmp[30];
 
   // Fill the preferences with default values - if there is such a need
