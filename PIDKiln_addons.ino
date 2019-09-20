@@ -49,17 +49,17 @@ double kiln_tmp1,kiln_tmp2;
     return;
   }
   kiln_temp=(kiln_temp+kiln_tmp2)/2;
-  if(kiln_temp<22){
+  if(kiln_temp<0){
     Enable_EMR();
     Enable_SSR();
-    DBG Serial.println("Enabled EMR");
+    //DBG Serial.println("Enabled EMR");
   }
-  if(kiln_temp>25){
+  if(kiln_temp>15){
     Disable_SSR();
     Disable_EMR();
-    DBG Serial.println("Disabled EMR");
+    //DBG Serial.println("Disabled EMR");
   }
-  DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
+  //DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }
 
 

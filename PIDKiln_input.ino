@@ -25,6 +25,7 @@ void pressed_menu(){
   switch(LCD_Menu){
     case M_SCR_MAIN_VIEW: LCD_display_main_view(); break;
     case M_LIST_PROGRAMS: LCD_display_programs(); break;
+    case M_QUICK_PROGRAM: LCD_Display_quick_program(0,0); break;
     case M_INFORMATIONS: LCD_Display_info(); break;
     case M_ABOUT: LCD_Display_about(); break;
     case M_PREFERENCES: LCD_Display_prefs(); break;
@@ -50,6 +51,7 @@ void button_Short_Press(){
   else if(LCD_State==SCR_PROGRAM_SHOW) LCD_Display_program_summary(0,2);
   else if(LCD_State==SCR_PROGRAM_DELETE) LCD_Display_program_delete(0,1);
   else if(LCD_State==SCR_PROGRAM_FULL) LCD_Display_program_summary(0,1);
+  else if(LCD_State==SCR_QUICK_PROGRAM) LCD_Display_quick_program(0,2);
   else LCD_display_menu();  // if pressed something else - go back to menu
 }
 
@@ -102,15 +104,11 @@ void rotate(){
     DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
     rotate_selected_program(encoderValue);
     LCD_display_programs();
-  }else if(LCD_State==SCR_PROGRAM_SHOW){
-    LCD_Display_program_summary(encoderValue,1);
-  }else if(LCD_State==SCR_PROGRAM_DELETE){
-    LCD_Display_program_delete(encoderValue,0);
-  }else if(LCD_State==SCR_PROGRAM_FULL){
-    LCD_Display_program_full(encoderValue);
-  }else if(LCD_State==SCR_PREFERENCES){
-    LCD_Display_prefs(encoderValue);
-  }
+  }else if(LCD_State==SCR_PROGRAM_SHOW) LCD_Display_program_summary(encoderValue,1);
+  else if(LCD_State==SCR_PROGRAM_DELETE) LCD_Display_program_delete(encoderValue,0);
+  else if(LCD_State==SCR_PROGRAM_FULL) LCD_Display_program_full(encoderValue);
+  else if(LCD_State==SCR_PREFERENCES) LCD_Display_prefs(encoderValue);
+  else if(LCD_State==SCR_QUICK_PROGRAM) LCD_Display_quick_program(encoderValue,1);
 }
 
 

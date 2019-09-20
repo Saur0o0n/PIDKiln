@@ -26,6 +26,7 @@ typedef enum {
   SCR_PROGRAM_SHOW,   // showing program content
   SCR_PROGRAM_DELETE, // deleting program
   SCR_PROGRAM_FULL,   // step by step program display
+  SCR_QUICK_PROGRAM, // set manually desire, single program step
   SCR_ABOUT,          // short info screen
   SCR_PREFERENCES,    // show current preferences
   SCR_OTHER           // some other screens like about that are stateless
@@ -41,6 +42,7 @@ typedef enum { // different main screens
 typedef enum { // menu positions
   M_SCR_MAIN_VIEW,
   M_LIST_PROGRAMS,
+  M_QUICK_PROGRAM,
   M_INFORMATIONS,
   M_PREFERENCES,
   M_ABOUT,
@@ -51,8 +53,8 @@ LCD_State_enum LCD_State=SCR_MAIN_VIEW;      // global variable to keep track on
 LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;  // main screen has some views - where are we
 LCD_SCR_MENU_Item_enum LCD_Menu=M_SCR_MAIN_VIEW; // menu items
 
-const char *Menu_Names[] = {"1) Main view","2) List programs","3) Informations","4) Preferences","5) About"};
-const byte Menu_Size=4;
+const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Informations", "5) Preferences", "6) About"};
+const byte Menu_Size=5;
 
 typedef enum { // program menu positions
   P_EXIT,
@@ -224,6 +226,7 @@ const char *PDate = "2019.09.17";
 void load_msg(char msg[MAX_CHARS_PL]);
 boolean return_LCD_string(char* msg,char* rest,int mod=0);
 void LCD_Display_program_summary(int dir=0,byte load_prg=0);
+void LCD_Display_quick_program(int dir=0,byte pos=0);
 
 uint8_t Cleanup_program(uint8_t err=0);
 uint8_t Load_program(char *file=0);

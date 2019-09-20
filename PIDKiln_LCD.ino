@@ -26,8 +26,8 @@
 #define LCD_DATA 23   // R/W on LCD
 
 // You can switch hardware of software SPI interface to LCD. HW can be up to x10 faster - but requires special pins (and has some errors for me on 5V).
-U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_DATA, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
-//U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
+//U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R2, /* clock=*/ LCD_CLOCK, /* data=*/ LCD_DATA, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
+U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET);
 
 
 /*
@@ -485,6 +485,153 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
 }
 
 
+// Draw string with one char inversed
+// 
+void Draw_Marked_string(char *str,uint8_t pos){
+uint8_t a;
+  u8g2.setFontMode(0);
+  for(a=0;a<strlen(str);a++){
+    if(a==pos){
+      u8g2.setDrawColor(0);
+      u8g2.print(str[a]);
+      u8g2.setDrawColor(1);
+    }else u8g2.print(str[a]);
+  }
+  u8g2.setFontMode(1);
+}
+
+
+// Set manual, quick program step
+// Dir - if dial rotated; pos - 0 = yes (if first time showing program (from program list)), 1 = no (rotating encoder), 2 = encoder pressed
+//
+void LCD_Display_quick_program(int dir,byte pos){
+uint8_t x=2,y=1,chh;
+static uint8_t what=0,ok=0,xm,ym;
+static uint16_t qp[3];
+char msg[MAX_CHARS_PL];
+
+  LCD_State=SCR_QUICK_PROGRAM;
+  if(pos==0 && dir==0){
+    what=ok=0;       // if we are here for the first time (not turn)
+    xm=ym=0;
+    if(kiln_temp>0) qp[0]=kiln_temp;// target temperature
+    else qp[0]=20;
+    qp[1]=10;        // time to go
+    qp[2]=10;        // dwell time
+  }
+  u8g2.clearBuffer();
+  u8g2.setFont(FONT7);
+  u8g2.setFontPosBottom();
+  chh=u8g2.getMaxCharHeight()+1;
+
+  // If this is just rotate
+  if(what<4){ // temperature
+    if(dir>0) qp[0]+=pow(10,what);
+    else if(dir<0 && pow(10,what)<qp[0]) qp[0]-=pow(10,what);
+  }
+  else if(what<7){ // time
+    if(dir>0) qp[1]+=pow(10,what-4);
+    else if(dir<0 && pow(10,what-4)<qp[1]) qp[1]-=pow(10,what-4);
+  }
+  else if(what<10){ // dwell
+    if(dir>0) qp[2]+=pow(10,what-7);
+    else if(dir<0 && pow(10,what-7)<qp[2]) qp[2]-=pow(10,what-7);
+  }
+  else if(what<12){ // rotate menu
+    if(dir>0) what++;
+    else what--;
+  }
+  DBG Serial.printf("Dir: %d What:%d Pos:%d\n",dir,what,pos);
+  
+  // If button pressed - cycle
+  // 0-3 - temperature, 4-6 - time, 7-9 - dwell, 10 - cancel, 11 - load
+  if(pos==2) what++;
+  if(what>12) what=0;
+  
+  // just in case = check values...
+  if(qp[0]<1) qp[0]=1;
+  else if(qp[0]>Prefs[PRF_MAX_TEMP].value.uint16) qp[0]=Prefs[PRF_MAX_TEMP].value.uint16;
+
+  if(qp[1]<1) qp[1]=1;
+  else if(qp[1]>999) qp[1]=999;
+
+  if(qp[2]<1) qp[2]=1;
+  else if(qp[2]>999) qp[2]=999;
+  
+  u8g2.drawFrame(0, 0, SCREEN_W, SCREEN_H);
+  u8g2.drawBox(0, 0, SCREEN_W, chh+2);
+  u8g2.setDrawColor(0);
+  sprintf(msg,"Quick program");
+  u8g2.drawStr(x,y+=chh,msg);
+  u8g2.setDrawColor(1);
+  y+=3;
+  
+  sprintf(msg,"Temperature");
+  xm=u8g2.getStrWidth(msg);
+  ym=y;
+  u8g2.drawStr(x,y+=chh,msg);
+  
+  sprintf(msg," Time to go");
+  if(u8g2.getStrWidth(msg)>xm) xm=u8g2.getStrWidth(msg);
+  u8g2.drawStr(x,y+=chh,msg);
+  
+  sprintf(msg," Dwell time");
+  if(u8g2.getStrWidth(msg)>xm) xm=u8g2.getStrWidth(msg);
+  u8g2.drawStr(x,y+=chh,msg);
+
+  u8g2.drawVLine(xm+5,chh+1,SCREEN_H-2*chh-4);
+  xm+=10; y=ym;
+  // Now we draw settable stuff
+  sprintf(msg,"%04dC", qp[0]);
+  if(what<4){ // if we are drawing detailed temperature
+    u8g2.setCursor(xm, y+=chh);
+    Draw_Marked_string(msg,3-what);
+  }else u8g2.drawStr(xm,y+=chh,msg);
+
+  sprintf(msg,"%03dmin.", qp[1]);
+  if(what>3 && what<7){ // if we are drawing detailed time
+    u8g2.setCursor(xm, y+=chh);
+    Draw_Marked_string(msg,6-what);    
+  }else u8g2.drawStr(xm,y+=chh,msg);
+
+  sprintf(msg,"%03dmin.", qp[2]);
+  if(what>6 && what<10){ // if we are drawing detailed time
+    u8g2.setCursor(xm, y+=chh);
+    Draw_Marked_string(msg,9-what);    
+  }else u8g2.drawStr(xm,y+=chh,msg);
+
+  y=SCREEN_H-2;
+  u8g2.drawFrame(0, y-chh-1, SCREEN_W, chh);
+  u8g2.drawFrame(SCREEN_W/3, y-chh-1, SCREEN_W/3, chh);
+  sprintf(msg,"Cancel");
+  if(what==10){
+    u8g2.drawBox(0, y-chh-1, SCREEN_W/3, chh);
+    u8g2.setDrawColor(0);
+    u8g2.drawStr(x,y,msg);
+    u8g2.setDrawColor(1);
+  }else u8g2.drawStr(x,y,msg);
+
+  sprintf(msg," Use IT");
+  if(what==11){
+    u8g2.drawBox(SCREEN_W/3, y-chh-1, SCREEN_W/3, chh);
+    u8g2.setDrawColor(0);
+    u8g2.drawStr((int)SCREEN_W/3,y,msg);
+    u8g2.setDrawColor(1);
+  }else u8g2.drawStr((int)SCREEN_W/3,y,msg);
+
+  sprintf(msg," Edit");
+  if(what==12){
+    u8g2.drawBox(SCREEN_W/3*2, y-chh-1, SCREEN_W/3, chh);
+    u8g2.setDrawColor(0);
+    u8g2.drawStr((int)SCREEN_W/3*2,y,msg);
+    u8g2.setDrawColor(1);
+  }else u8g2.drawStr((int)SCREEN_W/3*2,y,msg);
+
+  // and now submenu
+  u8g2.sendBuffer();
+}
+
+
 // Display information screen
 //
 void LCD_Display_info(){
@@ -625,8 +772,9 @@ void load_msg(char msg[MAX_CHARS_PL]){
 void Setup_LCD(void) {
   
   u8g2.begin();
+  u8g2.setBusClock(900000);   // without lowering the clock (default 1Mhz) LCD gets some glitches
   
-  u8g2.clearBuffer();          // clear the internal memory
+  u8g2.clearBuffer();         // clear the internal memory
   u8g2.setFont(FONT8);
   u8g2.drawStr(27,30,PVer);
   u8g2.drawStr(38,45,"starting...");
