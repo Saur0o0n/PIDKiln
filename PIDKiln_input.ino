@@ -34,19 +34,13 @@ void pressed_menu(){
 }
 
 
-// What to do if button pressed in main view
-//
-void pressed_main_view(){
-  DBG Serial.printf(" Single press in main view\n");
-}
-
 
 // Just redirect pressed button to separate functions
 //
 void button_Short_Press(){
   DBG Serial.printf(" Short press. Current view %d\n",(int)LCD_State);
   if(LCD_State==SCR_MENU) pressed_menu();
-  else if(LCD_State==SCR_MAIN_VIEW) pressed_main_view();
+  else if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW3) LCD_display_mainv3(0,2);
   else if(LCD_State==SCR_PROGRAM_LIST) LCD_Display_program_summary(0,0);
   else if(LCD_State==SCR_PROGRAM_SHOW) LCD_Display_program_summary(0,2);
   else if(LCD_State==SCR_PROGRAM_DELETE) LCD_Display_program_delete(0,1);
@@ -82,6 +76,10 @@ void rotate(){
 
 // If we are in MAIN screen view
  if(LCD_State==SCR_MAIN_VIEW){
+  if(LCD_Main==MAIN_VIEW3){
+    LCD_display_mainv3(encoderValue,1);
+    return;
+  }
   if(encoderValue<0){
     if(LCD_Main>MAIN_VIEW1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main-1);
     LCD_display_main_view();

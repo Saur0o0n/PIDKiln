@@ -64,7 +64,7 @@ typedef enum { // program menu positions
   P_end
 } LCD_PSCR_MENU_Item_enum;
 
-const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
+char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
 const uint8_t Prog_Menu_Size=4;
 
 #define SCREEN_W 128   // LCD screen width and height
@@ -224,7 +224,7 @@ const char *PDate = "2019.09.17";
 **
 */
 void load_msg(char msg[MAX_CHARS_PL]);
-boolean return_LCD_string(char* msg,char* rest,int mod=0);
+boolean return_LCD_string(char* msg,char* rest, int mod, uint16_t screen_w=SCREEN_W);
 void LCD_Display_program_summary(int dir=0,byte load_prg=0);
 void LCD_Display_quick_program(int dir=0,byte pos=0);
 

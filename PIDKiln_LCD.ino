@@ -31,15 +31,153 @@ U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET
 
 
 /*
-** Core/main LCD functions
+** Helping functions
 **
 */
+
+// Cut string for LCD width, return 1 if there's something left
+// (input string, rest to output, screen width modificator, screen width, default = SCREEN_W)
+boolean return_LCD_string(char* msg,char* rest, int mod, uint16_t screen_w){
+uint16_t chh,lnw;
+char out[MAX_CHARS_PL]; 
+
+  chh=u8g2.getMaxCharHeight();
+  //DBG Serial.printf("Line cut: Got:%s\n",msg);
+  lnw=floor((SCREEN_W+mod)/u8g2.getMaxCharWidth())-1; // max chars in line
+  if(strlen(msg)<=lnw){
+    rest[0]='\0';
+    //DBG Serial.printf("Line cut: line shorter then %d - skipping\n",lnw);
+    return false;
+  }
+  strncpy(rest,msg+lnw+1,strlen(msg)-lnw);
+  rest[strlen(msg)-lnw]='\0';
+  msg[lnw+1]='\0';
+  //DBG Serial.printf("Line cut. Returning msg:'%s' and rest:'%s'\n",msg,rest);
+  return true;
+}
+
+
+// Write short messages during starting
+//
+void load_msg(char msg[MAX_CHARS_PL]){
+  u8g2.setDrawColor(0);
+  u8g2.drawBox(3, 31, 121, 22);
+  u8g2.setDrawColor(1);
+  u8g2.drawStr(10,45,msg);
+  u8g2.sendBuffer();
+}
+
+
+// Draws dotted vertical line
+//
 void DrawVline(uint16_t x,uint16_t y,uint16_t h){
 
-  DBG Serial.printf(" -> Draw V dots: x:%d\t y:%d\t h:%d\n",x,y,h);
+  //DBG Serial.printf(" -> Draw V dots: x:%d\t y:%d\t h:%d\n",x,y,h);
   h+=y;
   for(uint16_t yy=y;yy<h;yy+=3) u8g2.drawPixel(x,yy);
 }
+
+
+// Draw string with one char inversed
+// 
+void Draw_Marked_string(char *str,uint8_t pos){
+uint8_t a;
+  u8g2.setFontMode(0);
+  for(a=0;a<strlen(str);a++){
+    if(a==pos){
+      u8g2.setDrawColor(0);
+      u8g2.print(str[a]);
+      u8g2.setDrawColor(1);
+    }else u8g2.print(str[a]);
+  }
+  u8g2.setFontMode(1);
+}
+
+/*
+** Core/main LCD functions
+**
+*/
+
+// Draws one element of horizontal menu
+// msg = text to draw, y - box start point (lower,left corner - like with text in u8g2), cnt - fraction (split to 2, 3 etc), el - whitch element of cnt is this, sel - should element be inversed
+void DrawMenuEl(char *msg, uint16_t y, uint8_t cnt, uint8_t el, boolean sel){
+uint16_t chh,x_w=0,width=0,x=0,x_txt=0;
+char rest[MAX_CHARS_PL];
+
+  chh=u8g2.getMaxCharHeight()+2;  // just to make a pixes space on Y
+  if(cnt>1) x_w=floor((float)SCREEN_W/cnt);
+  else x_w=SCREEN_W;
+  el--;   // because we want to count 0.. not 1..
+  x+=x_w*el;   // we start at 0 and el*button width
+  
+  if(cnt==el+1) x_w=SCREEN_W-x; // just make sure to draw last square to the end
+  else x_w++; // some shitty voodoo
+  
+  return_LCD_string(msg,rest,2,x_w);  // cut text size if too long - this is for safety, should not happend
+  width=u8g2.getStrWidth(msg);
+  x_txt=x+(x_w-2-width)/2;            // findout how to put a text in the middle of the button
+
+  u8g2.drawFrame(x,y-chh,x_w,chh);  // draw frame around text w+1 becasue start point is also counted to witdh
+  DBG Serial.printf("Width:%d cnt:%d el:%d x:%d x_txt:%d x_w:%d\n",SCREEN_W,cnt,el,x,x_txt,x_w);
+  
+  if(sel){
+      u8g2.drawBox(x, y-chh, x_w, chh);
+      u8g2.setDrawColor(0);
+      u8g2.drawStr(x_txt,y-1,msg);
+      u8g2.setDrawColor(1);
+  }else u8g2.drawStr(x_txt,y-1,msg);          // draw text - we should check it's size also..
+}
+
+
+// Third main view - operations (start,pause,stop)
+//
+void LCD_display_mainv3(int dir=0, byte ctrl=0){
+char msg[MAX_CHARS_PL];
+uint16_t chh,chw,x=2,y=2;
+static int what=0;
+
+  if(!Program_run_size) return; //  dont go in if no program loaded
+  LCD_State=SCR_MAIN_VIEW;
+  LCD_Main=MAIN_VIEW3;  // just in case...
+
+  if(dir==0 && ctrl==0) what=0; // initialize what
+  
+  what+=dir;    // rotate 1/-1
+  
+  if(what>4){  // we can rotate out of this screen
+    LCD_Main=MAIN_VIEW1;
+    LCD_display_main_view();
+    return;
+  }else if(what<0){
+    LCD_Main=MAIN_VIEW2;
+    LCD_display_main_view();
+    return;
+  }
+  
+  u8g2.clearBuffer();
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+  u8g2.setFont(FONT7);
+  u8g2.setFontPosBottom();
+  chh=u8g2.getMaxCharHeight()+1;
+  chw=u8g2.getMaxCharWidth();
+
+  y=SCREEN_H-chh;
+  sprintf(msg,"Start");
+  DrawMenuEl(msg,y,3,1,(what==0));
+  sprintf(msg,"Pause");
+  DrawMenuEl(msg,y,3,2,(what==1));
+  sprintf(msg,"Return");
+  DrawMenuEl(msg,y,3,3,(what==2));
+
+  y=SCREEN_H;
+  sprintf(msg,"Stop");
+  DrawMenuEl(msg,y,2,1,(what==3));
+  sprintf(msg,"Abort");
+  DrawMenuEl(msg,y,2,2,(what==4));
+  
+  u8g2.sendBuffer();
+}
+
 
 // Second main view - program graph
 //
@@ -167,9 +305,11 @@ void LCD_display_main_view(){
 char sname[40];
 
   LCD_State=SCR_MAIN_VIEW;
-  if(Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();    // if any program loaded and view selected
-  else if(Program_run_size && LCD_Main==MAIN_VIEW2) LCD_display_mainv2();
-  else{
+  if(Program_run_size){
+    if(LCD_Main==MAIN_VIEW1) LCD_display_mainv1();    // if any program loaded and view selected
+    else if(LCD_Main==MAIN_VIEW2) LCD_display_mainv2();
+    else if(LCD_Main==MAIN_VIEW3) LCD_display_mainv3();
+  }else{
     u8g2.clearBuffer();          // clear the internal memory
     sprintf(sname,"Main screen %d",(int)LCD_Main);
     u8g2.setFont(FONT8);
@@ -327,34 +467,6 @@ static boolean yes=false;
 }
 
 
-// Draw program display menu
-//
-void LCD_Display_program_menu(byte pos=0){
-uint8_t piece=0,y=0,chh;
-
-  // Prepare menu for program
-  piece=(SCREEN_W-1)/4;
-  chh=u8g2.getMaxCharHeight();
-  u8g2.setFontPosBottom();
-  u8g2.setDrawColor(1);
-  DBG Serial.printf("Creating prg menu. Size:%d Piece:%d Chh:%d\n",Prog_Menu_Size,piece,chh);
-      
-  for(uint8_t a=0; a<Prog_Menu_Size; a++){
-    if(a==pos){
-      if(pos==Prog_Menu_Size-1) u8g2.drawBox(piece*a,SCREEN_H-chh-2, SCREEN_W-piece*a , chh+1); // dirty hack - because screen has 127 pixels, not 126 - it's not possible to divide it by 4 - so it wont go till the end of the screen
-      else u8g2.drawBox(piece*a,SCREEN_H-chh-2, piece+1 , chh+1);
-      u8g2.setDrawColor(0);
-      u8g2.drawStr(piece*a+2,SCREEN_H-1,Prog_Menu_Names[a]);
-      u8g2.setDrawColor(1);
-    }else{
-      u8g2.drawStr(piece*a+2,SCREEN_H-1,Prog_Menu_Names[a]);
-    }
-    //DBG Serial.printf("Pos x:%d y:%d sel:%d text:%s\n",piece*a,SCREEN_H-1,pos,Prog_Menu_Names[a]);
-  }
-
-}
-
-
 // Display full program, step by step
 //
 void LCD_Display_program_full(int dir=0){
@@ -428,7 +540,8 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
   if(SPIFFS.exists(file_path)){
     u8g2.clearBuffer();
     
-    u8g2.setDrawColor(1); /* color 1 for the box */
+    u8g2.setDrawColor(1);
+    u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
     u8g2.drawBox(0,0, SCREEN_W , chh+2);
     y+=chh;
     u8g2.setDrawColor(0);
@@ -464,40 +577,28 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
       total_t+=Program[a].togo+Program[a].dwell;
       DBG Serial.printf(" PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
     }
+    
+    y=SCREEN_H-chh-1;
     sprintf(msg,"Tmax:%dC",max_t);
-    u8g2.drawStr(x,y=SCREEN_H-chh-2,msg);
+    DrawMenuEl(msg,y,2,1,0);
     sprintf(msg,"Time:%uh %dm",total_t/60,total_t%60);
-    u8g2.drawStr((int)SCREEN_W/2,y,msg);
-    u8g2.drawFrame(0,y-chh-1,SCREEN_W/2-1,chh+2);
-    u8g2.drawFrame(SCREEN_W/2-1,y-chh-1,SCREEN_W,chh+2);
-    u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
-
+    DrawMenuEl(msg,y,2,2,0);
+    
     DBG Serial.printf(" Creating program menu prog_menu:%d dir:%d\n",prog_menu,dir);
     prog_menu+=dir;
     if(prog_menu>=Prog_Menu_Size) prog_menu=Prog_Menu_Size-1;
     else if(prog_menu<0) prog_menu=0;
-    LCD_Display_program_menu(prog_menu);
-    
+
+    y=SCREEN_H;
+    DrawMenuEl(Prog_Menu_Names[0],y,4,1,(prog_menu==0));
+    DrawMenuEl(Prog_Menu_Names[1],y,4,2,(prog_menu==1));
+    DrawMenuEl(Prog_Menu_Names[2],y,4,3,(prog_menu==2));
+    DrawMenuEl(Prog_Menu_Names[3],y,4,4,(prog_menu==3));
+      
     // If user wants to delete program - ask about it
     if(load_prg==2 && prog_menu==P_DELETE) LCD_Display_program_delete();
     else u8g2.sendBuffer();
   }
-}
-
-
-// Draw string with one char inversed
-// 
-void Draw_Marked_string(char *str,uint8_t pos){
-uint8_t a;
-  u8g2.setFontMode(0);
-  for(a=0;a<strlen(str);a++){
-    if(a==pos){
-      u8g2.setDrawColor(0);
-      u8g2.print(str[a]);
-      u8g2.setDrawColor(1);
-    }else u8g2.print(str[a]);
-  }
-  u8g2.setFontMode(1);
 }
 
 
@@ -511,14 +612,41 @@ static uint16_t qp[3];
 char msg[MAX_CHARS_PL];
 
   LCD_State=SCR_QUICK_PROGRAM;
-  if(pos==0 && dir==0){
-    what=ok=0;       // if we are here for the first time (not turn)
+  
+  if(pos==0 && dir==0){ // if we are here for the first time (not turn)
+    what=ok=0;
     xm=ym=0;
     if(kiln_temp>0) qp[0]=kiln_temp;// target temperature
     else qp[0]=20;
-    qp[1]=10;        // time to go
-    qp[2]=10;        // dwell time
+    qp[1]=10;           // time to go
+    qp[2]=10;           // dwell time
   }
+
+  // Some actions without displaying anything
+  if(pos==2){
+    if(what==12){   // if button pressed on cancel
+      LCD_display_menu();
+      return;
+    }else if(what==11){  // load program end exit
+      DBG Serial.println("Replacing current program in memory");
+      // We need to define program here
+      Initialize_program_to_run();  // clear current program
+      sprintf(msg,"Manually created quick program.");
+      Program_run_desc=(char *)malloc(strlen(msg)*sizeof(char)+1);
+      strcpy(Program_run_desc,msg);
+      sprintf(msg,"QuickProgram");
+      Program_run_name=(char *)malloc(strlen(msg)*sizeof(char)+1);
+      strcpy(Program_run_name,msg);
+      Update_program_step(0, qp[0], qp[1], qp[2]);
+      Program_run_state=PR_READY;
+      LCD_display_main_view();
+      return;
+    }else if(what==10){
+      what=0; // user pushed edit
+      pos=0;
+    }
+  }
+  
   u8g2.clearBuffer();
   u8g2.setFont(FONT7);
   u8g2.setFontPosBottom();
@@ -537,14 +665,12 @@ char msg[MAX_CHARS_PL];
     if(dir>0) qp[2]+=pow(10,what-7);
     else if(dir<0 && pow(10,what-7)<qp[2]) qp[2]-=pow(10,what-7);
   }
-  else if(what<12){ // rotate menu
-    if(dir>0) what++;
-    else what--;
-  }
+  else what+=dir; // rotate menu
+
   DBG Serial.printf("Dir: %d What:%d Pos:%d\n",dir,what,pos);
   
   // If button pressed - cycle
-  // 0-3 - temperature, 4-6 - time, 7-9 - dwell, 10 - cancel, 11 - load
+  // 0-3 - temperature, 4-6 - time, 7-9 - dwell, 10 - cancel, 11 - load, 12 - back to edit
   if(pos==2) what++;
   if(what>12) what=0;
   
@@ -579,54 +705,36 @@ char msg[MAX_CHARS_PL];
   if(u8g2.getStrWidth(msg)>xm) xm=u8g2.getStrWidth(msg);
   u8g2.drawStr(x,y+=chh,msg);
 
-  u8g2.drawVLine(xm+5,chh+1,SCREEN_H-2*chh-4);
+  DrawVline(xm+5,chh+1,SCREEN_H-2*chh-4);
+  //u8g2.drawVLine(xm+5,chh+1,SCREEN_H-2*chh-4);
   xm+=10; y=ym;
   // Now we draw settable stuff
-  sprintf(msg,"%04dC", qp[0]);
+  sprintf(msg,"%04d C", qp[0]);
   if(what<4){ // if we are drawing detailed temperature
     u8g2.setCursor(xm, y+=chh);
     Draw_Marked_string(msg,3-what);
   }else u8g2.drawStr(xm,y+=chh,msg);
 
-  sprintf(msg,"%03dmin.", qp[1]);
+  sprintf(msg,"%03d min.", qp[1]);
   if(what>3 && what<7){ // if we are drawing detailed time
     u8g2.setCursor(xm, y+=chh);
     Draw_Marked_string(msg,6-what);    
   }else u8g2.drawStr(xm,y+=chh,msg);
 
-  sprintf(msg,"%03dmin.", qp[2]);
+  sprintf(msg,"%03d min.", qp[2]);
   if(what>6 && what<10){ // if we are drawing detailed time
     u8g2.setCursor(xm, y+=chh);
     Draw_Marked_string(msg,9-what);    
   }else u8g2.drawStr(xm,y+=chh,msg);
 
-  y=SCREEN_H-2;
-  u8g2.drawFrame(0, y-chh-1, SCREEN_W, chh);
-  u8g2.drawFrame(SCREEN_W/3, y-chh-1, SCREEN_W/3, chh);
+  y=SCREEN_H;
+  sprintf(msg,"Edit");
+  DrawMenuEl(msg,y,3,1,(what==10));
+  sprintf(msg,"Use it");
+  DrawMenuEl(msg,y,3,2,(what==11));
   sprintf(msg,"Cancel");
-  if(what==10){
-    u8g2.drawBox(0, y-chh-1, SCREEN_W/3, chh);
-    u8g2.setDrawColor(0);
-    u8g2.drawStr(x,y,msg);
-    u8g2.setDrawColor(1);
-  }else u8g2.drawStr(x,y,msg);
-
-  sprintf(msg," Use IT");
-  if(what==11){
-    u8g2.drawBox(SCREEN_W/3, y-chh-1, SCREEN_W/3, chh);
-    u8g2.setDrawColor(0);
-    u8g2.drawStr((int)SCREEN_W/3,y,msg);
-    u8g2.setDrawColor(1);
-  }else u8g2.drawStr((int)SCREEN_W/3,y,msg);
-
-  sprintf(msg," Edit");
-  if(what==12){
-    u8g2.drawBox(SCREEN_W/3*2, y-chh-1, SCREEN_W/3, chh);
-    u8g2.setDrawColor(0);
-    u8g2.drawStr((int)SCREEN_W/3*2,y,msg);
-    u8g2.setDrawColor(1);
-  }else u8g2.drawStr((int)SCREEN_W/3*2,y,msg);
-
+  DrawMenuEl(msg,y,3,3,(what==12));
+  
   // and now submenu
   u8g2.sendBuffer();
 }
@@ -721,44 +829,6 @@ void LCD_Display_about(){
 }
 
 
-
-
-/*
-** Helping functions
-**
-*/
-
-// Cut string for LCD width, return 1 if there's something left
-// (input string, rest to output, screen width modificator)
-boolean return_LCD_string(char* msg,char* rest,int mod){
-uint16_t chh,lnw;
-char out[MAX_CHARS_PL]; 
-
-  chh=u8g2.getMaxCharHeight();
-  //DBG Serial.printf("Line cut: Got:%s\n",msg);
-  lnw=floor((SCREEN_W+mod)/u8g2.getMaxCharWidth())-1; // max chars in line
-  if(strlen(msg)<=lnw){
-    rest[0]='\0';
-    //DBG Serial.printf("Line cut: line shorter then %d - skipping\n",lnw);
-    return false;
-  }
-  strncpy(rest,msg+lnw+1,strlen(msg)-lnw);
-  rest[strlen(msg)-lnw]='\0';
-  msg[lnw+1]='\0';
-  //DBG Serial.printf("Line cut. Returning msg:'%s' and rest:'%s'\n",msg,rest);
-  return true;
-}
-
-
-// Write short messages during starting
-//
-void load_msg(char msg[MAX_CHARS_PL]){
-  u8g2.setDrawColor(0);
-  u8g2.drawBox(3, 31, 121, 22);
-  u8g2.setDrawColor(1);
-  u8g2.drawStr(10,45,msg);
-  u8g2.sendBuffer();
-}
 
 
 

@@ -181,16 +181,37 @@ File dir,file;
 }
 
 
-// Copy selected program to RUN program
+// Edit program step
 //
-void Load_program_to_run(){
-  
+void Update_program_step(uint8_t sstep, uint16_t stemp, uint16_t stime, uint16_t sdwell){
+  if(Program_run_size<=sstep)
+    if(Program_run_size==sstep){ // we are out of the program - but this is just NEXT step, we can add
+      Program_run_size++;
+      Program_run=(PROGRAM *)realloc(Program_run,sizeof(PROGRAM)*Program_run_size);
+    }else return;   // we are out of the program - we can edit it
+
+  Program_run[sstep].temp=stemp;
+  Program_run[sstep].togo=stime;
+  Program_run[sstep].dwell=sdwell;
+}
+
+
+// Initizalize program - clear memory
+//
+void Initialize_program_to_run(){
   if(!Program_size) return;
   if(Program_run) free(Program_run);
   if(Program_run_desc) free(Program_run_desc);
   if(Program_run_name) free(Program_run_name);
-  Program_run_size=0;
+  Program_run_size=0;  
+}
+
+
+// Copy selected program to RUN program
+//
+void Load_program_to_run(){
   
+  Initialize_program_to_run();
   Program_run=(PROGRAM *)malloc(sizeof(PROGRAM)*Program_size);
   for(uint8_t a=0;a<Program_size;a++)
     Program_run[a]=Program[a];
@@ -294,6 +315,10 @@ void Program_Setup(){
 
   // Start an alarm
   timerAlarmEnable(timer);
+
+// For testing!!!
+  Load_program("program1.txt");
+  Load_program_to_run();
 }
 
 
