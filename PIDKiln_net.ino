@@ -28,7 +28,7 @@ bool wifi_failed=true;
 
 
 void printLocalTime(){
-  struct tm timeinfo;
+struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
     return;

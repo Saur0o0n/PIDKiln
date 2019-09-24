@@ -93,10 +93,6 @@ uint8_t a;
   u8g2.setFontMode(1);
 }
 
-/*
-** Core/main LCD functions
-**
-*/
 
 // Draws one element of horizontal menu
 // msg = text to draw, y - box start point (lower,left corner - like with text in u8g2), cnt - fraction (split to 2, 3 etc), el - whitch element of cnt is this, sel - should element be inversed
@@ -128,6 +124,10 @@ char rest[MAX_CHARS_PL];
   }else u8g2.drawStr(x_txt,y-1,msg);          // draw text - we should check it's size also..
 }
 
+/*
+** Core/main LCD functions
+**
+*/
 
 // Third main view - operations (start,pause,stop)
 //
@@ -150,6 +150,22 @@ static int what=0;
     return;
   }else if(what<0){
     LCD_Main=MAIN_VIEW2;
+    LCD_display_main_view();
+    return;
+  }
+  if(ctrl==2){
+    switch(what){
+      case 0:
+        START_Program();
+        break;
+      case 1:
+        Program_run_state=PR_PAUSED;
+      case 4:
+        ABORT_Program();
+      default:
+        break;
+    }
+    LCD_Main=MAIN_VIEW1;
     LCD_display_main_view();
     return;
   }
@@ -244,7 +260,7 @@ void LCD_display_mainv1(){
 char msg[MAX_CHARS_PL];
 uint16_t x=2,y=1;
 uint8_t chh,chw,mch;
-struct tm timeinfo;
+struct tm timeinfo,*tmm;
 
   if(!Program_run_size) return; //  dont go in if no program loaded
   LCD_State=SCR_MAIN_VIEW;
@@ -282,7 +298,14 @@ struct tm timeinfo;
   u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
   sprintf(msg,"Start");
   u8g2.drawStr(x,y,msg);
-
+  if(Program_run_start){
+    tmm=localtime(&Program_run_start);
+    sprintf(msg,"%2d-%02d %d:%02d:%02d",(tmm->tm_mon+1),tmm->tm_mday,tmm->tm_hour,tmm->tm_min,tmm->tm_sec);
+    u8g2.setFont(FONT6);
+    u8g2.drawStr(chw*8+3,y-1,msg);
+    u8g2.setFont(FONT7);
+  }
+  
   //ETA time
   y+=chh;
   u8g2.drawFrame(0,y-chh, chw*8, chh+1);
@@ -292,7 +315,7 @@ struct tm timeinfo;
 
   // Temperatures - current, target, environment, shell
   y+=chh+1;
-  sprintf(msg,"%4.0fC 0000C %2.0fC",kiln_temp,int_temp);
+  sprintf(msg,"%4.0fC %4.0fC %2.0fC",kiln_temp,set_temp,int_temp);
   u8g2.drawStr(x,y,msg);
   
   u8g2.sendBuffer();
@@ -609,7 +632,7 @@ void LCD_Display_quick_program(int dir,byte pos){
 uint8_t x=2,y=1,chh;
 static uint8_t what=0,ok=0,xm,ym;
 static uint16_t qp[3];
-char msg[MAX_CHARS_PL];
+char msg[100];
 
   LCD_State=SCR_QUICK_PROGRAM;
   
@@ -628,14 +651,16 @@ char msg[MAX_CHARS_PL];
       LCD_display_menu();
       return;
     }else if(what==11){  // load program end exit
-      DBG Serial.println("Replacing current program in memory");
+      DBG Serial.println("[LCD] Replacing current program in memory - start");
       // We need to define program here
       Initialize_program_to_run();  // clear current program
       sprintf(msg,"Manually created quick program.");
-      Program_run_desc=(char *)malloc(strlen(msg)*sizeof(char)+1);
+      DBG Serial.printf("[LCD] Replacing current program in memory:%d \n",strlen(msg));
+      Program_run_desc=(char *)malloc((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_desc,msg);
       sprintf(msg,"QuickProgram");
-      Program_run_name=(char *)malloc(strlen(msg)*sizeof(char)+1);
+      DBG Serial.printf("[LCD] Replacing current program in memory:%d \n",strlen(msg));
+      Program_run_name=(char *)malloc((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_name,msg);
       Update_program_step(0, qp[0], qp[1], qp[2]);
       Program_run_state=PR_READY;

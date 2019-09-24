@@ -1,3 +1,5 @@
+#include <PID_v1.h>
+
 /*
 ** Relays and thermocouple defs.
 **
@@ -13,7 +15,15 @@
 ** Temperature, PID and probes variables/definitions
 */
 // Temperature & PID variables
-double int_temp=20,kiln_temp=20,case_temp=20;
+double int_temp=20, kiln_temp=20, case_temp=20;
+double set_temp, pid_out;
+float temp_incr=0;
+uint16_t temp_threshold=10;     // how big difference between desired temperature and real temperature we tolerate (when PID waits for temperature)
+int PID_WindowSize = 5000;      // how often recaluclate SSR on/off - 5second window default
+uint64_t windowStartTime;
+uint16_t temp_over=0;           // count if we have reached over desire temperature - when 0 - check temp_threshold
+
+double Kp=10, Ki=0.2, Kd=0.2;
 
 /*
 ** Global value of LCD screen/menu and menu position
@@ -94,6 +104,8 @@ String Program_desc,Program_name; // First line of the selected program file - i
 PROGRAM* Program_run;             // running program (made as copy of selected Program)
 uint8_t Program_run_size=0;       // number of entries in running program
 char *Program_run_desc=NULL,*Program_run_name=NULL;
+time_t Program_run_start;         // date/time of started program
+uint16_t Program_run_step=0;      // at which step are we now...
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -180,13 +192,20 @@ typedef enum { // program menu positions
   
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
+
+  PRF_PID_WINDOW,
+  PRF_PID_KP,
+  PRF_PID_KI,
+  PRF_PID_KD,
+  
   PRF_end
 } PREFERENCES;
 
 const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
-"MIN_Temperature","MAX_Temperature"
+"MIN_Temperature","MAX_Temperature",
+"PID_Window","PID_Kp","PID_Ki","PID_Kd",
 };
 
 // Preferences types definitions
@@ -196,6 +215,7 @@ typedef enum {
  UINT16,
  INT16,
  STRING,
+ VFLOAT,
 } TYPE;
 
 // Structure for keeping preferences values
@@ -206,6 +226,7 @@ struct PrefsStruct {
     uint16_t uint16;
     int16_t int16;
     char *str;
+    double vfloat;
   } value;
 };
 
@@ -216,8 +237,8 @@ struct PrefsStruct Prefs[PRF_end];
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.5";
-const char *PDate = "2019.09.17";
+const char *PVer = "PIDKiln v0.6";
+const char *PDate = "2019.09.22";
 
 /*
 ** Function defs

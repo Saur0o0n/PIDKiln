@@ -144,7 +144,39 @@
 	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~">
       </div>
      </div>
-    </fieldset>
+     <div class="row">
+      <div class="col-25">
+	<label for="PID_Window"> PID Window size (ms) </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="PID_Window" min="1" max="9999" value="~PID_Window~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="PID_Kp"> PID Kp (Proportional) </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="PID_Kp" min="0" max="99" step="0.1" value="~PID_Kp~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="PID_Ki"> PID Ki (Integral) </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="PID_Ki" min="0" max="99" step="0.1" value="~PID_Ki~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="PID_Kd"> PID Kd (Derivative) </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="PID_Kd" min="0" max="99" step="0.1" value="~PID_Kd~">
+      </div>
+     </div>
+   </fieldset>
 
     <div class="row">
       <div class="col-25">

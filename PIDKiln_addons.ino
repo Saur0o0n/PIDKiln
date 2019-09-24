@@ -17,7 +17,7 @@ void Disable_SSR(){
   digitalWrite(SSR_RELAY_PIN, LOW);
 }
 void Enable_EMR(){
-  digitalWrite(EMR_RELAY_PIN, HIGH);
+  //digitalWrite(EMR_RELAY_PIN, HIGH);
 }
 void Disable_EMR(){
   digitalWrite(EMR_RELAY_PIN, LOW);
@@ -49,16 +49,7 @@ double kiln_tmp1,kiln_tmp2;
     return;
   }
   kiln_temp=(kiln_temp+kiln_tmp2)/2;
-  if(kiln_temp<0){
-    Enable_EMR();
-    Enable_SSR();
-    //DBG Serial.println("Enabled EMR");
-  }
-  if(kiln_temp>15){
-    Disable_SSR();
-    Disable_EMR();
-    //DBG Serial.println("Disabled EMR");
-  }
+
   //DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }
 

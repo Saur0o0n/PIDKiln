@@ -42,6 +42,12 @@ String Preferences_parser(const String& var){
  
  else if(var=="MIN_Temperature") return String(Prefs[PRF_MIN_TEMP].value.uint8);
  else if(var=="MAX_Temperature") return String(Prefs[PRF_MAX_TEMP].value.uint16);
+
+ else if(var=="PID_Window") return String(Prefs[PRF_PID_WINDOW].value.uint16);
+ else if(var=="PID_Kp") return String(Prefs[PRF_PID_KP].value.vfloat);
+ else if(var=="PID_Ki") return String(Prefs[PRF_PID_KI].value.vfloat);
+ else if(var=="PID_Kd") return String(Prefs[PRF_PID_KD].value.vfloat);
+
  else if(var=="ERRORS" && Errors){
   String out="<div class=error> There where errors: "+String(Errors)+"</div>";
   DBG Serial.printf("Errors pointer1:%p\n",Errors);
@@ -222,16 +228,17 @@ time_t current_time;
 char *str;
 
   tmp=String();
-  current_time=time(NULL);
+  if(Program_run_start) current_time=Program_run_start;
+  else current_time=time(NULL);
   if(var == "CHART_DATA" && Program_run_size>0){
     str=ctime(&current_time);str[strlen(str)-1]='\0';  // Dont know why - probably error, but ctime returns string with new line char and tab - so we cut it off
     tmp+="{x:'"+String(str)+"'";
-    tmp+=",y:0},";   
+    tmp+=",y:22},";
     for(uint16_t a=0;a<Program_run_size;a++){
        if(a>0) tmp+=",";
        current_time+=Program_run[a].togo*60;
        str=ctime(&current_time);str[strlen(str)-1]='\0';  // Dont know why - probably error, but ctime returns string with new line char and tab - so we cut it off
-       DBG Serial.printf("Seconds:%d \t Parsed:'%s'\n",current_time,str);
+       //DBG Serial.printf("Seconds:%d \t Parsed:'%s'\n",current_time,str);
        tmp+="{x:'"+String(str)+"'";
        tmp+=",y:"+String(Program_run[a].temp)+"},";
        current_time+=Program_run[a].dwell*60;

@@ -1,0 +1,11 @@
+# Program to test low temperatures
+# Full description on as many lines you wish -
+#   just remember about default program limit - 10KiB
+# Program parameters target temperature in Celcius:minutes to achieve this temperature:dwelling time in minutes
+35:10:5
+44:5:10
+55:10:10
+60:10:5
+45:15:0
+30:5:5
+50:10:0

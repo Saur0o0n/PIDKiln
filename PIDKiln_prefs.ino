@@ -26,6 +26,10 @@ boolean Change_prefs_value(String item, String value){
         Prefs[a].value.int16=(uint16_t)value.toInt();
         DBG Serial.printf("  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
         return true;
+      }else if(Prefs[a].type==VFLOAT){
+        Prefs[a].value.vfloat=(double)value.toDouble();
+        DBG Serial.printf("  -> For %s saved VFLOAT item value:%f type:%d\n",PrefsName[a],Prefs[a].value.vfloat,(int)Prefs[a].type);
+        return true;
       }
     }
   }
@@ -162,6 +166,23 @@ char tmp[30];
       case PRF_MAX_TEMP:
         Prefs[PRF_MAX_TEMP].type=UINT16;
         Prefs[PRF_MAX_TEMP].value.uint16=1350;
+        break;
+
+      case PRF_PID_WINDOW:
+        Prefs[PRF_PID_WINDOW].type=UINT16;
+        Prefs[PRF_PID_WINDOW].value.uint16=5000;
+        break;
+      case PRF_PID_KP:
+        Prefs[PRF_PID_KP].type=VFLOAT;
+        Prefs[PRF_PID_KP].value.vfloat=10;
+        break;
+      case PRF_PID_KI:
+        Prefs[PRF_PID_KI].type=VFLOAT;
+        Prefs[PRF_PID_KI].value.vfloat=0.2;
+        break;
+      case PRF_PID_KD:
+        Prefs[PRF_PID_KD].type=VFLOAT;
+        Prefs[PRF_PID_KD].value.vfloat=0.1;
         break;
       default:
         break;

@@ -8,9 +8,16 @@
 
 // Other variables
 //
-hw_timer_t * timer = NULL;
+hw_timer_t *timer = NULL;
 volatile SemaphoreHandle_t timerSemaphore;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+
+
+//Specify the links and initial tuning parameters
+//PID KilnPID(&kiln_temp, &pid_out, &set_temp, 2,5,1,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
+                                                                    //P_ON_E (Proportional on Error) is the default behavior
+PID KilnPID(&kiln_temp, &pid_out, &set_temp, Kp, Ki, Kd, DIRECT);
 
 
 /*
@@ -22,8 +29,8 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 //
 void IRAM_ATTR onTimer(){
   // Increment the counter and set the time of ISR
-  portENTER_CRITICAL_ISR(&timerMux);
-  portEXIT_CRITICAL_ISR(&timerMux);
+  //portENTER_CRITICAL_ISR(&timerMux);
+  //portEXIT_CRITICAL_ISR(&timerMux);
   // Give a semaphore that we can check in the loop
   xSemaphoreGiveFromISR(timerSemaphore, NULL);
   // It is safe to use digitalRead/Write here if you want to toggle an output
@@ -199,11 +206,21 @@ void Update_program_step(uint8_t sstep, uint16_t stemp, uint16_t stime, uint16_t
 // Initizalize program - clear memory
 //
 void Initialize_program_to_run(){
-  if(!Program_size) return;
-  if(Program_run) free(Program_run);
-  if(Program_run_desc) free(Program_run_desc);
-  if(Program_run_name) free(Program_run_name);
-  Program_run_size=0;  
+  if(!Program_run_size) return;
+  if(Program_run!=NULL){
+    free(Program_run);
+    Program_run=NULL;
+  }
+  if(Program_run_desc!=NULL){
+    free(Program_run_desc);
+    Program_run_desc=NULL;
+  }
+  if(Program_run_name!=NULL){
+    free(Program_run_name);
+    Program_run_name=NULL;
+  }
+  Program_run_size=0;
+  DBG Serial.println("[PRG] Initialized new in-memory program");
 }
 
 
@@ -215,9 +232,9 @@ void Load_program_to_run(){
   Program_run=(PROGRAM *)malloc(sizeof(PROGRAM)*Program_size);
   for(uint8_t a=0;a<Program_size;a++)
     Program_run[a]=Program[a];
-  Program_run_desc=(char *)malloc(Program_desc.length()*sizeof(char)+1);
+  Program_run_desc=(char *)malloc((Program_desc.length()+1)*sizeof(char));
   strcpy(Program_run_desc,Program_desc.c_str());
-  Program_run_name=(char *)malloc(Program_name.length()*sizeof(char)+1);
+  Program_run_name=(char *)malloc((Program_name.length()+1)*sizeof(char));
   strcpy(Program_run_name,Program_name.c_str());
   Program_run_size=Program_size;
   Program_run_state=PR_READY;
@@ -280,15 +297,95 @@ char file[32];
 //
 void ABORT_Program(uint8_t error){
 
+  Program_run_state=PR_FAILED;
   // Turn off heater
+  KilnPID.SetMode(MANUAL);
   Disable_SSR();
   Disable_EMR();
   // Set program status to aborted
   // Send a message
+  Close_log_file();
+  Program_run_start=0;
 }
 
+//
+//
+void Program_calculate_steps(boolean prg_start=false){
+static time_t step_start,next_step_end,prev_step_end;
 
+static uint16_t cnt1=0,cnt2=0,next_temp=0;
 
+static boolean is_it_dwell=true;
+
+  if(prg_start){  // starting program - do some startup stuff
+    Program_run_step=0; cnt1=0;
+    next_step_end=0;         // there was no previouse step - so it has ended NOW
+    cnt2=999;                // make sure we will parse first step
+    is_it_dwell=true;        // last step was dwell
+  }
+
+  // Logging stuff - cnt1 - counter for this
+  cnt1++;
+  if(cnt1>19){
+    cnt1=0;
+    Add_log_line();
+  }
+    
+  // Program recalc stuff - cnt2 - counter for it
+  cnt2++;
+  if(cnt2>10){
+    cnt2=0;
+
+    // calculate next step
+    if(time(NULL)>next_step_end){
+      DBG Serial.println("[DBG] Calculating new step!");
+      if(is_it_dwell){  // we have finished full step togo+dwell (or this is first step)
+        DBG Serial.println("[DBG] Calculating new NORMAL step!");
+        is_it_dwell=false;
+        step_start=time(NULL);
+        next_step_end=step_start+Program_run[Program_run_step].togo*60;
+        if(Program_run_step>0){
+          temp_incr=(Program_run[Program_run_step].temp-Program_run[Program_run_step-1].temp)/(Program_run[Program_run_step].togo*60);
+        }else{
+          DBG Serial.printf("[DBG] First step. ");
+          set_temp=kiln_temp;
+          temp_incr=(Program_run[Program_run_step].temp-kiln_temp)/(Program_run[Program_run_step].togo*60);
+        }
+      }else{
+        DBG Serial.println("[DBG] Calculating new DWELL step!");
+        is_it_dwell=true;
+        temp_incr=0;
+        step_start=time(NULL);
+        next_step_end=step_start+Program_run[Program_run_step].dwell*60;
+        set_temp=Program_run[Program_run_step].temp;
+        Program_run_step++;
+      }
+    }
+    DBG Serial.printf("[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Step: %d\n",kiln_temp,set_temp,temp_incr,Program_run_step);
+  }
+  
+  set_temp+=temp_incr;  // increase desire temperature...
+}
+
+// Start running the in memory program
+//
+void START_Program(){
+
+  DBG Serial.println("[PRG] Running program!");
+  Program_run_state=PR_RUNNING;
+  //set_temp=40;
+  Enable_EMR();
+
+  KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat);
+  Program_run_start=time(NULL);
+  Program_calculate_steps(true);
+  Init_log_file();
+  windowStartTime=millis();
+
+  //tell the PID to range between 0 and the full window size
+  KilnPID.SetOutputLimits(100, PID_WindowSize);
+  KilnPID.SetMode(AUTOMATIC);
+}
 
 
 
@@ -317,22 +414,47 @@ void Program_Setup(){
   timerAlarmEnable(timer);
 
 // For testing!!!
-  Load_program("program1.txt");
+  Load_program("program3.txt");
   Load_program_to_run();
 }
 
 
 void Program_Loop(){
+static uint16_t cnt1=0;
 
-  // check if timer interup occured
+  unsigned long now = millis();
+  // every second do this...
   if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
-    uint32_t isrCount = 0, isrTime = 0;
-    // Read the interrupt count and time
-    portENTER_CRITICAL(&timerMux);
-    portEXIT_CRITICAL(&timerMux);
+    // Read the interrupt count and time - with semaphores we don't need to
+    //portENTER_CRITICAL(&timerMux);
+    //portEXIT_CRITICAL(&timerMux);
 
     if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
     // Update temperature readout
     Update_Temperature();
+
+
+    if(Program_run_state==PR_RUNNING){
+      // This is just for debug....
+      cnt1++;
+      if(cnt1>19){
+        cnt1=0;
+        DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%.2f WindowSize:%d Prg_state:%d\n",pid_out,(float)(now - windowStartTime),PID_WindowSize,(byte)Program_run_state);
+      }
+  
+      // Do all the program recalc
+      Program_calculate_steps();
+    }
+  }
+
+  // Do the PID stuff
+  if(Program_run_state==PR_RUNNING){
+    KilnPID.Compute();
+
+    if (now - windowStartTime > PID_WindowSize){ //time to shift the Relay Window
+      windowStartTime += PID_WindowSize;
+    }
+    if (pid_out > now - windowStartTime) Enable_SSR();
+    else Disable_SSR();
   }
 }

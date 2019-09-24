@@ -41,7 +41,7 @@ var config = {
 					displayFormats: {
 						minute: 'hh:mm'
 					},
-					unit: 'minute'
+//					unit: 'minute'
 				},
 				scaleLabel: {
 					display: true,

@@ -117,6 +117,12 @@ GND     | GND
 
 ESP32	to thermistor
 
+## Power consideration
+
+Preferably you should power your PIDKiln device with regulated 5V. This way you can power ESP32 board through VIN (do not use VIN and USB at once!) pin and use 5V to directly power EMR relay (around 185mA) and LCD backlight.
+You could power board with just USB, but 5V output from my board (ESP32-Wrover TTGO with microsd) is two weak to handle EMR and LCD and most of other boards do not have 5V out. You could then use VIN as 5V vout - this path should be
+connected directly to USB 5v output - but then you are limited by USB output and how much board traces can handle.
+
 ## Installation
 
 - Assembly hardware, as specified above.
@@ -135,4 +141,9 @@ ESP32	to thermistor
 
 - Most of the documentation you can find on [PIDKiln github page](https://github.com/Saur0o0n/pidkiln) - so please use it
 - Some less formal updates information and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
+
+## Some future ideas
+
+- Perhaps to add the power meter
+- Online firmware flashing
 
