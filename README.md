@@ -1,7 +1,7 @@
 # pidkiln
-Ceramic kiln PID controller based on Arduino/Weemos board.
+Ceramic/glass kiln PID controller based on Arduino IDE and Weemos/ESP32 board.
 
-This is work in progress - but advanced enough to start uploading it.
+This is still work in progress, but since of release v0.7 (2019.09.24) it's fully functional. Just needs some more polishing.
 
 ## Key features:
 - interface accessible both from LCD screen and WWW webpage

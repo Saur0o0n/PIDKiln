@@ -223,17 +223,17 @@ template_str=String();
 //
 String Chart_parser(const String& var) {
 String tmp;
-struct tm timeinfo;
 time_t current_time;
 char *str;
 
   tmp=String();
   if(Program_run_start) current_time=Program_run_start;
   else current_time=time(NULL);
+
   if(var == "CHART_DATA" && Program_run_size>0){
     str=ctime(&current_time);str[strlen(str)-1]='\0';  // Dont know why - probably error, but ctime returns string with new line char and tab - so we cut it off
     tmp+="{x:'"+String(str)+"'";
-    tmp+=",y:22},";
+    tmp+=",y:"+String(Program_start_temp)+"},";
     for(uint16_t a=0;a<Program_run_size;a++){
        if(a>0) tmp+=",";
        current_time+=Program_run[a].togo*60;
@@ -439,22 +439,23 @@ boolean save=false;
       }else if(p->name().equalsIgnoreCase("update")){
         continue;
       }else if(!Change_prefs_value(p->name(),p->value())){
-        DBG Serial.printf("!!! We have post error for %s with '%s'\n",p->name().c_str(),p->value().c_str());
+        DBG Serial.printf("[HTTP]!!! We have post error for %s with '%s'\n",p->name().c_str(),p->value().c_str());
         // we have some errors add new field to error list
         if(Errors!=NULL){
-          DBG Serial.printf(" Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
+          DBG Serial.printf("[HTTP] Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
           Errors=(char *)realloc(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
           strcat(Errors," ");
           strcat(Errors,p->name().c_str());
-          DBG Serial.printf(" Errors now:%s\n",Errors);
+          DBG Serial.printf("[HTTP] Errors now:%s\n",Errors);
         }else{
-          DBG Serial.printf(" Malloc call of size %d\n",(p->name().length()+3)*sizeof(char));
+          DBG Serial.printf("[HTTP] Malloc call of size %d\n",(p->name().length()+3)*sizeof(char));
           Errors=strdup(p->name().c_str());
-          DBG Serial.printf(" Errors now:%s\n",Errors);
+          DBG Serial.printf("[HTTP] Errors now:%s\n",Errors);
         }
       }
     }
   }
+  Prefs_updated_hook();
   if(save){
     Save_prefs();
   }

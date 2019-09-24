@@ -102,6 +102,16 @@ int pos=0;
 }
 
 
+// This function is called whenever user changes preferences - perhaps we want to do something after that?
+//
+void Prefs_updated_hook(){
+
+  // We have running program - update PID parameters
+  if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
+    KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat); // set actual PID parameters
+  }
+}
+
 /* 
 ** Setup preferences for PIDKiln
 **
@@ -168,7 +178,7 @@ char tmp[30];
         Prefs[PRF_MAX_TEMP].value.uint16=1350;
         break;
 
-      case PRF_PID_WINDOW:
+      case PRF_PID_WINDOW:  // how often recaluclate SSR on/off - 5second window default
         Prefs[PRF_PID_WINDOW].type=UINT16;
         Prefs[PRF_PID_WINDOW].value.uint16=5000;
         break;

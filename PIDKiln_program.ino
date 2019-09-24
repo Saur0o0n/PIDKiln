@@ -14,12 +14,6 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 
 
-//Specify the links and initial tuning parameters
-//PID KilnPID(&kiln_temp, &pid_out, &set_temp, 2,5,1,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
-                                                                    //P_ON_E (Proportional on Error) is the default behavior
-PID KilnPID(&kiln_temp, &pid_out, &set_temp, Kp, Ki, Kd, DIRECT);
-
-
 /*
 ** Core/main program functions
 **
@@ -83,7 +77,7 @@ uint16_t pos=0;
 int sel;
 File prg;
 
-  if(file){  // if function got an argument - this can happend if you want to validate new program uploaded by http
+  if(file){  // if function got an argument - this can happen if you want to validate new program uploaded by http
     sprintf(file_path,"%s/%s",PRG_Directory,file);
     DBG Serial.printf("Got pointer to load:'%s'\n",file);
     Program_name=String(file);
@@ -139,9 +133,9 @@ File dir,file;
 
   dir = SPIFFS.open(PRG_Directory);
   if(!dir) return 1;  // directory open failed
-  DBG Serial.println("Loading directory...");
+  DBG Serial.println("[PRG] Loading directory...");
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
-  DBG Serial.printf("\tcounted %d files\n",count);
+  DBG Serial.printf("[PRG]\tcounted %d files\n",count);
   if(Programs_DIR) free(Programs_DIR);
   Programs_DIR=(DIRECTORY*)malloc(sizeof(DIRECTORY)*count);
   Programs_DIR_size=0;
@@ -259,7 +253,7 @@ int Find_selected_program(){
 void rotate_selected_program(int dir){
 int a = Find_selected_program();
 
-  DBG Serial.printf("Rotating programs. For a:%d, dir: %d, selected?:%d, dir_size:%d\n",a,dir,Programs_DIR[a].sel,Programs_DIR_size);
+  DBG Serial.printf("[PRG] Rotating programs. For a:%d, dir: %d, selected?:%d, dir_size:%d\n",a,dir,Programs_DIR[a].sel,Programs_DIR_size);
   if(dir<0 && a>0){   // if we are DOWN down and we can a>0 - do it, if we can't - do nothing
     Programs_DIR[a].sel=0;  // delete old selection
     Programs_DIR[a-1].sel=1;
@@ -277,7 +271,7 @@ byte Cleanup_program(byte err){
   Program_desc="";
   Program_name="";
   for(byte a=0;a<MAX_PRG_LENGTH;a++) Program[a].temp=Program[a].togo=Program[a].dwell=0;
-  DBG Serial.printf(" Cleaning up program with error %d\n",err);
+  DBG Serial.printf("[PRG] Cleaning up program with error %d\n",err);
   return err;
 }
 
@@ -288,40 +282,59 @@ boolean Erase_program_file(){
 char file[32];
 
   sprintf(file,"%s/%s",PRG_Directory,Programs_DIR[Find_selected_program()].filename);
-  DBG Serial.printf("!!! Erasing file from disk: %s",file);
+  DBG Serial.printf("[PRG] !!! Erasing file from disk: %s",file);
   return SPIFFS.remove(file);
 }
 
 
-// Abort program if something goes wrong
+// Cleanly end program
 //
-void ABORT_Program(uint8_t error){
+void END_Program(){
 
-  Program_run_state=PR_FAILED;
-  // Turn off heater
+  DBG Serial.println("[PRG] Ending program cleanly");
+  Program_run_state=PR_ENDED;
   KilnPID.SetMode(MANUAL);
   Disable_SSR();
   Disable_EMR();
-  // Set program status to aborted
-  // Send a message
+  Program_run_end=time(NULL);
   Close_log_file();
+}
+
+
+// Abort program if something goes wrong - this has no real meaning now - perhaps later...
+//
+void ABORT_Program(uint8_t error){
+
+  END_Program();
+  Program_run_state=PR_FAILED;
   Program_run_start=0;
 }
 
+
+// Recalculate ETA based on current step
 //
+void Program_recalculate_ETA(boolean dwell=false){
+
+  Program_run_end=time(NULL);
+  for(uint16_t a=Program_run_step; a<Program_run_size;a++){
+    if(!dwell) Program_run_end+=Program_run[a].togo*60;
+    Program_run_end+=Program_run[a].dwell*60;
+  }
+}
+
+
+// This is functional called every second - if program is running. It calculates temperature grow, sets targets etc.
 //
 void Program_calculate_steps(boolean prg_start=false){
-static time_t step_start,next_step_end,prev_step_end;
-
-static uint16_t cnt1=0,cnt2=0,next_temp=0;
-
-static boolean is_it_dwell=true;
+static time_t step_start,next_step_end;
+static uint16_t cnt1=0,cnt2=0;
+static boolean is_it_dwell=false;
 
   if(prg_start){  // starting program - do some startup stuff
     Program_run_step=0; cnt1=0;
-    next_step_end=0;         // there was no previouse step - so it has ended NOW
+    next_step_end=0;         // there was no previous step - so it has ended NOW
     cnt2=999;                // make sure we will parse first step
-    is_it_dwell=true;        // last step was dwell
+    is_it_dwell=false;        // last step was dwell
   }
 
   // Logging stuff - cnt1 - counter for this
@@ -339,29 +352,39 @@ static boolean is_it_dwell=true;
     // calculate next step
     if(time(NULL)>next_step_end){
       DBG Serial.println("[DBG] Calculating new step!");
-      if(is_it_dwell){  // we have finished full step togo+dwell (or this is first step)
-        DBG Serial.println("[DBG] Calculating new NORMAL step!");
-        is_it_dwell=false;
+      if(!is_it_dwell){  // we have finished full step togo+dwell (or this is first step)
+        if(Program_run_step>=Program_run_size){  //we have passed the last step - end program
+          END_Program();
+          return;
+        }
+        DBG Serial.println("[PRG] Calculating new NORMAL step!");
+        is_it_dwell=true;   // next step will be dwell
         step_start=time(NULL);
         next_step_end=step_start+Program_run[Program_run_step].togo*60;
-        if(Program_run_step>0){
-          temp_incr=(Program_run[Program_run_step].temp-Program_run[Program_run_step-1].temp)/(Program_run[Program_run_step].togo*60);
-        }else{
-          DBG Serial.printf("[DBG] First step. ");
+        DBG Serial.printf("[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%.3f\n",next_step_end,step_start,Program_run[Program_run_step].togo,Program_run_step,Program_run_size,set_temp);
+        
+        if(Program_run_step>0){ // is this a next step?
+          temp_incr=(float)(Program_run[Program_run_step].temp-Program_run[Program_run_step-1].temp)/(Program_run[Program_run_step].togo*60);
+          DBG Serial.printf("[PRG] temp_inc:%f Step_temp:%d Step-1_temp:%d\n",temp_incr,Program_run[Program_run_step].temp,Program_run[Program_run_step-1].temp);
+        }else{      // or this is teh first one?
+          DBG Serial.printf("[DBG] First step.\n");
           set_temp=kiln_temp;
-          temp_incr=(Program_run[Program_run_step].temp-kiln_temp)/(Program_run[Program_run_step].togo*60);
+          temp_incr=(float)(Program_run[Program_run_step].temp-kiln_temp)/(Program_run[Program_run_step].togo*60);
         }
+        Program_recalculate_ETA(false);   // recalculate ETA for normal step
       }else{
         DBG Serial.println("[DBG] Calculating new DWELL step!");
-        is_it_dwell=true;
+        is_it_dwell=false;      // next step will be normal
         temp_incr=0;
         step_start=time(NULL);
         next_step_end=step_start+Program_run[Program_run_step].dwell*60;
         set_temp=Program_run[Program_run_step].temp;
+        DBG Serial.printf("[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%f\n",next_step_end,step_start,Program_run[Program_run_step].dwell,Program_run_step,Program_run_size,set_temp);
+        Program_recalculate_ETA(true);  // recalculate ETA for dwell
         Program_run_step++;
       }
     }
-    DBG Serial.printf("[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Step: %d\n",kiln_temp,set_temp,temp_incr,Program_run_step);
+    DBG Serial.printf("[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Pid_out:%.2f Step: %d\n", kiln_temp, set_temp, temp_incr, pid_out, Program_run_step);
   }
   
   set_temp+=temp_incr;  // increase desire temperature...
@@ -373,17 +396,18 @@ void START_Program(){
 
   DBG Serial.println("[PRG] Running program!");
   Program_run_state=PR_RUNNING;
-  //set_temp=40;
+  Program_start_temp=kiln_temp;
+  
   Enable_EMR();
 
-  KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat);
+  KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat); // set actual PID parameters
   Program_run_start=time(NULL);
   Program_calculate_steps(true);
   Init_log_file();
   windowStartTime=millis();
 
   //tell the PID to range between 0 and the full window size
-  KilnPID.SetOutputLimits(100, PID_WindowSize);
+  KilnPID.SetOutputLimits(100, Prefs[PRF_PID_WINDOW].value.uint16);
   KilnPID.SetMode(AUTOMATIC);
 }
 
@@ -414,7 +438,7 @@ void Program_Setup(){
   timerAlarmEnable(timer);
 
 // For testing!!!
-  Load_program("program3.txt");
+  Load_program("test_up_down.txt");
   Load_program_to_run();
 }
 
@@ -435,13 +459,13 @@ static uint16_t cnt1=0;
 
 
     if(Program_run_state==PR_RUNNING){
-      // This is just for debug....
+/*      // This is just for debug....
       cnt1++;
       if(cnt1>19){
         cnt1=0;
         DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%.2f WindowSize:%d Prg_state:%d\n",pid_out,(float)(now - windowStartTime),PID_WindowSize,(byte)Program_run_state);
       }
-  
+*/
       // Do all the program recalc
       Program_calculate_steps();
     }
@@ -451,8 +475,8 @@ static uint16_t cnt1=0;
   if(Program_run_state==PR_RUNNING){
     KilnPID.Compute();
 
-    if (now - windowStartTime > PID_WindowSize){ //time to shift the Relay Window
-      windowStartTime += PID_WindowSize;
+    if (now - windowStartTime > Prefs[PRF_PID_WINDOW].value.uint16){ //time to shift the Relay Window
+      windowStartTime += Prefs[PRF_PID_WINDOW].value.uint16;
     }
     if (pid_out > now - windowStartTime) Enable_SSR();
     else Disable_SSR();

@@ -42,17 +42,17 @@ uint16_t chh,lnw;
 char out[MAX_CHARS_PL]; 
 
   chh=u8g2.getMaxCharHeight();
-  //DBG Serial.printf("Line cut: Got:%s\n",msg);
+  //DBG Serial.printf("[LCD] Line cut: Got:%s\n",msg);
   lnw=floor((SCREEN_W+mod)/u8g2.getMaxCharWidth())-1; // max chars in line
   if(strlen(msg)<=lnw){
     rest[0]='\0';
-    //DBG Serial.printf("Line cut: line shorter then %d - skipping\n",lnw);
+    //DBG Serial.printf("[LCD] Line cut: line shorter then %d - skipping\n",lnw);
     return false;
   }
   strncpy(rest,msg+lnw+1,strlen(msg)-lnw);
   rest[strlen(msg)-lnw]='\0';
   msg[lnw+1]='\0';
-  //DBG Serial.printf("Line cut. Returning msg:'%s' and rest:'%s'\n",msg,rest);
+  //DBG Serial.printf("[LCD] Line cut. Returning msg:'%s' and rest:'%s'\n",msg,rest);
   return true;
 }
 
@@ -72,7 +72,7 @@ void load_msg(char msg[MAX_CHARS_PL]){
 //
 void DrawVline(uint16_t x,uint16_t y,uint16_t h){
 
-  //DBG Serial.printf(" -> Draw V dots: x:%d\t y:%d\t h:%d\n",x,y,h);
+  //DBG Serial.printf("[LCD] -> Draw V dots: x:%d\t y:%d\t h:%d\n",x,y,h);
   h+=y;
   for(uint16_t yy=y;yy<h;yy+=3) u8g2.drawPixel(x,yy);
 }
@@ -95,12 +95,12 @@ uint8_t a;
 
 
 // Draws one element of horizontal menu
-// msg = text to draw, y - box start point (lower,left corner - like with text in u8g2), cnt - fraction (split to 2, 3 etc), el - whitch element of cnt is this, sel - should element be inversed
+// msg = text to draw, y - box start point (lower,left corner - like with text in u8g2), cnt - fraction (split to 2, 3 etc), el - which element of cnt is this, sel - should element be in-versed
 void DrawMenuEl(char *msg, uint16_t y, uint8_t cnt, uint8_t el, boolean sel){
 uint16_t chh,x_w=0,width=0,x=0,x_txt=0;
 char rest[MAX_CHARS_PL];
 
-  chh=u8g2.getMaxCharHeight()+2;  // just to make a pixes space on Y
+  chh=u8g2.getMaxCharHeight()+2;
   if(cnt>1) x_w=floor((float)SCREEN_W/cnt);
   else x_w=SCREEN_W;
   el--;   // because we want to count 0.. not 1..
@@ -111,9 +111,9 @@ char rest[MAX_CHARS_PL];
   
   return_LCD_string(msg,rest,2,x_w);  // cut text size if too long - this is for safety, should not happend
   width=u8g2.getStrWidth(msg);
-  x_txt=x+(x_w-2-width)/2;            // findout how to put a text in the middle of the button
+  x_txt=x+(x_w-2-width)/2;            // find out how to put a text in the middle of the button
 
-  u8g2.drawFrame(x,y-chh,x_w,chh);  // draw frame around text w+1 becasue start point is also counted to witdh
+  u8g2.drawFrame(x,y-chh,x_w,chh);  // draw frame around text w+1 because start point is also counted to witdh
   DBG Serial.printf("Width:%d cnt:%d el:%d x:%d x_txt:%d x_w:%d\n",SCREEN_W,cnt,el,x,x_txt,x_w);
   
   if(sel){
@@ -136,7 +136,7 @@ char msg[MAX_CHARS_PL];
 uint16_t chh,chw,x=2,y=2;
 static int what=0;
 
-  if(!Program_run_size) return; //  dont go in if no program loaded
+  if(!Program_run_size) return; //  don't go in if no program loaded
   LCD_State=SCR_MAIN_VIEW;
   LCD_Main=MAIN_VIEW3;  // just in case...
 
@@ -161,7 +161,7 @@ static int what=0;
       case 1:
         Program_run_state=PR_PAUSED;
       case 4:
-        ABORT_Program();
+        ABORT_Program(PR_ERR_USER_ABORT);
       default:
         break;
     }
@@ -201,7 +201,7 @@ void LCD_display_mainv2(){
 uint16_t ttime=0,mxtemp=0,mxx=0,mxy=0,x,y,oldx,oldy,scx,scy,startx,starty;
 char msg[MAX_CHARS_PL];
 
-  if(!Program_run_size) return; //  dont go in if no program loaded
+  if(!Program_run_size) return; //  don't go in if no program loaded
   LCD_State=SCR_MAIN_VIEW;
   LCD_Main=MAIN_VIEW2;  // just in case...
 
@@ -216,7 +216,7 @@ char msg[MAX_CHARS_PL];
   mxx=SCREEN_W-2; // max X axis - time
   mxy=SCREEN_H-5; // max Y axis - temperature
   if(ttime) scx=(int)((mxx*100)/ttime);   // 1 minute is scx pixels * 100 on graph 
-  if(mxtemp) scy=(int)((mxy*100)/mxtemp); // 1 celcius is scy pixel * 100
+  if(mxtemp) scy=(int)((mxy*100)/mxtemp); // 1 celsius is scy pixel * 100
 
   DBG Serial.printf("Graph. mxx:%d mxy:%d ttime:%d mxtemp:%d scx:%d scy:%d\n",mxx,mxy,ttime,mxtemp,scx,scy);
 
@@ -254,12 +254,13 @@ char msg[MAX_CHARS_PL];
 
 
 
-// Fist main view - basic running program informations, status, time, start time, eta, temperatures
+// Fist main view - basic running program information, status, time, start time, eta, temperatures
 //
 void LCD_display_mainv1(){
 char msg[MAX_CHARS_PL];
 uint16_t x=2,y=1;
 uint8_t chh,chw,mch;
+static uint8_t cnt=1;
 struct tm timeinfo,*tmm;
 
   if(!Program_run_size) return; //  dont go in if no program loaded
@@ -273,7 +274,7 @@ struct tm timeinfo,*tmm;
   strcmp(msg," ");
   chh=u8g2.getMaxCharHeight()+2;
   chw=u8g2.getMaxCharWidth();
-  mch=floor(SCREEN_W-4/chw); // how many chars per line...
+  mch=floor(SCREEN_W-4/chw);  // how many chars per line...
   sprintf(msg,"%.*s",mch,Program_run_name);
   u8g2.drawBox(0,0, SCREEN_W, chh+1);
   u8g2.setDrawColor(0);
@@ -281,7 +282,16 @@ struct tm timeinfo,*tmm;
   u8g2.drawStr(x,y,msg);
   u8g2.setDrawColor(1);
 
-  sprintf(msg,"%s",Prog_Run_Names[Program_run_state]);
+  if(Program_run_state==PR_RUNNING){    // just some small animation for running program
+    if(cnt==1) sprintf(msg,"%s",Prog_Run_Names[Program_run_state]);
+    else if(cnt==2) sprintf(msg,"%s.",Prog_Run_Names[Program_run_state]);
+    else if(cnt==3) sprintf(msg,"%s..",Prog_Run_Names[Program_run_state]);
+    else if(cnt==4){
+      sprintf(msg,"%s...",Prog_Run_Names[Program_run_state]);
+      cnt=0;
+    }
+    cnt++;
+  }else sprintf(msg,"%s",Prog_Run_Names[Program_run_state]);
   y+=chh;
   u8g2.drawStr(x+1,y,msg);
 
@@ -293,36 +303,51 @@ struct tm timeinfo,*tmm;
   u8g2.drawStr(SCREEN_W/2,y,msg);
 
   // Start time
+  u8g2.setFont(FONT6);
+  chh=u8g2.getMaxCharHeight()+2;
+  chw=u8g2.getMaxCharWidth();
+  
   y+=chh;
-  u8g2.drawFrame(0,y-chh, chw*8, chh+1);
+  u8g2.drawFrame(0,y-chh, chw*7, chh+1);
   u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
   sprintf(msg,"Start");
   u8g2.drawStr(x,y,msg);
   if(Program_run_start){
     tmm=localtime(&Program_run_start);
     sprintf(msg,"%2d-%02d %d:%02d:%02d",(tmm->tm_mon+1),tmm->tm_mday,tmm->tm_hour,tmm->tm_min,tmm->tm_sec);
-    u8g2.setFont(FONT6);
     u8g2.drawStr(chw*8+3,y-1,msg);
-    u8g2.setFont(FONT7);
   }
   
   //ETA time
   y+=chh;
-  u8g2.drawFrame(0,y-chh, chw*8, chh+1);
+  u8g2.drawFrame(0,y-chh, chw*7, chh+1);
   u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
-  sprintf(msg,"ETA");
-  u8g2.drawStr(x,y,msg);
+  if(Program_run_start){
+    sprintf(msg,"ETA");
+    u8g2.drawStr(x,y,msg);
+    tmm=localtime(&Program_run_end);
+    sprintf(msg,"%2d-%02d %d:%02d:%02d",(tmm->tm_mon+1),tmm->tm_mday,tmm->tm_hour,tmm->tm_min,tmm->tm_sec);
+    u8g2.drawStr(chw*8+3,y-1,msg);
+  }else{
+    sprintf(msg,"  End");
+    u8g2.drawStr(x,y,msg);
+    if(Program_run_end){
+      tmm=localtime(&Program_run_end);
+      sprintf(msg,"%2d-%02d %d:%02d:%02d",(tmm->tm_mon+1),tmm->tm_mday,tmm->tm_hour,tmm->tm_min,tmm->tm_sec);
+      u8g2.drawStr(chw*8+3,y-1,msg);
+    }
+  }
 
   // Temperatures - current, target, environment, shell
-  y+=chh+1;
-  sprintf(msg,"%4.0fC %4.0fC %2.0fC",kiln_temp,set_temp,int_temp);
+  y+=chh;
+  sprintf(msg,"Ct:%4.0fC St:%4.0fC Amb:%2.0fC Cse:%3.0fC",kiln_temp,set_temp,int_temp,0);
   u8g2.drawStr(x,y,msg);
   
   u8g2.sendBuffer();
 }
 
 
-// Display main screeens
+// Display main screens
 //
 void LCD_display_main_view(){
 char sname[40];
@@ -556,7 +581,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
   chh=u8g2.getMaxCharHeight();
   
   sel=Find_selected_program();    // get selected program
-  DBG Serial.printf("Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Programs_DIR[sel].filename);
+  DBG Serial.printf("[LCD] Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Programs_DIR[sel].filename);
   
   sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
   DBG Serial.printf("\tprogram path: %s\n",file_path);
@@ -598,7 +623,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     for(int a=0;a<Program_size;a++){
       if(Program[a].temp>max_t) max_t=Program[a].temp;
       total_t+=Program[a].togo+Program[a].dwell;
-      DBG Serial.printf(" PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
+      DBG Serial.printf("[LCD] PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
     }
     
     y=SCREEN_H-chh-1;
@@ -692,7 +717,7 @@ char msg[100];
   }
   else what+=dir; // rotate menu
 
-  DBG Serial.printf("Dir: %d What:%d Pos:%d\n",dir,what,pos);
+  DBG Serial.printf("[LCD] Dir: %d What:%d Pos:%d\n",dir,what,pos);
   
   // If button pressed - cycle
   // 0-3 - temperature, 4-6 - time, 7-9 - dwell, 10 - cancel, 11 - load, 12 - back to edit

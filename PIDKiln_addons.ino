@@ -34,8 +34,8 @@ double kiln_tmp1,kiln_tmp2;
   raw = thermocouple.readRaw();
   kiln_tmp1 = thermocouple.decodeInternal(raw); 
   if (isnan(kiln_tmp1)) {
-    DBG Serial.println(" !! Something wrong with MAX31855! Internal readout failed");
-    ABORT_Program(5);
+    DBG Serial.println("[ADDONS] !! Something wrong with MAX31855! Internal readout failed");
+    ABORT_Program(PR_ERR_MAX31_INT_ERR);
     return;
   }
   int_temp = (int_temp+kiln_tmp1)/2;
@@ -44,11 +44,11 @@ double kiln_tmp1,kiln_tmp2;
   kiln_tmp2 = thermocouple.linearizeCelcius(int_temp, kiln_tmp1);
   
   if (isnan(kiln_tmp1) || isnan(kiln_tmp2)) {
-    DBG Serial.println(" !! Something wrong with thermocouple! External readout failed");
-    ABORT_Program(6);
+    DBG Serial.println("[ADDONS] !! Something wrong with thermocouple! External readout failed");
+    ABORT_Program(PR_ERR_MAX31_KPROBE);
     return;
   }
-  kiln_temp=(kiln_temp+kiln_tmp2)/2;
+  kiln_temp=(kiln_temp*0.9+kiln_tmp2*0.1);    // We try to make bigger hysteresis
 
   //DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }

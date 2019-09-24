@@ -2,5 +2,5 @@
 # Full description on as many lines you wish -
 #   just remember about default program limit - 10KiB
 # Program parameters target temperature in Celcius:minutes to achieve this temperature:dwelling time in minutes
-45:10:5
-30:15:10
+45:5:5
+30:5:5

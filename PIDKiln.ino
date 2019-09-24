@@ -1,6 +1,6 @@
 
 /*
-** PIDKiln v0.5 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.7 - high temperature kiln PID controller for ESP32
 **
 ** (c) 2019 - Adrian Siemieniak
 **
@@ -138,7 +138,6 @@ void setup() {
 
   // Setup all sensors/relays
   Setup_Addons();
-  Serial.printf("Wersja arduino: %d\n",ARDUINO);
 }
 
 

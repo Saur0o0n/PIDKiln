@@ -19,11 +19,14 @@ double int_temp=20, kiln_temp=20, case_temp=20;
 double set_temp, pid_out;
 float temp_incr=0;
 uint16_t temp_threshold=10;     // how big difference between desired temperature and real temperature we tolerate (when PID waits for temperature)
-int PID_WindowSize = 5000;      // how often recaluclate SSR on/off - 5second window default
 uint64_t windowStartTime;
 uint16_t temp_over=0;           // count if we have reached over desire temperature - when 0 - check temp_threshold
 
-double Kp=10, Ki=0.2, Kd=0.2;
+
+//Specify the links and initial tuning parameters
+//PID KilnPID(&kiln_temp, &pid_out, &set_temp, 2,5,1,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
+                                                                    //P_ON_E (Proportional on Error) is the default behavior
+PID KilnPID(&kiln_temp, &pid_out, &set_temp, 0, 0, 0, P_ON_E, DIRECT);
 
 /*
 ** Global value of LCD screen/menu and menu position
@@ -102,10 +105,12 @@ uint8_t Program_size=0;           // number of actual entries in Program
 String Program_desc,Program_name; // First line of the selected program file - it's description
 
 PROGRAM* Program_run;             // running program (made as copy of selected Program)
-uint8_t Program_run_size=0;       // number of entries in running program
+uint8_t Program_run_size=0;       // number of entries in running program (since elements count from 0 - this value is acctually bigger by 1 then numbers of steps)
 char *Program_run_desc=NULL,*Program_run_name=NULL;
 time_t Program_run_start;         // date/time of started program
+time_t Program_run_end;           // date/time when program ends - during program it's ETA
 uint16_t Program_run_step=0;      // at which step are we now...
+uint16_t Program_start_temp=20;   // temperature on start of the program
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -121,13 +126,17 @@ PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
 const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Stopped","Failed","Ended"};
 
 /* Program errors:
-** 1 - failed to load file
-** 2 - program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
-** 3 - not allowed character in program (only allowed characters are numbers and sperator ":")
-** 4 - exceeded max temperature defined in MAX_Temp
-** 5 - failed to read MAX31855 internal temperature
-** 6 - failed to read K-probe temperature
 */
+typedef enum {
+  PR_ERR_FILE_LOAD,       // failed to load file
+  PR_ERR_TOO_LONG_LINE,   // program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
+  PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and sperator ":")
+  PR_ERR_TOO_HOT,         // exceeded max temperature defined in MAX_Temp
+  PR_ERR_MAX31_INT_ERR,   // failed to read MAX31855 internal temperature
+  PR_ERR_MAX31_KPROBE,    // failed to read K-probe temperature
+  PR_ERR_USER_ABORT,      // user aborted
+  PR_ERR_end
+} PROGRAM_ERROR_STATE;
 
 /*
 ** Filesystem definintions
@@ -237,8 +246,8 @@ struct PrefsStruct Prefs[PRF_end];
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.6";
-const char *PDate = "2019.09.22";
+const char *PVer = "PIDKiln v0.7";
+const char *PDate = "2019.09.24";
 
 /*
 ** Function defs
