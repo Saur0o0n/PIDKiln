@@ -58,6 +58,7 @@ typedef enum { // menu positions
   M_QUICK_PROGRAM,
   M_INFORMATIONS,
   M_PREFERENCES,
+  M_CONNECT_WIFI,
   M_ABOUT,
   M_end
 } LCD_SCR_MENU_Item_enum;
@@ -66,8 +67,8 @@ LCD_State_enum LCD_State=SCR_MAIN_VIEW;      // global variable to keep track on
 LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;  // main screen has some views - where are we
 LCD_SCR_MENU_Item_enum LCD_Menu=M_SCR_MAIN_VIEW; // menu items
 
-const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Informations", "5) Preferences", "6) About"};
-const byte Menu_Size=5;
+const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Informations", "5) Preferences", "6) Reconnect WiFi", "7) About"};
+const byte Menu_Size=6;
 
 typedef enum { // program menu positions
   P_EXIT,
@@ -109,7 +110,7 @@ uint8_t Program_run_size=0;       // number of entries in running program (since
 char *Program_run_desc=NULL,*Program_run_name=NULL;
 time_t Program_run_start;         // date/time of started program
 time_t Program_run_end;           // date/time when program ends - during program it's ETA
-uint16_t Program_run_step=0;      // at which step are we now...
+int Program_run_step=-1;           // at which step are we now... (has to be it - so we can give it -1)
 uint16_t Program_start_temp=20;   // temperature on start of the program
 
 typedef enum { // program menu positions
@@ -206,6 +207,7 @@ typedef enum { // program menu positions
   PRF_PID_KP,
   PRF_PID_KI,
   PRF_PID_KD,
+  PRF_PID_POE,
   
   PRF_end
 } PREFERENCES;
@@ -214,7 +216,7 @@ const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "MIN_Temperature","MAX_Temperature",
-"PID_Window","PID_Kp","PID_Ki","PID_Kd",
+"PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE",
 };
 
 // Preferences types definitions

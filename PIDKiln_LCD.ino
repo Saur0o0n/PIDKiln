@@ -159,9 +159,15 @@ static int what=0;
         START_Program();
         break;
       case 1:
-        Program_run_state=PR_PAUSED;
+        if(Program_run_state==PR_PAUSED) RESUME_Program();
+        else PAUSE_Program();
+        break;
+      case 3:
+        END_Program();
+        break;
       case 4:
         ABORT_Program(PR_ERR_USER_ABORT);
+        break;
       default:
         break;
     }
@@ -180,7 +186,8 @@ static int what=0;
   y=SCREEN_H-chh;
   sprintf(msg,"Start");
   DrawMenuEl(msg,y,3,1,(what==0));
-  sprintf(msg,"Pause");
+  if(Program_run_state==PR_PAUSED) sprintf(msg,"Resume");
+  else sprintf(msg,"Pause");
   DrawMenuEl(msg,y,3,2,(what==1));
   sprintf(msg,"Return");
   DrawMenuEl(msg,y,3,3,(what==2));
@@ -322,8 +329,8 @@ struct tm timeinfo,*tmm;
   y+=chh;
   u8g2.drawFrame(0,y-chh, chw*7, chh+1);
   u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
-  if(Program_run_start){
-    sprintf(msg,"ETA");
+  if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
+    sprintf(msg,"  ETA");
     u8g2.drawStr(x,y,msg);
     tmm=localtime(&Program_run_end);
     sprintf(msg,"%2d-%02d %d:%02d:%02d",(tmm->tm_mon+1),tmm->tm_mday,tmm->tm_hour,tmm->tm_min,tmm->tm_sec);
@@ -338,10 +345,15 @@ struct tm timeinfo,*tmm;
     }
   }
 
-  // Temperatures - current, target, environment, shell
-  y+=chh;
-  sprintf(msg,"Ct:%4.0fC St:%4.0fC Amb:%2.0fC Cse:%3.0fC",kiln_temp,set_temp,int_temp,0);
-  u8g2.drawStr(x,y,msg);
+  // Temperatures - current, target, environment
+  sprintf(msg,"Ct:%4.0fC St:%4.0fC Amb:%2.0fC",kiln_temp,set_temp,int_temp);
+  u8g2.drawStr(x,y+=chh,msg);
+
+  // Print Step number/all steps and if it's Run od Dwell, print proportional heat time of SSR and case temperature
+  //if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%%  Cse:%2dC",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100.0);
+  if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%%",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100);
+  else sprintf(msg,"Stp:0/%d r/d Ht:0%%  Cse:0C",Program_run_size);
+  u8g2.drawStr(x,y+=chh-1,msg);
   
   u8g2.sendBuffer();
 }
@@ -681,11 +693,11 @@ char msg[100];
       Initialize_program_to_run();  // clear current program
       sprintf(msg,"Manually created quick program.");
       DBG Serial.printf("[LCD] Replacing current program in memory:%d \n",strlen(msg));
-      Program_run_desc=(char *)malloc((strlen(msg)+1)*sizeof(char));
+      Program_run_desc=(char *)ps_malloc((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_desc,msg);
       sprintf(msg,"QuickProgram");
       DBG Serial.printf("[LCD] Replacing current program in memory:%d \n",strlen(msg));
-      Program_run_name=(char *)malloc((strlen(msg)+1)*sizeof(char));
+      Program_run_name=(char *)ps_malloc((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_name,msg);
       Update_program_step(0, qp[0], qp[1], qp[2]);
       Program_run_state=PR_READY;
@@ -850,6 +862,7 @@ char msg[MAX_CHARS_PL*2],rest[MAX_CHARS_PL];
   
   for(int a=pos;a<=PRF_end && (a-pos)<lines && y<SCREEN_H-5;a++){
     if(Prefs[a].type==STRING) sprintf(msg,"%s = %s",PrefsName[a],Prefs[a].value.str);
+    else if(Prefs[a].type==VFLOAT) sprintf(msg,"%s = %.2f",PrefsName[a],Prefs[a].value.vfloat);
     else if(a>=PRF_end) sprintf(msg," ");
     else sprintf(msg,"%s = %d",PrefsName[a],Prefs[a].value.str);
     if(return_LCD_string(msg,rest,-4)){
@@ -873,12 +886,36 @@ void LCD_Display_about(){
   u8g2.setFont(FONT6);
   u8g2.drawStr(8,45,"Web page:");
   u8g2.drawStr(8,55,"adrian.siemieniak.net");
-  u8g2.drawFrame(2,2,123,59);
-  u8g2.drawFrame(0,0,127,63);
+  u8g2.drawFrame(2,2,SCREEN_W-4,SCREEN_H-4);
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();
 }
 
 
+// Reconect to WiFi - if initial connection failed user may do it manually
+//
+void LCD_Reconect_WiFi(){
+  LCD_State=SCR_OTHER;
+  u8g2.clearBuffer();
+  u8g2.setFont(FONT8);
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+  u8g2.sendBuffer();
+  if(strlen(Prefs[PRF_WIFI_SSID].value.str)<1){
+    load_msg(" No WiFi SSID set!");
+    return;
+  }
+  WiFi.disconnect();
+  load_msg("connecting WiFi..");
+  if(Setup_WiFi()){    // !!! Wifi connection FAILED
+    DBG Serial.println("[LCD] WiFi connection failed");
+    load_msg(" WiFi con. failed");
+  }else{
+    DBG Serial.println(WiFi.localIP()); // Print ESP32 Local IP Address
+    char lip[20];
+    sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
+    load_msg(lip);
+  }
+}
 
 
 

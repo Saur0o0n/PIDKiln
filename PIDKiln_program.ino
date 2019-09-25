@@ -137,7 +137,7 @@ File dir,file;
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   DBG Serial.printf("[PRG]\tcounted %d files\n",count);
   if(Programs_DIR) free(Programs_DIR);
-  Programs_DIR=(DIRECTORY*)malloc(sizeof(DIRECTORY)*count);
+  Programs_DIR=(DIRECTORY*)ps_malloc(sizeof(DIRECTORY)*count);
   Programs_DIR_size=0;
   dir.rewindDirectory();
   while((file=dir.openNextFile()) && Programs_DIR_size<=count){    // now we do acctual loading into memory
@@ -188,7 +188,7 @@ void Update_program_step(uint8_t sstep, uint16_t stemp, uint16_t stime, uint16_t
   if(Program_run_size<=sstep)
     if(Program_run_size==sstep){ // we are out of the program - but this is just NEXT step, we can add
       Program_run_size++;
-      Program_run=(PROGRAM *)realloc(Program_run,sizeof(PROGRAM)*Program_run_size);
+      Program_run=(PROGRAM *)ps_realloc(Program_run,sizeof(PROGRAM)*Program_run_size);
     }else return;   // we are out of the program - we can edit it
 
   Program_run[sstep].temp=stemp;
@@ -223,12 +223,12 @@ void Initialize_program_to_run(){
 void Load_program_to_run(){
   
   Initialize_program_to_run();
-  Program_run=(PROGRAM *)malloc(sizeof(PROGRAM)*Program_size);
+  Program_run=(PROGRAM *)ps_malloc(sizeof(PROGRAM)*Program_size);
   for(uint8_t a=0;a<Program_size;a++)
     Program_run[a]=Program[a];
-  Program_run_desc=(char *)malloc((Program_desc.length()+1)*sizeof(char));
+  Program_run_desc=(char *)ps_malloc((Program_desc.length()+1)*sizeof(char));
   strcpy(Program_run_desc,Program_desc.c_str());
-  Program_run_name=(char *)malloc((Program_name.length()+1)*sizeof(char));
+  Program_run_name=(char *)ps_malloc((Program_name.length()+1)*sizeof(char));
   strcpy(Program_run_name,Program_name.c_str());
   Program_run_size=Program_size;
   Program_run_state=PR_READY;
@@ -298,6 +298,8 @@ void END_Program(){
   Disable_EMR();
   Program_run_end=time(NULL);
   Close_log_file();
+  set_temp=0;
+  Program_run_step=-1;
 }
 
 
@@ -308,6 +310,20 @@ void ABORT_Program(uint8_t error){
   END_Program();
   Program_run_state=PR_FAILED;
   Program_run_start=0;
+}
+
+
+// Pause program. We are keeping current temperature and wait until it's resumed
+//
+void PAUSE_Program(){
+  if(Program_run_state==PR_RUNNING) Program_run_state=PR_PAUSED;
+}
+
+
+// Resume pasued program.
+//
+void RESUME_Program(){
+  if(Program_run_state==PR_PAUSED) Program_run_state=PR_RUNNING;
 }
 
 
@@ -331,7 +347,7 @@ static uint16_t cnt1=0,cnt2=0;
 static boolean is_it_dwell=false;
 
   if(prg_start){  // starting program - do some startup stuff
-    Program_run_step=0; cnt1=0;
+    Program_run_step=-1; cnt1=0;
     next_step_end=0;         // there was no previous step - so it has ended NOW
     cnt2=999;                // make sure we will parse first step
     is_it_dwell=false;        // last step was dwell
@@ -349,10 +365,17 @@ static boolean is_it_dwell=false;
   if(cnt2>10){
     cnt2=0;
 
+    if(Program_run_state==PR_PAUSED){   // if we are paused - calculate new ETA end exit
+      Program_recalculate_ETA(false);
+      return;
+    }
+    
     // calculate next step
     if(time(NULL)>next_step_end){
       DBG Serial.println("[DBG] Calculating new step!");
       if(!is_it_dwell){  // we have finished full step togo+dwell (or this is first step)
+        Program_run_step++; // lets icrement step
+        
         if(Program_run_step>=Program_run_size){  //we have passed the last step - end program
           END_Program();
           return;
@@ -381,13 +404,12 @@ static boolean is_it_dwell=false;
         set_temp=Program_run[Program_run_step].temp;
         DBG Serial.printf("[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%f\n",next_step_end,step_start,Program_run[Program_run_step].dwell,Program_run_step,Program_run_size,set_temp);
         Program_recalculate_ETA(true);  // recalculate ETA for dwell
-        Program_run_step++;
       }
     }
     DBG Serial.printf("[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Pid_out:%.2f Step: %d\n", kiln_temp, set_temp, temp_incr, pid_out, Program_run_step);
   }
-  
-  set_temp+=temp_incr;  // increase desire temperature...
+
+  if(Program_run_state!=PR_PAUSED) set_temp+=temp_incr;  // increase desire temperature...
 }
 
 // Start running the in memory program
@@ -400,7 +422,7 @@ void START_Program(){
   
   Enable_EMR();
 
-  KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat); // set actual PID parameters
+  KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat,Prefs[PRF_PID_POE].value.uint8); // set actual PID parameters
   Program_run_start=time(NULL);
   Program_calculate_steps(true);
   Init_log_file();
@@ -458,7 +480,7 @@ static uint16_t cnt1=0;
     Update_Temperature();
 
 
-    if(Program_run_state==PR_RUNNING){
+    if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
 /*      // This is just for debug....
       cnt1++;
       if(cnt1>19){
@@ -472,7 +494,7 @@ static uint16_t cnt1=0;
   }
 
   // Do the PID stuff
-  if(Program_run_state==PR_RUNNING){
+  if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
     KilnPID.Compute();
 
     if (now - windowStartTime > Prefs[PRF_PID_WINDOW].value.uint16){ //time to shift the Relay Window

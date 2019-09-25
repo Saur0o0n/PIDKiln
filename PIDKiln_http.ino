@@ -47,7 +47,9 @@ String Preferences_parser(const String& var){
  else if(var=="PID_Kp") return String(Prefs[PRF_PID_KP].value.vfloat);
  else if(var=="PID_Ki") return String(Prefs[PRF_PID_KI].value.vfloat);
  else if(var=="PID_Kd") return String(Prefs[PRF_PID_KD].value.vfloat);
-
+ else if(var=="PID_POE0" && Prefs[PRF_PID_POE].value.uint8==0) return "checked";
+ else if(var=="PID_POE1" && Prefs[PRF_PID_POE].value.uint8==1) return "checked";
+ 
  else if(var=="ERRORS" && Errors){
   String out="<div class=error> There where errors: "+String(Errors)+"</div>";
   DBG Serial.printf("Errors pointer1:%p\n",Errors);
@@ -199,7 +201,7 @@ template_str=String();
       template_str += "<td>"+file.readStringUntil('\n')+"</td>";
       file.close();
     }else template_str += "<td> Error opening file to read description </td>";
-    template_str += "<td><a href=/edit/"+String(Programs_DIR[a].filename)+">edit</a></td>";
+    template_str += "<td><a href=/load.html?prog_name="+String(Programs_DIR[a].filename)+">load</a></td>";
     template_str += "<td><a href=/delete.html?prog_name="+String(Programs_DIR[a].filename)+">delete</a></td>";
     template_str += "</tr>\n";
   }
@@ -443,7 +445,7 @@ boolean save=false;
         // we have some errors add new field to error list
         if(Errors!=NULL){
           DBG Serial.printf("[HTTP] Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
-          Errors=(char *)realloc(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
+          Errors=(char *)ps_realloc(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
           strcat(Errors," ");
           strcat(Errors,p->name().c_str());
           DBG Serial.printf("[HTTP] Errors now:%s\n",Errors);

@@ -5,13 +5,13 @@
 
 // Tries to connect to wifi
 //
-boolean start_wifi(){
+boolean Start_WiFi(){
 bool wifi_failed=true;
 
   if(!strlen(Prefs[PRF_WIFI_SSID].value.str)) return 1;   // if there is no SSID
     
   WiFi.begin(Prefs[PRF_WIFI_SSID].value.str, Prefs[PRF_WIFI_PASS].value.str);
-  DBG Serial.println("Connecting to WiFi...");
+  DBG Serial.println("[NET] Connecting to WiFi...");
     
   for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
     delay(1000);
@@ -19,7 +19,7 @@ bool wifi_failed=true;
       wifi_failed=false;
       return 0;
     }
-    DBG Serial.println("Connecting to WiFi...");
+    DBG Serial.println("[NET] Connecting to WiFi...");
   }
   
   WiFi.disconnect();
@@ -84,11 +84,12 @@ char *tmp,msg[20];
 
 // Starts WiFi and all networks services
 //
-boolean setup_wifi(){
+boolean Setup_WiFi(){
 struct tm timeinfo;
-Setup_start_date();
+
+  Setup_start_date();
   if(strlen(Prefs[PRF_WIFI_SSID].value.str)){
-    if(start_wifi()){
+    if(Start_WiFi()){
       Setup_start_date();
       return 1;  // if we failed to connect, stop trying
     }

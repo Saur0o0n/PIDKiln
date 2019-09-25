@@ -42,7 +42,7 @@ boolean Change_prefs_value(String item, String value){
 void Save_prefs(){
 File prf;
 
-  DBG Serial.println(" Writing prefs to file");
+  DBG Serial.println("[PREFS] Writing prefs to file");
   if(prf=SPIFFS.open(PREFS_FILE,"w")){
     for(uint16_t a=1; a<PRF_end; a++){
       if(Prefs[a].type==STRING){
@@ -68,7 +68,7 @@ File prf;
 String line,item,value;
 int pos=0;
 
-  DBG Serial.println(" Loading prefs from file");
+  DBG Serial.println("[PREFS] Loading prefs from file");
   if(prf=SPIFFS.open(PREFS_FILE,"r"))
     while(prf.available()){
       line=prf.readStringUntil('\n');
@@ -85,14 +85,14 @@ int pos=0;
         item.trim();
         value=line.substring(pos+1);
         value.trim();
-        //DBG Serial.printf("Preference (=@%d) item: '%s' = '%s'\n",pos,item.c_str(),value.c_str());
+        //DBG Serial.printf("[PREFS] Preference (=@%d) item: '%s' = '%s'\n",pos,item.c_str(),value.c_str());
         
         if(item.length()>2 && value.length()>0) Change_prefs_value(item,value);
       }
     }
 
     // For debuging only
-    DBG Serial.println("-=-=-= PREFS DISPLAY =-=-=-");
+    DBG Serial.println("[PREFS] -=-=-= PREFS DISPLAY =-=-=-");
     for(uint16_t a=0; a<PRF_end; a++){
       if(Prefs[a].type==STRING) DBG Serial.printf(" %d) '%s' = '%s'\t%d\n",a,PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
       if(Prefs[a].type==UINT8) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
@@ -120,7 +120,7 @@ void Setup_Prefs(void){
 char tmp[30];
 
   // Fill the preferences with default values - if there is such a need
-  DBG Serial.println("Preference initialization");
+  DBG Serial.println("[PREFS] Preference initialization");
   for(uint16_t a=1; a<PRF_end; a++)
     switch(a){
       case PRF_WIFI_SSID:
@@ -193,6 +193,10 @@ char tmp[30];
       case PRF_PID_KD:
         Prefs[PRF_PID_KD].type=VFLOAT;
         Prefs[PRF_PID_KD].value.vfloat=0.1;
+        break;
+      case PRF_PID_POE:   // it's acctualy boolean - but I did not want to create additional type - if we use  Proportional on Error (true) or Proportional on Measurement (false)
+        Prefs[PRF_PID_POE].type=UINT8;
+        Prefs[PRF_PID_POE].value.uint8=0;
         break;
       default:
         break;

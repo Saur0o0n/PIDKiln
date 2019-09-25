@@ -27,8 +27,9 @@ void pressed_menu(){
     case M_LIST_PROGRAMS: LCD_display_programs(); break;
     case M_QUICK_PROGRAM: LCD_Display_quick_program(0,0); break;
     case M_INFORMATIONS: LCD_Display_info(); break;
-    case M_ABOUT: LCD_Display_about(); break;
     case M_PREFERENCES: LCD_Display_prefs(); break;
+    case M_CONNECT_WIFI: LCD_Reconect_WiFi(); break;
+    case M_ABOUT: LCD_Display_about(); break;
     default: break;
   }
 }

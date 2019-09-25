@@ -18,7 +18,7 @@ var config = {
 			tension: 0.1,
 			fill: false
 		     }, {
-			label: 'Prepared program',
+			label: 'Running program',
 			tension: 0.1,
 			backgroundColor: 'transparent',
 			borderColor: window.chartColors.blue,

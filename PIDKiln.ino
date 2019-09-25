@@ -2,10 +2,27 @@
 /*
 ** PIDKiln v0.7 - high temperature kiln PID controller for ESP32
 **
-** (c) 2019 - Adrian Siemieniak
+** Copyright (C) 2019 - Adrian Siemieniak
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the GNU General Public License
+** as published by the Free Software Foundation; either version 2
+** of the License.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program; if not, write to the Free Software
+** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+**
+************
 **
 ** Some coding convention - used functions are in separate files, depending on what they do. So LCD stuff to LCD, HTTP/WWW to HTTP, rotary to INPUT etc. 
-** All variables beeing global are written with capital leter on start of each word. All definitions are capital letters.
+** All variables beeing global are written with capital leter on start of each word (or at least they should be). All definitions are capital letters.
+**
 */
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -115,7 +132,7 @@ void setup() {
   // Connect to Wi-Fi if enabled
   if(Prefs[PRF_WIFI_SSID].type && strlen(Prefs[PRF_WIFI_SSID].value.str) && strlen(Prefs[PRF_WIFI_PASS].value.str)){
     load_msg("connecting WiFi..");
-    if(setup_wifi()){    // !!! Wifi connection FAILED
+    if(Setup_WiFi()){    // !!! Wifi connection FAILED
       DBG Serial.println("WiFi connection failed");
       load_msg(" WiFi con. failed");
     }else{
