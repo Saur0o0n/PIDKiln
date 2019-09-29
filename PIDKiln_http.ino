@@ -239,7 +239,7 @@ char *str;
     for(uint16_t a=0;a<Program_run_size;a++){
        if(a>0) tmp+=",";
        current_time+=Program_run[a].togo*60;
-       str=ctime(&current_time);str[strlen(str)-1]='\0';  // Dont know why - probably error, but ctime returns string with new line char and tab - so we cut it off
+       str=ctime(&current_time);str[strlen(str)-1]='\0';  // Dont know why - probably error, but ctime returns string with new line char and tab - so we cut the tab
        //DBG Serial.printf("Seconds:%d \t Parsed:'%s'\n",current_time,str);
        tmp+="{x:'"+String(str)+"'";
        tmp+=",y:"+String(Program_run[a].temp)+"},";
@@ -465,6 +465,42 @@ boolean save=false;
 }
 
 
+// Handle json vars for js
+//
+String handleVars(const String& var){
+char str[30];
+struct tm *timeinfo,tmm;
+
+  if(var=="KILN_TEMP") return String(kiln_temp);
+  else if(var=="SET_TEMP") return String(set_temp);
+  else if(var=="ENV_TEMP") return String(int_temp);
+  else if(var=="CASE_TEMP") return String(case_temp);
+  else if(var=="HEAT_TIME") return String((pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100);
+  else if(var=="TEMP_CHANGE") return String(temp_incr);
+  else if(var=="STEP"){
+    if(temp_incr==0) return String(Program_run_step+1)+" of "+String(Program_run_size)+" - dwell";
+    else return String(Program_run_step+1)+" of "+String(Program_run_size)+" - run";
+  }
+  else if(var=="CURR_TIME"){
+    struct tm tmm;
+    if(getLocalTime(&tmm)){
+      strftime (str, 29, "%F %T", &tmm);
+      return String(str);
+    }
+  }else if(var=="PROG_START" && Program_run_start){
+    struct tm *tmm;
+    tmm = localtime(&Program_run_start);
+    strftime (str, 29, "%F %T", tmm);
+    return String(str);
+  }else if(var=="PROG_END" && Program_run_end){
+    struct tm *tmm;
+    tmm = localtime(&Program_run_end);
+    strftime (str, 29, "%F %T", tmm);
+    return String(str);
+  }else if(var=="PROGRAM_STATUS") return String(Program_run_state);
+  else return String("10"); 
+}
+
 /* 
 ** Setup Webserver screen 
 **
@@ -486,7 +522,11 @@ void setup_webserver(void) {
   server.on("/js/chart.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/js/chart.js", String(), false, Chart_parser);
   });
-  
+
+  server.on("/PIDKiln_vars.json", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/PIDKiln_vars.json", "application/json", false, handleVars);
+  });
+
   // Set default file for programs to index.html - because webserver was programmed by some Windows @%$$# :/
   server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html");
 

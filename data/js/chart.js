@@ -1,4 +1,4 @@
-var ctx = document.getElementById('myChart').getContext('2d');
+var ctx = document.getElementById('ProgramChart').getContext('2d');
 
 
 var chartColors = {
@@ -32,6 +32,7 @@ var config = {
 			display: true,
 			text: 'Running program vs actual temperature'
 		},
+		responsive: true,
 		scales: {
 			xAxes: [{
 				type: 'time',
@@ -73,3 +74,11 @@ var config = {
 };
 
 var chart = new Chart(ctx, config);
+
+function chart_update(){
+//  console.log("Updating chart");
+  chart.update();
+  setTimeout(chart_update, 30000);
+}
+
+setTimeout(chart_update, 30000);

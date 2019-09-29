@@ -1,0 +1,36 @@
+{
+"program_status": ~PROGRAM_STATUS~,
+"pidkiln": [
+{ "html_id": "#kiln_temp",
+  "value": "~KILN_TEMP~"
+},
+{ "html_id": "#set_temp",
+  "value": "~SET_TEMP~"
+},
+{ "html_id": "#env_temp",
+  "value": "~ENV_TEMP~"
+},
+{ "html_id": "#case_temp",
+  "value": "~CASE_TEMP~"
+},
+{ "html_id": "#prog_start",
+  "value": "~PROG_START~"
+},
+{ "html_id": "#prog_end",
+  "value": "~PROG_END~"
+},
+{ "html_id": "#curr_time",
+  "value": "~CURR_TIME~"
+},
+{ "html_id": "#heat_time",
+  "value": "~HEAT_TIME~"
+},
+{ "html_id": "#temp_change",
+  "value": "~TEMP_CHANGE~"
+},
+{ "html_id": "#step",
+  "value": "~STEP~"
+}
+]
+}
+

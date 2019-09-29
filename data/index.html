@@ -2,11 +2,12 @@
 <html>
 <head>
  <title>Pidkiln main view</title>
- <link rel="stylesheet" href="/css/main.css">
- <link rel="stylesheet" href="/css/nav.css">
- <script type="text/javascript" src="/js/nav.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.bundle.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource"></script>
+ <link rel="stylesheet" href="css/main.css">
+ <link rel="stylesheet" href="css/nav.css">
+ <script type="text/javascript" src="js/nav.js"></script>
+ <script type="text/javascript" src="js/jquery-3.4.1.js"></script>
+ <script type="text/javascript" src="js/Chart.2.8.0.bundle.min.js"></script>
+ <script type="text/javascript" src="js/chartjs-datasource.min.js"></script>
  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -23,25 +24,95 @@
   </a>
  </div>
 
- <div>
-
-  Some main view of kiln working program...
+ <div class="container">
   <form>
-   <button type="button" name="start">Start program</button>
-   <button type="button" name="pause">Pause program</button>
-   <button type="button" name="start">Start program</button>
+  <div class="column">
+   <fieldset>
+    <legend><h2> Temperatures </h2></legend>
+     <div class="row">
+      <div class="RowX">
+	<p> <label for="kiln_temp"> Kiln </label> </p>
+	<p> <label for="env_temp"> Environment  </label> </p>
+      </div>
+      <div class="RowX">
+	<p> <input class="index" type="text" id="kiln_temp" name="kiln_temp" value="10" readonly size="4">&#176;C </p>
+	<p> <input class="index" type="text" id="env_temp" name="env_temp" value="11" readonly size="4">&#176;C </p>
+      </div>
+      <div class="RowX" style="width: 2em;">&nbsp;</div>
+      <div class="RowX">
+	<p> <label for="set_temp"> Set </label> </p>
+	<p> <label for="case_temp"> Kiln housing </label> </p>
+      </div>
+      <div class="RowX">
+	<p> <input class="index" type="text" id="set_temp" name="set_temp" value="12" readonly size="4">&#176;C </p>
+	<p> <input class="index" type="text" id="case_temp" name="case_temp" value="13" readonly size="4">&#176;C </p>
+      </div>
+     </div>
+   </fieldset>
+  </div>
 
-   <input type="text" name="kiln_temp" value="20c" readonly>
-   <input type="text" name="set_temp" value="30c" readonly>
-   <input type="text" name="env_temp" value="22c" readonly>
-   <input type="text" name="case_temp" value="25c" readonly>
+  <div class="column">
+   <fieldset>
+    <legend><h2> Timing </h2></legend>
+     <div class="row">
+      <div class="RowX">
+	<p> <label for="prog_start"> Start </label> </p>
+	<p> <label for="prog_end"> ETA  </label> </p>
+      </div>
+      <div class="RowX">
+	<p> <input class="index" type="text" id="prog_start" name="prog_start" value="2020-01-01 22:22:22" readonly size="15"> </p>
+	<p> <input class="index" type="text" id="prog_end" name="prog_end" value="2020-01-01 22:22:22" readonly size="15"> </p>
+      </div>
+      <div class="RowX" style="width: 2em;">&nbsp;</div>
+      <div class="RowX">
+	<p> <label for="curr_time"> Current time </label> </p>
+	<p> <label for="curr_time"> Step </label> </p>
+      </div>
+      <div class="RowX">
+	<p> <input class="index" type="text" id="curr_time" name="curr_time" value="2020-01-01" readonly size="15"> </p>
+	<p> <input class="index" type="text" id="step" name="step" value="0 of 0" readonly size="15"> </p>
+      </div>
+     </div>
+   </fieldset>
+  </div>
+
+  <div class="column">
+   <fieldset>
+    <legend><h2> PID </h2></legend>
+     <div class="row">
+      <div class="RowX">
+	<p> <label for="heat_time"> Heat time </label> </p>
+	<p> <label for="temp_change"> Temp. change </label> </p>
+      </div>
+      <div class="RowX">
+	<p align="left"> <input class="index" type="text" id="heat_time" name="heat_time" value="0" readonly size="4">% </p>
+	<p align="left"> <input class="index" type="text" id="temp_change" name="temp_change" value="0.0" readonly size="4">C/s </p>
+      </div>
+     </div>
+   </fieldset>
+  </div>
+
   </form>
  </div>
 
- <div style="width:75%;">
-  <canvas id="myChart"></canvas>
-  <script type="text/javascript" src="/js/chart.js"></script>
+  <div class="PIDChart" style="width:75%;">
+   <canvas id="ProgramChart"></canvas>
+  </div>
+
+ <div class="container">
+  <form>
+   <fieldset>
+    <legend> Program control </legend>
+	<button type="button" id="start_bttn" name="start">Start program</button>
+	<button type="button" id="pause_bttn" name="pause">Pause program</button>
+	<button type="button" id="stop_bttn" name="stop">Stop program</button>
+	<button type="button" id="abort_bttn" name="abort">Abort program</button>
+   </fieldset>
+  </form>
  </div>
+
+ <script type="text/javascript" src="js/json.js"></script>
+ <script type="text/javascript" src="js/chart.js"></script>
 
 </body>
 </html>

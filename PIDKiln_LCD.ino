@@ -238,25 +238,40 @@ char msg[MAX_CHARS_PL];
   starty=SCREEN_H-1;  // 0.0 on screen is in left, upper corner - reverse it
   
   oldx=startx;
-  oldy=starty;
+  oldy=SCREEN_H-(Program_start_temp*scy)/100;  // we start from current temp
+  
   for(uint8_t a=0; a<Program_run_size; a++){
     x=startx;y=starty;      // in case of any fuckup - jest go to start point
     y=starty-(int)(Program_run[a].temp*scy)/100;
     x=(int)(Program_run[a].togo*scx)/100+oldx;
     u8g2.drawLine(oldx,oldy,x,y);
-    DBG Serial.printf(".Drawing line: x0:%d \t y0:%d \tto\t x1:%d (%d) \t y1:%d (%d) \n",oldx,oldy,x,Program_run[a].togo,y,Program_run[a].temp);
+    // DBG Serial.printf("[LCD].Drawing line: x0:%d \t y0:%d \tto\t x1:%d (%d) \t y1:%d (%d) \n",oldx,oldy,x,Program_run[a].togo,y,Program_run[a].temp);
     DrawVline(x,y,starty-y);
     oldx=x;
     oldy=y;
     if(Program_run[a].dwell){
       x=(int)(Program_run[a].dwell*scx)/100+oldx;
       u8g2.drawLine(oldx,oldy,x,y);
-      DBG Serial.printf("..Drawing line: x0:%d \t y0:%d \tto\t x1:%d (%d) \t y1:%d (%d)\n",oldx,oldy,x,Program_run[a].dwell,y,Program_run[a].temp);
+      //DBG Serial.printf("[LCD] ..Drawing line: x0:%d \t y0:%d \tto\t x1:%d (%d) \t y1:%d (%d)\n",oldx,oldy,x,Program_run[a].dwell,y,Program_run[a].temp);
       oldx=x;
     }
   }
 
   u8g2.sendBuffer();
+
+  // If we are running - do the inverse part of graph
+  if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
+    int fullt,currt;
+    float prop;
+    fullt=(int)(Program_run_end-Program_run_start); // how long should program last
+    currt=time(NULL)-Program_run_start;     // where are we now?
+    prop=(float)currt/(float)fullt;   // current progress status
+    u8g2.setDrawColor(2);
+    DBG Serial.printf("[LCD] Redrawing box on graph width:%d fullt:%d currt:%d prop:%f\n",(int)((SCREEN_W-3)*prop),fullt,currt,prop);
+    u8g2.drawBox(2,1,(int)((SCREEN_W-3)*prop),SCREEN_H-2);
+    u8g2.setDrawColor(1);
+    u8g2.sendBuffer();
+  }
 }
 
 

@@ -43,15 +43,25 @@ table.debug th {
   margin-top: 12px;
 }
 
-legend, h1 {
-  font-size: 1.4em;
+legend {
   font-weight: bold;
   background-color: #4CAF50;
   color: white;
-  padding: 10px;
+  padding: 8px;
   padding-left: 20px;
-  width: 98%;
+  width: 90%;
   border-radius: 7px;
+}
+
+legend h1 {
+  font-size: 1.4em;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+legend h2 {
+  font-size: 1.2em;
+  margin-bottom: 0px;
+  margin-top: 0px;
 }
 
 fieldset {
@@ -65,8 +75,8 @@ label {
 }
 
 input {
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 input[type=submit] {
@@ -93,8 +103,41 @@ input[type=submit]:hover {
   margin-top: 6px;
 }
 
+.column {
+  float: left;
+}
+
+.RowX {
+  float: left;
+  border: 1px;
+  margin-top: 6px;
+  text-align: right;
+}
+
+.RowX p {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.RowA {
+  float: left;
+  width: 8em;
+  margin-top: 6px;
+  text-align: right;
+}
+
+.RowB {
+  float: left;
+  width: 9em;
+  margin-top: 6px;
+}
+
+input.index {
+  text-align: right;
+}
+
 /* Clear floats after the columns */
-.row:after {
+.row:after, .container:after {
   content: "";
   display: table;
   clear: both;
@@ -116,3 +159,9 @@ input[type=submit]:hover {
   position: relative;
   z-index: 2;
 }
+
+/* Chart part */
+.PIDChart {
+  margin-left: 4em;
+}
+

@@ -249,7 +249,7 @@ struct PrefsStruct Prefs[PRF_end];
 **
 */
 const char *PVer = "PIDKiln v0.7";
-const char *PDate = "2019.09.24";
+const char *PDate = "2019.09.29";
 
 /*
 ** Function defs

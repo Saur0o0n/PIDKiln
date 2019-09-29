@@ -307,9 +307,11 @@ void END_Program(){
 //
 void ABORT_Program(uint8_t error){
 
-  END_Program();
-  Program_run_state=PR_FAILED;
-  Program_run_start=0;
+  if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
+    END_Program();
+    Program_run_state=PR_FAILED;
+     Program_run_start=0;
+  }
 }
 
 
@@ -334,6 +336,7 @@ void Program_recalculate_ETA(boolean dwell=false){
   Program_run_end=time(NULL);
   for(uint16_t a=Program_run_step; a<Program_run_size;a++){
     if(!dwell) Program_run_end+=Program_run[a].togo*60;
+    else dwell=false;   // If we start counting with dwell=true - next step shoud start as a normal step, so dwell=fasle;
     Program_run_end+=Program_run[a].dwell*60;
   }
 }
@@ -431,6 +434,7 @@ void START_Program(){
   //tell the PID to range between 0 and the full window size
   KilnPID.SetOutputLimits(100, Prefs[PRF_PID_WINDOW].value.uint16);
   KilnPID.SetMode(AUTOMATIC);
+  Add_log_line();
 }
 
 
@@ -469,27 +473,29 @@ void Program_Loop(){
 static uint16_t cnt1=0;
 
   unsigned long now = millis();
-  // every second do this...
+ 
+  // Program one second tick
+  // 
   if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
-    // Read the interrupt count and time - with semaphores we don't need to
-    //portENTER_CRITICAL(&timerMux);
-    //portEXIT_CRITICAL(&timerMux);
 
-    if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW1 && Program_run_size) LCD_display_mainv1();
     // Update temperature readout
     Update_Temperature();
 
+    // Do Main view screen refreshing if there is a program and if it's running
+    if(LCD_State==SCR_MAIN_VIEW && Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
 
     if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
-/*      // This is just for debug....
-      cnt1++;
-      if(cnt1>19){
-        cnt1=0;
-        DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%.2f WindowSize:%d Prg_state:%d\n",pid_out,(float)(now - windowStartTime),PID_WindowSize,(byte)Program_run_state);
-      }
-*/
       // Do all the program recalc
       Program_calculate_steps();
+
+      // Do slow stuff every 10th second
+      //
+      cnt1++;
+      if(cnt1>9){
+        cnt1=0;
+          if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
+//        DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%.2f WindowSize:%d Prg_state:%d\n",pid_out,(float)(now - windowStartTime),PID_WindowSize,(byte)Program_run_state);
+      }
     }
   }
 

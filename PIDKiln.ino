@@ -21,7 +21,7 @@
 ************
 **
 ** Some coding convention - used functions are in separate files, depending on what they do. So LCD stuff to LCD, HTTP/WWW to HTTP, rotary to INPUT etc. 
-** All variables beeing global are written with capital leter on start of each word (or at least they should be). All definitions are capital letters.
+** All variables beeing global are written with capital leter on start of each word (or at least they should be). All definitions are all capital letters.
 **
 */
 #include <WiFi.h>
