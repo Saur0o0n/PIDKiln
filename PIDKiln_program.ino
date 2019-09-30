@@ -538,7 +538,7 @@ void Program_Setup(){
   xTaskCreate(
               Program_Loop,    /* Task function. */
               "Program_loop",  /* String with name of task. */
-              256,             /* Stack size in bytes. */
+              4096,             /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
               2,               /* Priority of the task. */
               NULL);           /* Task handle. */
