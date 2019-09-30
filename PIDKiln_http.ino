@@ -49,7 +49,10 @@ String Preferences_parser(const String& var){
  else if(var=="PID_Kd") return String(Prefs[PRF_PID_KD].value.vfloat);
  else if(var=="PID_POE0" && Prefs[PRF_PID_POE].value.uint8==0) return "checked";
  else if(var=="PID_POE1" && Prefs[PRF_PID_POE].value.uint8==1) return "checked";
+ else if(var=="PID_Temp_Threshold") return String(Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
  
+ else if(var=="LOG_Window") return String(Prefs[PRF_LOG_WINDOW].value.uint16);
+  
  else if(var=="ERRORS" && Errors){
   String out="<div class=error> There where errors: "+String(Errors)+"</div>";
   DBG Serial.printf("Errors pointer1:%p\n",Errors);
@@ -249,6 +252,12 @@ char *str;
        tmp+=",y:"+String(Program_run[a].temp)+"}";
     }
     return tmp;
+  }else if(var == "LOG_FILE"){
+    if(LOGFile) return LOGFile.name();
+    else return String("/log/test.csv");
+  }else if(var == "CONFIG"){
+    if(LOGFile) return String("config_with");
+    else return String("config_without");
   }
   return String();
 }
@@ -434,7 +443,7 @@ boolean save=false;
   for(int i=0;i<params;i++){
     AsyncWebParameter* p = request->getParam(i);
     if(p->isPost()){
-      Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      DBG Serial.printf("[HTTP] Prefs parser POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       if(p->name().equalsIgnoreCase("save")){
         save=true;
         continue;
@@ -465,6 +474,31 @@ boolean save=false;
 }
 
 
+// Handler for index.html with POST - program control
+//
+void handleIndexPost(AsyncWebServerRequest *request){
+int params = request->params();
+
+  for(int i=0;i<params;i++){
+    AsyncWebParameter* p = request->getParam(i);
+    if(p->isPost()){
+      DBG Serial.printf("[HTTP] Index post parser: POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      if(p->name().equalsIgnoreCase("prog_start")){ // start program
+        if(Program_run_state==PR_PAUSED) RESUME_Program();
+        else START_Program();
+      }else if(p->name().equalsIgnoreCase("prog_pause") && Program_run_state==PR_RUNNING){
+        PAUSE_Program();
+      }else if(p->name().equalsIgnoreCase("prog_end") && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)){
+        END_Program();
+      }else if(p->name().equalsIgnoreCase("prog_abort")){
+        ABORT_Program();
+      }
+    }
+  }
+  request->send(SPIFFS, "/index.html", String(), false, main_parser);
+}
+
+
 // Handle json vars for js
 //
 String handleVars(const String& var){
@@ -478,8 +512,11 @@ struct tm *timeinfo,tmm;
   else if(var=="HEAT_TIME") return String((pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100);
   else if(var=="TEMP_CHANGE") return String(temp_incr);
   else if(var=="STEP"){
-    if(temp_incr==0) return String(Program_run_step+1)+" of "+String(Program_run_size)+" - dwell";
-    else return String(Program_run_step+1)+" of "+String(Program_run_size)+" - run";
+    if(Program_run_state==PR_RUNNING){
+      if(temp_incr==0) strcpy(str,"Dwell");
+      else strcpy(str,"Running");
+    }else strcpy(str,Prog_Run_Names[Program_run_state]);
+    return String(Program_run_step+1)+" of "+String(Program_run_size)+" - "+String(str);
   }
   else if(var=="CURR_TIME"){
     struct tm tmm;
@@ -497,8 +534,11 @@ struct tm *timeinfo,tmm;
     tmm = localtime(&Program_run_end);
     strftime (str, 29, "%F %T", tmm);
     return String(str);
-  }else if(var=="PROGRAM_STATUS") return String(Program_run_state);
-  else return String("10"); 
+  }else if(var=="LOG_FILE"){
+    if(LOGFile) return LOGFile.name();
+    else return String("/log/test.csv");
+  }if(var=="PROGRAM_STATUS") return String(Program_run_state);
+  else return String(" "); 
 }
 
 /* 
@@ -514,7 +554,9 @@ void setup_webserver(void) {
   server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(SPIFFS, "/index.html", String(), false, main_parser);
   });
-
+  
+  server.on("/index.html", HTTP_POST, handleIndexPost);
+  
   server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/about.html", String(), false, main_parser);
   });

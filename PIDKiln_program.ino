@@ -299,6 +299,7 @@ void END_Program(){
   Program_run_end=time(NULL);
   Close_log_file();
   set_temp=0;
+  pid_out=0;
   Program_run_step=-1;
 }
 
@@ -310,7 +311,7 @@ void ABORT_Program(uint8_t error){
   if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
     END_Program();
     Program_run_state=PR_FAILED;
-     Program_run_start=0;
+    //Program_run_start=0;
   }
 }
 
@@ -346,7 +347,7 @@ void Program_recalculate_ETA(boolean dwell=false){
 //
 void Program_calculate_steps(boolean prg_start=false){
 static time_t step_start,next_step_end;
-static uint16_t cnt1=0,cnt2=0;
+static uint16_t cnt1=1,cnt2=0;
 static boolean is_it_dwell=false;
 
   if(prg_start){  // starting program - do some startup stuff
@@ -356,10 +357,10 @@ static boolean is_it_dwell=false;
     is_it_dwell=false;        // last step was dwell
   }
 
-  // Logging stuff - cnt1 - counter for this
+  // Logging stuff - cnt1 - counter for this. If Prefs[PRF_LOG_WINDOW].value.uint16 == 0 - no logging
   cnt1++;
-  if(cnt1>19){
-    cnt1=0;
+  if(Prefs[PRF_LOG_WINDOW].value.uint16 && cnt1>Prefs[PRF_LOG_WINDOW].value.uint16){
+    cnt1=1;
     Add_log_line();
   }
     
@@ -419,7 +420,9 @@ static boolean is_it_dwell=false;
 //
 void START_Program(){
 
-  DBG Serial.println("[PRG] Running program!");
+  if(Program_run_state==PR_NONE || Program_run_state==PR_PAUSED) return; // check if program is ready (we can start also from ended,failed etc,) and not paused
+  
+  DBG Serial.println("[PRG] Starting new program!");
   Program_run_state=PR_RUNNING;
   Program_start_temp=kiln_temp;
   
@@ -428,13 +431,18 @@ void START_Program(){
   KilnPID.SetTunings(Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat,Prefs[PRF_PID_POE].value.uint8); // set actual PID parameters
   Program_run_start=time(NULL);
   Program_calculate_steps(true);
-  Init_log_file();
   windowStartTime=millis();
 
   //tell the PID to range between 0 and the full window size
   KilnPID.SetOutputLimits(100, Prefs[PRF_PID_WINDOW].value.uint16);
   KilnPID.SetMode(AUTOMATIC);
-  Add_log_line();
+
+  DBG Serial.printf("[PRG] Trying to start log - window size:%d\n",Prefs[PRF_LOG_WINDOW].value.uint16);
+  if(Prefs[PRF_LOG_WINDOW].value.uint16){ // if we should create log file
+    DBG Serial.println("[PRG] Trying to create logs");
+    Init_log_file();
+    Add_log_line();
+  }
 }
 
 
@@ -472,7 +480,7 @@ void Program_Setup(){
 void Program_Loop(){
 static uint16_t cnt1=0;
 
-  unsigned long now = millis();
+  uint32_t now = millis();
  
   // Program one second tick
   // 
@@ -493,8 +501,8 @@ static uint16_t cnt1=0;
       cnt1++;
       if(cnt1>9){
         cnt1=0;
-          if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
-//        DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%.2f WindowSize:%d Prg_state:%d\n",pid_out,(float)(now - windowStartTime),PID_WindowSize,(byte)Program_run_state);
+        if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
+        DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%d WindowSize:%d Prg_state:%d\n",pid_out,(now - windowStartTime), Prefs[PRF_PID_WINDOW].value.uint16, (byte)Program_run_state);
       }
     }
   }

@@ -8,17 +8,30 @@
 SPIClass *ESP32_SPI = new SPIClass(HSPI);
 Adafruit_MAX31855 thermocouple(MAXCS);
 
+boolean SSR_On; // just to narrow down state changes.. I don't know if this is needed
+
 // Simple functions to enable/disable SSR - for clarity, everything is separate
 //
 void Enable_SSR(){
-  digitalWrite(SSR_RELAY_PIN, HIGH);
+  if(!SSR_On){
+//    DBG Serial.println("[ADDONS] Enable SSR");
+    digitalWrite(SSR_RELAY_PIN, HIGH);
+    SSR_On=true;
+  }
 }
+
 void Disable_SSR(){
-  digitalWrite(SSR_RELAY_PIN, LOW);
+  if(SSR_On){
+//    DBG Serial.println("[ADDONS] Disable SSR");
+    digitalWrite(SSR_RELAY_PIN, LOW);
+    SSR_On=false;
+  }
 }
+
 void Enable_EMR(){
   //digitalWrite(EMR_RELAY_PIN, HIGH);
 }
+
 void Disable_EMR(){
   digitalWrite(EMR_RELAY_PIN, LOW);
 }
@@ -58,5 +71,6 @@ void Setup_Addons(){
   pinMode(EMR_RELAY_PIN, OUTPUT);
   pinMode(SSR_RELAY_PIN, OUTPUT);
 
+  SSR_On=false;
   thermocouple.begin(ESP32_SPI);
 }

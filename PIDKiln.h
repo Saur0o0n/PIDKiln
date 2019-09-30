@@ -19,7 +19,7 @@ double int_temp=20, kiln_temp=20, case_temp=20;
 double set_temp, pid_out;
 float temp_incr=0;
 uint16_t temp_threshold=10;     // how big difference between desired temperature and real temperature we tolerate (when PID waits for temperature)
-uint64_t windowStartTime;
+uint32_t windowStartTime;
 uint16_t temp_over=0;           // count if we have reached over desire temperature - when 0 - check temp_threshold
 
 
@@ -108,9 +108,9 @@ String Program_desc,Program_name; // First line of the selected program file - i
 PROGRAM* Program_run;             // running program (made as copy of selected Program)
 uint8_t Program_run_size=0;       // number of entries in running program (since elements count from 0 - this value is acctually bigger by 1 then numbers of steps)
 char *Program_run_desc=NULL,*Program_run_name=NULL;
-time_t Program_run_start;         // date/time of started program
-time_t Program_run_end;           // date/time when program ends - during program it's ETA
-int Program_run_step=-1;           // at which step are we now... (has to be it - so we can give it -1)
+time_t Program_run_start=0;       // date/time of started program
+time_t Program_run_end=0;         // date/time when program ends - during program it's ETA
+int Program_run_step=-1;          // at which step are we now... (has to be it - so we can give it -1)
 uint16_t Program_start_temp=20;   // temperature on start of the program
 
 typedef enum { // program menu positions
@@ -118,13 +118,12 @@ typedef enum { // program menu positions
   PR_READY,
   PR_RUNNING,
   PR_PAUSED,
-  PR_STOPPED,
   PR_FAILED,
   PR_ENDED,
   PR_end
 } PROGRAM_RUN_STATE;
 PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
-const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Stopped","Failed","Ended"};
+const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended"};
 
 /* Program errors:
 */
@@ -208,6 +207,9 @@ typedef enum { // program menu positions
   PRF_PID_KI,
   PRF_PID_KD,
   PRF_PID_POE,
+  PRF_PID_TEMP_THRESHOLD,
+
+  PRF_LOG_WINDOW,
   
   PRF_end
 } PREFERENCES;
@@ -216,7 +218,8 @@ const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "MIN_Temperature","MAX_Temperature",
-"PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE",
+"PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
+"LOG_Window",
 };
 
 // Preferences types definitions
@@ -243,6 +246,8 @@ struct PrefsStruct {
 
 struct PrefsStruct Prefs[PRF_end];
 
+// Pointer to a log file
+File LOGFile;
 
 /*
 ** Other stuff

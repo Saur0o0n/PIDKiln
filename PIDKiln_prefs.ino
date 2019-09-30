@@ -198,6 +198,16 @@ char tmp[30];
         Prefs[PRF_PID_POE].type=UINT8;
         Prefs[PRF_PID_POE].value.uint8=0;
         break;
+      case PRF_PID_TEMP_THRESHOLD:  // allowed difference in temperature between set and current when controler will go in dwell mode
+        Prefs[PRF_PID_TEMP_THRESHOLD].type=INT16;
+        Prefs[PRF_PID_TEMP_THRESHOLD].value.int16=-1;
+        break;
+
+      case PRF_LOG_WINDOW:
+        Prefs[PRF_LOG_WINDOW].type=UINT16;
+        Prefs[PRF_LOG_WINDOW].value.uint16=30;
+        break;
+        
       default:
         break;
     }

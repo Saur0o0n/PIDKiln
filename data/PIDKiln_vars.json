@@ -1,5 +1,6 @@
 {
 "program_status": ~PROGRAM_STATUS~,
+"log_file": "~LOG_FILE~",
 "pidkiln": [
 { "html_id": "#kiln_temp",
   "value": "~KILN_TEMP~"

@@ -82,13 +82,25 @@ input {
 input[type=submit] {
   padding: 4px 20px;
   cursor: pointer;
-  float: right;
   margin-top: 2px;
+}
+
+input[type=submit].floatr {
+  float: right;
 }
 
 input[type=submit]:hover {
   background-color: #4CAF50;
   border-radius: 7px;
+}
+
+.for_submit{
+  float:left;
+  width:24%;
+}
+
+.for_submit input[type=submit]{
+  margin-left: 30px;
 }
 
 .col-25 {

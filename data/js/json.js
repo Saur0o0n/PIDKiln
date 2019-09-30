@@ -11,7 +11,7 @@ function ena_bttn(bid){
 
 function dis_all_bttn(){
 	dis_bttn("#start_bttn");
-	dis_bttn("#stop_bttn");
+	dis_bttn("#end_bttn");
 	dis_bttn("#pause_bttn");
 	dis_bttn("#abort_bttn");
 }
@@ -26,16 +26,19 @@ function change_program_status(ns){
   }else if(ns==2){	// program running - enable pause, abort, stop
 	dis_all_bttn();
 	ena_bttn("#pause_bttn");
-	ena_bttn("#stop_bttn");
+	ena_bttn("#end_bttn");
 	ena_bttn("#abort_bttn");
+	if(!chart_update_id) chart_update_id=setTimeout(chart_update, 30000);
   }else if(ns==3){	// program paused - enable start, abort, stop
 	dis_all_bttn();
 	ena_bttn("#start_bttn");
-	ena_bttn("#stop_bttn");
+	ena_bttn("#end_bttn");
 	ena_bttn("#abort_bttn");
+	if(!chart_update_id) chart_update_id=setTimeout(chart_update, 30000);
   }else{		// program stopped, aborted, failed - but loaded, enable start
 	dis_all_bttn();
 	ena_bttn("#start_bttn");
+	clearTimeout(chart_update_id);
   }
   program_status=ns;
 }
@@ -47,11 +50,9 @@ function executeQuery() {
  })
  .done((res) => {
    if(res.program_status!=program_status) change_program_status(res.program_status);
-   res.pidkiln.forEach(el => {
-//     console.log(el.html_id);
-     $(el.html_id).val(el.value);
-   })
-//   console.log(res);
+
+   res.pidkiln.forEach(el => { $(el.html_id).val(el.value);  })
+
  })
 
  setTimeout(executeQuery, 5000);
@@ -60,8 +61,8 @@ function executeQuery() {
 
 $(document).ready(function() {
   // run the first time; all subsequent calls will take care of themselves
+  executeQuery();
   setTimeout(executeQuery, 5000);
 });
 
 change_program_status(1);   // assume program is ready on start
-

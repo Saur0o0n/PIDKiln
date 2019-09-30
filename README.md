@@ -104,13 +104,13 @@ ESP32	| SSR
 --------|-------
 GND	| GND
 5V      | VIN
-21      | IN
+19      | IN
 
 ESP32   | EMR (SLA-05VDC-SL-C)
 --------|----------------
 GND     | GND
 5V      | VIN
-19      | IN
+21      | IN
 
 
 **Thermistors**

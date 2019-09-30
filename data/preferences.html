@@ -133,7 +133,7 @@
 	<label for="MIN_Temperature"> Minimal temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~">
+	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4">C
       </div>
      </div>
      <div class="row">
@@ -141,7 +141,7 @@
 	<label for="MAX_Temperature"> Maximum temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~">
+	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4">C
       </div>
      </div>
      <div class="row">
@@ -149,7 +149,7 @@
 	<label for="PID_Window"> PID Window size (ms) </label>
       </div>
       <div class="col-75">
-	<input type="number" name="PID_Window" min="1" max="9999" value="~PID_Window~">
+	<input type="number" name="PID_Window" min="1" max="9999" value="~PID_Window~" size="5">ms
       </div>
      </div>
      <div class="row">
@@ -157,7 +157,7 @@
 	<label for="PID_Kp"> PID Kp (Proportional) </label>
       </div>
       <div class="col-75">
-	<input type="number" name="PID_Kp" min="0" max="99" step="0.1" value="~PID_Kp~">
+	<input type="number" name="PID_Kp" min="0" max="99" step="0.1" value="~PID_Kp~" size="4">
       </div>
      </div>
      <div class="row">
@@ -165,7 +165,7 @@
 	<label for="PID_Ki"> PID Ki (Integral) </label>
       </div>
       <div class="col-75">
-	<input type="number" name="PID_Ki" min="0" max="99" step="0.1" value="~PID_Ki~">
+	<input type="number" name="PID_Ki" min="0" max="99" step="0.1" value="~PID_Ki~" size="4">
       </div>
      </div>
      <div class="row">
@@ -173,7 +173,7 @@
 	<label for="PID_Kd"> PID Kd (Derivative) </label>
       </div>
       <div class="col-75">
-	<input type="number" name="PID_Kd" min="0" max="99" step="0.1" value="~PID_Kd~">
+	<input type="number" name="PID_Kd" min="0" max="99" step="0.1" value="~PID_Kd~" size="4">
       </div>
      </div>
      <div class="row">
@@ -185,6 +185,22 @@
 	<input type="radio" name="PID_POE" value="1" ~PID_POE1~> Proportional on Error <br>
       </div>
      </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="PID_Temp_Threshold"> Temperature threshold </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="PID_Temp_Threshold" min="-1" max="1350" step="1" value="~PID_Temp_Threshold~">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="LOG_Window"> Logging window </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="LOG_Window" min="0" max="3600" step="1" value="~LOG_Window~">s
+      </div>
+     </div>
    </fieldset>
 
     <div class="row">
@@ -192,7 +208,7 @@
 	<input type="submit" name="update" value="Remember changes" title="For this session only"><br>
       </div>
       <div class="col-75">
-	<input type="submit" name="save" value="Save preferences" title="Write it on disk">
+	<input class="floatr" type="submit" name="save" value="Save preferences" title="Write it on disk">
       </div>
     </div>
   </form>

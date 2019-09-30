@@ -3,17 +3,37 @@
 **
 */
 
-File logfile;
+
 
 // Starts a new log file
 //
 void Init_log_file(){
-String tmp;
-  if(logfile) logfile.close();
-  if(logfile=SPIFFS.open("/log/test.csv", "w")){
-    DBG Serial.println(" Created new log file");
-    tmp=",Temperature";
-    logfile.print(tmp);
+char str[33];
+struct tm timeinfo;
+
+  if(LOGFile) LOGFile.close();
+  if(getLocalTime(&timeinfo)) strftime(str, 32, "/log/%C%m%d_%H%M%S.csv", &timeinfo); //YYMMDD_HHMMSS.log
+  else sprintf(str,"/log/%d.csv",millis());  // if we don't have a clock - use millis - this should NOT happend
+  DBG Serial.printf("[LOG] Trying to create log file:%s\n",str);
+  
+  if(LOGFile=SPIFFS.open(str, "w")){
+    DBG Serial.printf("[LOG] Created new log file %s\n",str);
+    LOGFile.print(String(",Temperature"));
+  }
+
+  // Try to create additional info-log file if not.. well
+  char *tmpstr;
+  tmpstr=strstr(str,".csv");
+  if(tmpstr){
+    strncpy(tmpstr,".log",4);
+    File tmpfile=SPIFFS.open(str, "w");
+    tmpfile.flush();
+    tmpfile.printf("Program name:%s\n",Program_run_name);
+    tmpfile.printf("Program desc:%s\n",Program_run_desc);
+    tmpfile.printf("Started at:%s\n",Program_run_start);
+    tmpfile.printf("Possible end at:%s\n",Program_run_end);
+    tmpfile.printf("CSV filename:%s\n",str);
+    tmpfile.close();
   }
 }
 
@@ -25,13 +45,14 @@ String tmp;
 char str[30];
 struct tm timeinfo;
                  
-  if(logfile && getLocalTime(&timeinfo)){
-    strftime (str, 29, "%F %T", &timeinfo);
+  if(LOGFile){
+    if(getLocalTime(&timeinfo)) strftime(str, 29, "%F %T", &timeinfo);
+    else sprintf(str,"%d",millis());
     tmp=String(str)+","+String(kiln_temp,0);
     DBG Serial.printf("[LOG] Writing to log file:%s\n",tmp.c_str());
-    logfile.println();
-    logfile.print(tmp);
-    logfile.flush();
+    LOGFile.println();
+    LOGFile.print(tmp);
+    LOGFile.flush();
   }
 }
 
@@ -39,8 +60,8 @@ struct tm timeinfo;
 // Closes cleanly log file
 //
 void Close_log_file(){
-  if(logfile){
-    logfile.flush();
-    logfile.close();
+  if(LOGFile){
+    LOGFile.flush();
+    LOGFile.close();
   }
 }

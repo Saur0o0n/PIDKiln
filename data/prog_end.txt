@@ -8,7 +8,7 @@
    <legend> Upload new program </legend>
     <label for"file"> Choose a program file: </label>
     <input type='file' name='upload' id="upload_program" accept=".txt,.ino" onchange="ValidateSize(this)">
-    <input type='submit' value='Upload new program'>
+    <input class="floatr" type='submit' value='Upload new program'>
   </fieldset>
  </form>
 
