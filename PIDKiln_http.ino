@@ -255,7 +255,7 @@ char *str;
   }else if(var == "LOG_FILE"){
     if(LOGFile) return LOGFile.name();
     else return String("/log/test.csv");
-  }else if(var == "CONFIG"){
+  }else if(var == "CONFIG"){        // if we have log fie to show - show it on graph, otherwise show just program graph
     if(LOGFile) return String("config_with");
     else return String("config_without");
   }

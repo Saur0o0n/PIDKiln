@@ -167,6 +167,7 @@ void setup() {
 // Just a tiny loop ;)
 //
 void loop() {
-  Input_Loop();
-  Program_Loop();
+// Input_Loop();
+// Program_Loop();
+  vTaskDelete(NULL);
 }

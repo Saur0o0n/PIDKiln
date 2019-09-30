@@ -347,7 +347,7 @@ void Program_recalculate_ETA(boolean dwell=false){
 //
 void Program_calculate_steps(boolean prg_start=false){
 static time_t step_start,next_step_end;
-static uint16_t cnt1=1,cnt2=0;
+static uint16_t cnt1=1,cnt2=1;
 static boolean is_it_dwell=false;
 
   if(prg_start){  // starting program - do some startup stuff
@@ -367,13 +367,23 @@ static boolean is_it_dwell=false;
   // Program recalc stuff - cnt2 - counter for it
   cnt2++;
   if(cnt2>10){
-    cnt2=0;
+    cnt2=1;
 
     if(Program_run_state==PR_PAUSED){   // if we are paused - calculate new ETA end exit
       Program_recalculate_ETA(false);
+      next_step_end+=10;                // this is not precise but should be enough
       return;
     }
-    
+
+    if(Prefs[PRF_PID_TEMP_THRESHOLD].value.int16>-1){       // check if we are in threshold window - if not, pause
+      if(kiln_temp+Prefs[PRF_PID_TEMP_THRESHOLD].value.int16 < set_temp || kiln_temp-Prefs[PRF_PID_TEMP_THRESHOLD].value.int16 > set_temp){   // set_temp must be between kiln_temp +/- temp_threshold 
+        DBG Serial.printf("[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,kiln_temp-Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
+        PAUSE_Program();
+        Program_run_state=PR_THRESHOLD;
+        return;
+      }else if(Program_run_state==PR_THRESHOLD) Program_run_state=PR_RUNNING;     
+    }
+
     // calculate next step
     if(time(NULL)>next_step_end){
       DBG Serial.println("[DBG] Calculating new step!");
@@ -447,40 +457,15 @@ void START_Program(){
 
 
 
-/*
-** Main setup and loop function for programs module
-*/
-void Program_Setup(){
-
-  // Start interupt timer handler - 1s
-  // Create semaphore to inform us when the timer has fired
-  timerSemaphore = xSemaphoreCreateBinary();
-
-  // Use 1st timer of 4 (counted from zero).
-  // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
-  // info).
-  timer = timerBegin(0, 80, true);
-
-  // Attach onTimer function to our timer.
-  timerAttachInterrupt(timer, &onTimer, true);
-
-  // Set alarm to call onTimer function every second (value in microseconds).
-  // Repeat the alarm (third parameter)
-  timerAlarmWrite(timer, 1000000, true);
-
-  // Start an alarm
-  timerAlarmEnable(timer);
-
-// For testing!!!
-  Load_program("test_up_down.txt");
-  Load_program_to_run();
-}
-
-
-void Program_Loop(){
+// Function that create task to handle program running
+//
+void Program_Loop(void * parameter){
 static uint16_t cnt1=0;
+uint32_t now;
 
-  uint32_t now = millis();
+ for(;;){
+    
+   now = millis();
  
   // Program one second tick
   // 
@@ -517,4 +502,45 @@ static uint16_t cnt1=0;
     if (pid_out > now - windowStartTime) Enable_SSR();
     else Disable_SSR();
   }
+  yield();
+ }
+}
+
+
+/*
+** Main setup function for programs module
+*/
+void Program_Setup(){
+ 
+  // Start interupt timer handler - 1s
+  // Create semaphore to inform us when the timer has fired
+  timerSemaphore = xSemaphoreCreateBinary();
+
+  // Use 1st timer of 4 (counted from zero).
+  // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
+  // info).
+  timer = timerBegin(0, 80, true);
+
+  // Attach onTimer function to our timer.
+  timerAttachInterrupt(timer, &onTimer, true);
+
+  // Set alarm to call onTimer function every second (value in microseconds).
+  // Repeat the alarm (third parameter)
+  timerAlarmWrite(timer, 1000000, true);
+
+  // Start an alarm
+  timerAlarmEnable(timer);
+
+// For testing!!!
+  Load_program("test_up_down.txt");
+  Load_program_to_run();
+
+  xTaskCreate(
+              Program_Loop,    /* Task function. */
+              "Program_loop",  /* String with name of task. */
+              256,             /* Stack size in bytes. */
+              NULL,            /* Parameter passed as input of the task */
+              2,               /* Priority of the task. */
+              NULL);           /* Task handle. */
+                    
 }

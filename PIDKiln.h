@@ -18,7 +18,6 @@
 double int_temp=20, kiln_temp=20, case_temp=20;
 double set_temp, pid_out;
 float temp_incr=0;
-uint16_t temp_threshold=10;     // how big difference between desired temperature and real temperature we tolerate (when PID waits for temperature)
 uint32_t windowStartTime;
 uint16_t temp_over=0;           // count if we have reached over desire temperature - when 0 - check temp_threshold
 
@@ -120,10 +119,11 @@ typedef enum { // program menu positions
   PR_PAUSED,
   PR_FAILED,
   PR_ENDED,
+  PR_THRESHOLD,
   PR_end
 } PROGRAM_RUN_STATE;
 PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
-const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended"};
+const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended","Threashold"};
 
 /* Program errors:
 */
@@ -253,8 +253,8 @@ File LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.7";
-const char *PDate = "2019.09.29";
+const char *PVer = "PIDKiln v0.8";
+const char *PDate = "2019.09.30";
 
 /*
 ** Function defs
