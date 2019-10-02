@@ -39,7 +39,7 @@ var config_with = {
 	options: {
 		title: {
 			display: true,
-			text: 'Ready to run program temperature/time graph'
+			text: 'Programmed program vs actual temperature'
 		},
 		responsive: true,
 		scales: {
@@ -100,7 +100,7 @@ var config_without = {
 	options: {
 		title: {
 			display: true,
-			text: 'Running program vs actual temperature'
+			text: 'Ready to run program temperature/time graph'
 		},
 		responsive: true,
 		scales: {

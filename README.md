@@ -1,5 +1,5 @@
 # pidkiln
-Ceramic/glass kiln PID controller based on Arduino IDE and Weemos/ESP32 board.
+Ceramic/glass/metal kiln PID controller based on Arduino IDE and Weemos/ESP32 board.
 
 This is still work in progress, but since of release v0.7 (2019.09.24) it's fully functional. Just needs some more polishing.
 
@@ -27,7 +27,7 @@ Kind of optional, but recommended:
 
 Optional:
 - DC/AC secondary relay - like SLA-05VDC-SL-C (240V/30A) mechanical relay
-- Thermistors
+- Additional MAX31855 board with K-type thermocouple for housing temperature measuring
 - Perhaps a kiln :)
 
 ## BOM and expenses
@@ -41,7 +41,7 @@ Total expenses for this set should be around 30-40$
 - SSR: 4$ + 4$ for radiator
 
 - Mechanical relay EMR SLA-05VDC-SL-C (Songle): 3$
-- Thermistors: 1$
+
 
 ## Why this configuration?
 
@@ -56,7 +56,7 @@ LC12864B is perhaps not the best choice, but I simply had this one already (I've
 Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often - SSR can do it, but it will get hot, so make sure you have good radiator. Also if you are going to use cheap Chinese knock offs, make sure it rated twice the output current of your heater.
 All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage EMR (Electromechanical Relay) relay in case of SSR failure. It's mechanical, so it won't get hot. This will allow to turn off the kiln in case of SSR failure with EMR one (and other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
 
-Thermistors are to measure outside kiln temperature. In case of insulation failure - we can shut it off. This are extremely cheap (used in 3d printing) thermistors.
+Initially for housing temperature readout I wanted to use thermistors, but since I've already had MAX31855 connected (and it costs 2$), using additional one is only 1 mew GPIO on ESP. Without hassle to provide reference voltage etc. Low temperature thermocouples are also darn cheap.
 
 ## GPIO/PINs connection
 

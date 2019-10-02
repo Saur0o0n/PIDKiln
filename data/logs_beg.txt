@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Index of PIDKiln programs</title>
+ <link rel="stylesheet" href="/css/main.css">
+ <link rel="stylesheet" href="/css/nav.css">
+ <script type="text/javascript" src="/js/nav.js"></script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+ <div class="topnav" id="myTopnav">
+  <a href="/index.html">Main view</a>
+  <a href="/programs/index.html">Manage programs</a>
+  <a href="/logs/index.html" class="active">Logs</a>
+  <a href="/preferences.html">Preferences</a>
+  <a href="/about.html">About</a>
+  <a href="/debug_board.html">Debug ESP</a>
+  <a href="#about">Flash firmware</a>
+  <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
+    <i class="fa fa-bars"></i>
+  </a>
+ </div>
+
+ <div class="container">
+ <h1>Index of logs</h1>
+  <table style="margin-left: 2em;">
+   <tr>
+    <th> Logfile </th><th> Size </th> <th> Program name </th>
+   <tr>
+   <tr><td colspan="3"><hr></td></tr>
