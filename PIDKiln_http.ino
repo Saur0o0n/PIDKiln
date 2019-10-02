@@ -238,7 +238,8 @@ char *str;
   if(var == "CHART_DATA" && Program_run_size>0){
     str=ctime(&current_time);str[strlen(str)-1]='\0';  // Dont know why - probably error, but ctime returns string with new line char and tab - so we cut it off
     tmp+="{x:'"+String(str)+"'";
-    tmp+=",y:"+String(Program_start_temp)+"},";
+    if(Program_start_temp) tmp+=",y:"+String(Program_start_temp)+"},";
+    else tmp+=",y:"+String(kiln_temp)+"},";
     for(uint16_t a=0;a<Program_run_size;a++){
        if(a>0) tmp+=",";
        current_time+=Program_run[a].togo*60;
@@ -265,7 +266,7 @@ char *str;
 
 // Template preprocessor for main view - index.html, about and perhaps others
 //
-String main_parser(const String& var) {
+String About_parser(const String& var) {
 String tmp;
 
   template_str=String();
@@ -380,7 +381,7 @@ String tmp=String(PRG_Directory);
 
 // Handle delete - second run, post - actual deletion
 //
-void delete_handle_post(AsyncWebServerRequest *request){
+void POST_Handle_Delete(AsyncWebServerRequest *request){
 
   //Check if POST (but not File) parameter exists
   if(request->hasParam("prog_name", true) && request->hasParam("yes", true)){
@@ -402,7 +403,7 @@ void delete_handle_post(AsyncWebServerRequest *request){
 
 // Handle delete - first run, get - are you sure question
 //
-void delete_handle_get(AsyncWebServerRequest *request){
+void GET_Handle_Delete(AsyncWebServerRequest *request){
 File tmpf;
 String tmps;
 
@@ -431,6 +432,31 @@ String tmps;
 
   tmpf.close();
   request->send(response);
+}
+
+
+// Load program from file to memory
+//
+void GET_Handle_Load(AsyncWebServerRequest *request){
+char prname[MAX_FILENAME];
+
+  if(!request->hasParam("prog_name")){  // if no program to load - skip
+    DBG Serial.println("[HTTP] Failed to load program - no program name");
+    request->redirect("/programs");
+    return;
+  }
+
+  AsyncWebParameter* p = request->getParam("prog_name");
+  strcpy(prname,p->value().c_str());
+  if(!Load_program(prname)){
+    request->redirect("/index.html");
+    Load_program_to_run();
+    return;
+  }else{
+    DBG Serial.println("[HTTP] Failed to load program - Load_program() failed");
+    request->redirect("/programs");
+    return;
+  }
 }
 
 
@@ -495,7 +521,7 @@ int params = request->params();
       }
     }
   }
-  request->send(SPIFFS, "/index.html", String(), false, main_parser);
+  request->send(SPIFFS, "/index.html");
 }
 
 
@@ -550,15 +576,13 @@ void setup_webserver(void) {
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->redirect("/index.html");
   });
-  
-  server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/index.html", String(), false, main_parser);
-  });
+
+  server.serveStatic("/index.html", SPIFFS, "/index.html");
   
   server.on("/index.html", HTTP_POST, handleIndexPost);
   
   server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/about.html", String(), false, main_parser);
+    request->send(SPIFFS, "/about.html", String(), false, About_parser);
   });
   
   server.on("/js/chart.js", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -587,9 +611,11 @@ void setup_webserver(void) {
 
   server.on("/preferences.html", HTTP_POST, handlePrefs);
   
-  server.on("/delete.html", HTTP_GET, delete_handle_get);
+  server.on("/delete.html", HTTP_GET, GET_Handle_Delete);
   
-  server.on("/delete.html", HTTP_POST, delete_handle_post);
+  server.on("/delete.html", HTTP_POST, POST_Handle_Delete);
+
+  server.on("/load.html", HTTP_GET, GET_Handle_Load);
   
   // Serve some static data
   server.serveStatic("/icons/", SPIFFS, "/icons/");

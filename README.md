@@ -88,15 +88,23 @@ GND	| GND
 
 **MAX31855**
 
-Connected to one of three SPI on ESP32 - called HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+Connected to one of three SPI on ESP32 - called HSPI (MOSI-13, MISO-12, CLK-14) CS-15/27
 
-EPS32	| MAX31855
+EPS32	| MAX31855 A
 --------|---------
 +3.3V	| VCC
 GND	| GND
 12	| SO/DO (slave output/data output)
-15	| CS (chip select)
 14	| SCK (clock)
+15	| CS (chip select)
+
+EPS32	| MAX31855 B
+--------|---------
++3.3V	| VCC
+GND	| GND
+12	| SO/DO (slave output/data output)
+14	| SCK (clock)
+27	| CS (chip select)
 
 **Relays**
 
@@ -113,9 +121,6 @@ GND     | GND
 21      | IN
 
 
-**Thermistors**
-
-ESP32	to thermistor
 
 ## Power consideration
 

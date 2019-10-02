@@ -267,8 +267,8 @@ char msg[MAX_CHARS_PL];
     currt=time(NULL)-Program_run_start;     // where are we now?
     prop=(float)currt/(float)fullt;   // current progress status
     u8g2.setDrawColor(2);
-    DBG Serial.printf("[LCD] Redrawing box on graph width:%d fullt:%d currt:%d prop:%f\n",(int)((SCREEN_W-3)*prop),fullt,currt,prop);
-    u8g2.drawBox(2,1,(int)((SCREEN_W-3)*prop),SCREEN_H-2);
+    DBG Serial.printf("[LCD] Redrawing box on graph width:%d fullt:%d currt:%d prop:%f\n",(int)((SCREEN_W-2)*prop),fullt,currt,prop);
+    u8g2.drawBox(2,1,(int)((SCREEN_W-2)*prop),SCREEN_H-2);
     u8g2.setDrawColor(1);
     u8g2.sendBuffer();
   }
@@ -954,4 +954,5 @@ void Setup_LCD(void) {
   u8g2.drawFrame(0,0,127,63);
   u8g2.sendBuffer();          // transfer internal memory to the display
   delay(500);
+  
 }

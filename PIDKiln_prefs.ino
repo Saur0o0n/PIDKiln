@@ -1,5 +1,5 @@
 /*
-** Preferences stuff
+** Preferences read/write routines
 **
 */
 
@@ -53,6 +53,8 @@ File prf;
         prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.uint16);
       }else if(Prefs[a].type==INT16){
         prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.int16);
+      }else if(Prefs[a].type==VFLOAT){
+        prf.printf("%s = %.2f\n",PrefsName[a],Prefs[a].value.vfloat);
       }
     }
     prf.flush();

@@ -3,18 +3,27 @@ var chart_update_id;
 
 var chartColors = {
 	red: 'rgb(255, 99, 132)',
-	blue: 'rgb(54, 162, 235)'
+	blue: 'rgb(54, 162, 235)',
+	yel: 'rgb(54, 162, 35)'
 };
 
 var color = Chart.helpers.color;
 var config_with = {
 	type: 'line',
 	data: {
-		datasets: [{
+		datasets:
+		     [{
 			yAxisID: 'temperature',
 			backgroundColor: 'transparent',
 			borderColor: chartColors.red,
 			pointBackgroundColor: chartColors.red,
+			tension: 0.1,
+			fill: false
+		     }, {
+			yAxisID: 'temperature',
+			backgroundColor: 'transparent',
+			borderColor: chartColors.yel,
+			pointBackgroundColor: chartColors.yel,
 			tension: 0.1,
 			fill: false
 		     }, {
@@ -37,10 +46,12 @@ var config_with = {
 			xAxes: [{
 				type: 'time',
 				time: {
-					// round: 'day'
-					tooltipFormat: 'll HH:mm',
+					tooltipFormat: 'YYYY-MM-DD HH:mm',
 					displayFormats: {
-						minute: 'hh:mm'
+						millisecond: 'HH:mm:ss.SSS',
+						second: 'HH:mm:ss',
+						minute: 'HH:mm',
+						hour: 'HH'
 					},
 //					unit: 'minute'
 				},
@@ -96,10 +107,12 @@ var config_without = {
 			xAxes: [{
 				type: 'time',
 				time: {
-					// round: 'day'
-					tooltipFormat: 'll HH:mm',
+					tooltipFormat: 'YYYY-MM-DD HH:mm',
 					displayFormats: {
-						minute: 'hh:mm'
+						millisecond: 'HH:mm:ss.SSS',
+						second: 'HH:mm:ss',
+						minute: 'HH:mm',
+						hour: 'HH'
 					},
 //					unit: 'minute'
 				},

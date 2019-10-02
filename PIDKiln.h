@@ -9,7 +9,8 @@
 #define SSR_RELAY_PIN 19
 
 // MAX31855 variables/defs
-#define MAXCS   15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14, CS-15)
+#define MAXCS1  15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
+#define MAXCS2  27  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 /*
 ** Temperature, PID and probes variables/definitions
@@ -110,7 +111,7 @@ char *Program_run_desc=NULL,*Program_run_name=NULL;
 time_t Program_run_start=0;       // date/time of started program
 time_t Program_run_end=0;         // date/time when program ends - during program it's ETA
 int Program_run_step=-1;          // at which step are we now... (has to be it - so we can give it -1)
-uint16_t Program_start_temp=20;   // temperature on start of the program
+uint16_t Program_start_temp=0;    // temperature on start of the program
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -123,7 +124,7 @@ typedef enum { // program menu positions
   PR_end
 } PROGRAM_RUN_STATE;
 PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
-const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended","Threashold"};
+const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended","Waiting"};
 
 /* Program errors:
 */

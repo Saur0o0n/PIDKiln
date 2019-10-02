@@ -29,8 +29,7 @@
 #include <FS.h>   // Include the SPIFFS library
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
-#include <soc/timer_group_struct.h>
-#include <soc/timer_group_reg.h>
+#include "soc/rtc_wdt.h"
 
 #include "PIDKiln.h"
 
@@ -111,9 +110,9 @@ char c;
 //
 void setup() {
 
-  TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
-  TIMERG0.wdt_feed=1;
-  TIMERG0.wdt_wprotect=0;
+// This should disable watchdog killing asynctcp
+  rtc_wdt_protect_off();
+  rtc_wdt_disable();
 
   // Serial port for debugging purposes
   DBG Serial.begin(115200);

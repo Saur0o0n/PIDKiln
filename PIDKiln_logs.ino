@@ -18,7 +18,7 @@ struct tm timeinfo;
   
   if(LOGFile=SPIFFS.open(str, "w")){
     DBG Serial.printf("[LOG] Created new log file %s\n",str);
-    LOGFile.print(String(",Temperature"));
+    LOGFile.print(String("Date,Temperature,Housing"));
   }
 
   // Try to create additional info-log file if not.. well
@@ -26,14 +26,15 @@ struct tm timeinfo;
   tmpstr=strstr(str,".csv");
   if(tmpstr){
     strncpy(tmpstr,".log",4);
-    File tmpfile=SPIFFS.open(str, "w");
-    tmpfile.flush();
-    tmpfile.printf("Program name:%s\n",Program_run_name);
-    tmpfile.printf("Program desc:%s\n",Program_run_desc);
-    tmpfile.printf("Started at:%s\n",Program_run_start);
-    tmpfile.printf("Possible end at:%s\n",Program_run_end);
-    tmpfile.printf("CSV filename:%s\n",str);
-    tmpfile.close();
+    if(File tmpfile=SPIFFS.open(str, "w")){
+      tmpfile.printf("Program name:%s\n",Program_run_name);
+      tmpfile.printf("Program desc:%s\n",Program_run_desc);
+      tmpfile.printf("Started at:%d\n",Program_run_start);
+      tmpfile.printf("Possible end at:%d\n",Program_run_end);
+      tmpfile.printf("CSV filename:%s\n",str);
+      tmpfile.flush();
+      tmpfile.close();
+    }
   }
 }
 
@@ -48,7 +49,7 @@ struct tm timeinfo;
   if(LOGFile){
     if(getLocalTime(&timeinfo)) strftime(str, 29, "%F %T", &timeinfo);
     else sprintf(str,"%d",millis());
-    tmp=String(str)+","+String(kiln_temp,0);
+    tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0);
     DBG Serial.printf("[LOG] Writing to log file:%s\n",tmp.c_str());
     LOGFile.println();
     LOGFile.print(tmp);

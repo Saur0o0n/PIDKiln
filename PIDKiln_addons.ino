@@ -6,9 +6,13 @@
 
 // Initialize SPI and MAX31855
 SPIClass *ESP32_SPI = new SPIClass(HSPI);
-Adafruit_MAX31855 thermocouple(MAXCS);
+Adafruit_MAX31855 ThermocoupleA(MAXCS1);
 
-boolean SSR_On; // just to narrow down state changes.. I don't know if this is needed
+#ifdef MAXCS2
+Adafruit_MAX31855 ThermocoupleB(MAXCS2);
+#endif
+
+boolean SSR_On; // just to narrow down state changes.. I don't know if this is needed/faster
 
 // Simple functions to enable/disable SSR - for clarity, everything is separate
 //
@@ -38,26 +42,26 @@ void Disable_EMR(){
 
 
 
-// Thermocouple temperature readout
+// ThermocoupleA temperature readout
 //
-void Update_Temperature(){
+void Update_TemperatureA(){
 uint32_t raw;
 double kiln_tmp1,kiln_tmp2;
 
-  raw = thermocouple.readRaw();
-  kiln_tmp1 = thermocouple.decodeInternal(raw); 
+  raw = ThermocoupleA.readRaw();
+  kiln_tmp1 = ThermocoupleA.decodeInternal(raw); 
   if (isnan(kiln_tmp1)) {
-    DBG Serial.println("[ADDONS] !! Something wrong with MAX31855! Internal readout failed");
+    DBG Serial.println("[ADDONS] !! Something wrong with MAX31855-A! Internal readout failed");
     ABORT_Program(PR_ERR_MAX31_INT_ERR);
     return;
   }
   int_temp = (int_temp+kiln_tmp1)/2;
   
-  kiln_tmp1 = thermocouple.decodeCelsius(raw);
-  kiln_tmp2 = thermocouple.linearizeCelcius(int_temp, kiln_tmp1);
+  kiln_tmp1 = ThermocoupleA.decodeCelsius(raw);
+  kiln_tmp2 = ThermocoupleA.linearizeCelcius(int_temp, kiln_tmp1);
   
   if (isnan(kiln_tmp1) || isnan(kiln_tmp2)) {
-    DBG Serial.println("[ADDONS] !! Something wrong with thermocouple! External readout failed");
+    DBG Serial.println("[ADDONS] !! Something wrong with thermocoupleA! External readout failed");
     ABORT_Program(PR_ERR_MAX31_KPROBE);
     return;
   }
@@ -67,10 +71,44 @@ double kiln_tmp1,kiln_tmp2;
 }
 
 
+#ifdef MAXCS2
+// ThermocoupleB temperature readout
+//
+void Update_TemperatureB(){
+uint32_t raw;
+double case_tmp1,case_tmp2;
+
+  raw = ThermocoupleB.readRaw();
+  case_tmp1 = ThermocoupleB.decodeInternal(raw); 
+  if (isnan(case_tmp1)) {
+    DBG Serial.println("[ADDONS] !! Something wrong with MAX31855-B! Internal readout failed");
+    ABORT_Program(PR_ERR_MAX31_INT_ERR);
+    return;
+  }
+  int_temp = (int_temp+case_tmp1)/2;
+  
+  case_tmp1 = ThermocoupleB.decodeCelsius(raw);
+  case_tmp2 = ThermocoupleB.linearizeCelcius(int_temp, case_tmp1);
+  
+  if (isnan(case_tmp1) || isnan(case_tmp2)) {
+    DBG Serial.println("[ADDONS] !! Something wrong with thermocoupleB! External readout failed");
+    ABORT_Program(PR_ERR_MAX31_KPROBE);
+    return;
+  }
+  case_temp=(case_temp*0.8+case_tmp2*0.2);    // We try to make bigger hysteresis
+
+  DBG Serial.printf("[ADDONS] TemperatureB readout: Internal = %.1f \t Case raw = %.1f \t Case final = %.1f\n", int_temp, case_tmp1, case_temp); 
+}
+#endif
+
+
 void Setup_Addons(){
   pinMode(EMR_RELAY_PIN, OUTPUT);
   pinMode(SSR_RELAY_PIN, OUTPUT);
 
   SSR_On=false;
-  thermocouple.begin(ESP32_SPI);
+  ThermocoupleA.begin(ESP32_SPI);
+#ifdef MAXCS2
+  ThermocoupleB.begin(ESP32_SPI);
+#endif  
 }

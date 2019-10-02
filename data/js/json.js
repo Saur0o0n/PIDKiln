@@ -20,10 +20,7 @@ function change_program_status(ns){
   console.log("Program status changed on "+ns);
   if(ns==0){	// program not loaded - disable all buttons
 	dis_all_bttn();
-  }else if(ns==1){	// program ready - enable run button
-	dis_all_bttn();
-	ena_bttn("#start_bttn");
-  }else if(ns==2){	// program running - enable pause, abort, stop
+  }else if(ns==2 || ns==6){	// program running/waiting 4 threshold - enable pause, abort, stop
 	dis_all_bttn();
 	ena_bttn("#pause_bttn");
 	ena_bttn("#end_bttn");
@@ -32,11 +29,13 @@ function change_program_status(ns){
   }else if(ns==3){	// program paused - enable start, abort, stop
 	dis_all_bttn();
 	ena_bttn("#start_bttn");
+	$("#start_bttn").val("Resume program");
 	ena_bttn("#end_bttn");
 	ena_bttn("#abort_bttn");
 	if(!chart_update_id) chart_update_id=setTimeout(chart_update, 30000);
-  }else{		// program stopped, aborted, failed - but loaded, enable start
+  }else{		// program ready, stopped, aborted, failed - but loaded, enable start
 	dis_all_bttn();
+	$("#start_bttn").val("Start program");
 	ena_bttn("#start_bttn");
 	clearTimeout(chart_update_id);
   }

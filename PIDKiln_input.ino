@@ -132,15 +132,16 @@ void Input_Loop(void * parameter) {
   for(;;){
     if(encoderButton){
       vTaskDelay( ENCODER_BUTTON_DELAY / portTICK_PERIOD_MS );
-      if(digitalRead(ENCODER0_BUTTON)==LOW) return; // Button is still pressed - skip, perhaps it's a long press
-      if(encoderButton+Long_Press>=millis()){ // quick press
-        DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
-        button_Short_Press();
-      }else{  // long press
-        DBG Serial.printf("Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
-        button_Long_Press();
+      if(digitalRead(ENCODER0_BUTTON)!=LOW){ // Button is still pressed - skip, perhaps it's a long press
+        if(encoderButton+Long_Press>=millis()){ // quick press
+          DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
+          button_Short_Press();
+        }else{  // long press
+          DBG Serial.printf("Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
+          button_Long_Press();
+        }
+        encoderButton=0;
       }
-      encoderButton=0;
     }else if(encoderValue!=0){
       vTaskDelay(ENCODER_ROTATE_DELAY / portTICK_PERIOD_MS);
       rotate(); // encoderValue is global..
@@ -149,6 +150,7 @@ void Input_Loop(void * parameter) {
     }
     yield();
   }
+  vTaskDelete(NULL);
 }
 
 
@@ -191,7 +193,7 @@ void Setup_Input() {
   xTaskCreate(
               Input_Loop,       /* Task function. */
               "Input_loop",     /* String with name of task. */
-              2048,              /* Stack size in bytes. */
+              4096,             /* Stack size in bytes. */
               NULL,             /* Parameter passed as input of the task */
               1,                /* Priority of the task. */
               NULL);            /* Task handle. */

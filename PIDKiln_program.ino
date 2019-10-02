@@ -5,7 +5,6 @@
 #include <PID_v1.h>
 #include <SPI.h>
 
-
 // Other variables
 //
 hw_timer_t *timer = NULL;
@@ -67,7 +66,7 @@ int multi=1;
 }
 
 
-// Load program in to the array in memory
+// Load program from file to memory - return 0 if success
 //
 uint8_t Load_program(char *file){
 String line;
@@ -218,14 +217,14 @@ void Initialize_program_to_run(){
 }
 
 
-// Copy selected program to RUN program
+// Copy selected/loaded program to RUN program memory
 //
 void Load_program_to_run(){
   
   Initialize_program_to_run();
   Program_run=(PROGRAM *)ps_malloc(sizeof(PROGRAM)*Program_size);
-  for(uint8_t a=0;a<Program_size;a++)
-    Program_run[a]=Program[a];
+  for(uint8_t a=0;a<Program_size;a++) Program_run[a]=Program[a];
+  
   Program_run_desc=(char *)ps_malloc((Program_desc.length()+1)*sizeof(char));
   strcpy(Program_run_desc,Program_desc.c_str());
   Program_run_name=(char *)ps_malloc((Program_name.length()+1)*sizeof(char));
@@ -375,11 +374,14 @@ static boolean is_it_dwell=false;
       return;
     }
 
-    if(Prefs[PRF_PID_TEMP_THRESHOLD].value.int16>-1){       // check if we are in threshold window - if not, pause
+    if(Prefs[PRF_PID_TEMP_THRESHOLD].value.int16>-1 && set_temp){       // check if we are in threshold window and there is temperature set already - if not, pause
+      //DBG Serial.printf("[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
       if(kiln_temp+Prefs[PRF_PID_TEMP_THRESHOLD].value.int16 < set_temp || kiln_temp-Prefs[PRF_PID_TEMP_THRESHOLD].value.int16 > set_temp){   // set_temp must be between kiln_temp +/- temp_threshold 
-        DBG Serial.printf("[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,kiln_temp-Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
-        PAUSE_Program();
+        DBG Serial.printf("[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,(int)Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
+        //PAUSE_Program();
         Program_run_state=PR_THRESHOLD;
+        Program_recalculate_ETA(false);
+        next_step_end+=10; 
         return;
       }else if(Program_run_state==PR_THRESHOLD) Program_run_state=PR_RUNNING;     
     }
@@ -423,8 +425,9 @@ static boolean is_it_dwell=false;
     DBG Serial.printf("[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Pid_out:%.2f Step: %d\n", kiln_temp, set_temp, temp_incr, pid_out, Program_run_step);
   }
 
-  if(Program_run_state!=PR_PAUSED) set_temp+=temp_incr;  // increase desire temperature...
+  if(Program_run_state!=PR_PAUSED && Program_run_state!=PR_THRESHOLD) set_temp+=temp_incr;  // increase desire temperature...
 }
+
 
 // Start running the in memory program
 //
@@ -456,6 +459,18 @@ void START_Program(){
 }
 
 
+// Check all possible safety measures - if something is wrong - abort
+//
+void SAFETY_Check(){
+  if(kiln_temp<Prefs[PRF_MIN_TEMP].value.uint8){
+    DBG Serial.printf("[PROG] Safety check failed - MIN temperature < %d\n",Prefs[PRF_MIN_TEMP].value.uint8);
+    ABORT_Program();
+  }else if(kiln_temp>Prefs[PRF_MAX_TEMP].value.uint16){
+    DBG Serial.printf("[PROG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
+    ABORT_Program();  
+  }
+}
+
 
 // Function that create task to handle program running
 //
@@ -465,45 +480,53 @@ uint32_t now;
 
  for(;;){
     
-   now = millis();
+    now = millis();
  
-  // Program one second tick
-  // 
-  if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
+    // Program one second tick
+    // 
+    if (xSemaphoreTake(timerSemaphore, 0) == pdTRUE){
 
-    // Update temperature readout
-    Update_Temperature();
+      // Update temperature readout
+      Update_TemperatureA();
 
-    // Do Main view screen refreshing if there is a program and if it's running
-    if(LCD_State==SCR_MAIN_VIEW && Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
-
-    if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
-      // Do all the program recalc
-      Program_calculate_steps();
-
-      // Do slow stuff every 10th second
-      //
-      cnt1++;
-      if(cnt1>9){
-        cnt1=0;
-        if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
-        DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%d WindowSize:%d Prg_state:%d\n",pid_out,(now - windowStartTime), Prefs[PRF_PID_WINDOW].value.uint16, (byte)Program_run_state);
+#ifdef MAXCS2
+      if(cnt1==3){  // just to make it in other time then next if cnt1
+        Update_TemperatureB();      // this does not have to be updated so often as kiln temp
       }
-    }
-  }
+#endif
 
-  // Do the PID stuff
-  if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
-    KilnPID.Compute();
+      // Do Main view screen refreshing if there is a program and if it's running
+      if(LCD_State==SCR_MAIN_VIEW && Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
 
-    if (now - windowStartTime > Prefs[PRF_PID_WINDOW].value.uint16){ //time to shift the Relay Window
-      windowStartTime += Prefs[PRF_PID_WINDOW].value.uint16;
+      if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED || Program_run_state==PR_THRESHOLD){
+        // Do all the program recalc
+        Program_calculate_steps();
+
+        // Do slow stuff every 10th second
+        //
+        cnt1++;
+        if(cnt1==5){
+          SAFETY_Check();
+        }else if(cnt1>9){
+          cnt1=0;
+          if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
+          DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%d WindowSize:%d Prg_state:%d\n",pid_out,(now - windowStartTime), Prefs[PRF_PID_WINDOW].value.uint16, (byte)Program_run_state);
+        }
+       }
     }
-    if (pid_out > now - windowStartTime) Enable_SSR();
-    else Disable_SSR();
+
+    // Do the PID stuff
+    if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED || Program_run_state==PR_THRESHOLD){
+      KilnPID.Compute();
+
+      if (now - windowStartTime > Prefs[PRF_PID_WINDOW].value.uint16){ //time to shift the Relay Window
+        windowStartTime += Prefs[PRF_PID_WINDOW].value.uint16;
+      }
+      if (pid_out > now - windowStartTime) Enable_SSR();
+      else Disable_SSR();
+    }
+    yield();
   }
-  yield();
- }
 }
 
 
