@@ -111,16 +111,15 @@ GND	| GND
 ESP32	| SSR
 --------|-------
 GND	| GND
-5V      | VIN
 19      | IN
 
 ESP32   | EMR (SLA-05VDC-SL-C)
 --------|----------------
 GND     | GND
-5V      | VIN
 21      | IN
+5-48V*  | VCC
 
-
+ * Do not connect 5V from ESP - use external source. This can be 5V-48V power supply.
 
 ## Power consideration
 
