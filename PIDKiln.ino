@@ -1,4 +1,3 @@
-
 /*
 ** PIDKiln v0.7 - high temperature kiln PID controller for ESP32
 **
@@ -29,7 +28,8 @@
 #include <FS.h>   // Include the SPIFFS library
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
-#include "soc/rtc_wdt.h"
+#include <soc/rtc_wdt.h>
+#include <esp_task_wdt.h>
 
 #include "PIDKiln.h"
 
@@ -65,11 +65,11 @@ boolean delete_file(File &newFile){
 char filename[32];
  if(newFile){
     strcpy(filename,newFile.name());
-    DBG Serial.printf("Deleting uploaded file: \"%s\"\n",filename);
+    DBG Serial.printf("[MAIN] Deleting uploaded file: \"%s\"\n",filename);
     newFile.flush();
     newFile.close();
     if(SPIFFS.remove(filename)){
-      DBG Serial.println("Deleted!");
+      DBG Serial.println("[MAIN] Deleted!");
     }
     Generate_INDEX(); // Just in case user wanted to overwrite existing file
     return true;
@@ -85,7 +85,7 @@ boolean check_valid_chars(byte a){
   if(a==10 || a==13) return true; // new line - Line Feed, Carriage Return
   if(a>=32 && a<=90) return true; // All basic characters, capital letters and numbers
   if(a>=97 && a<=122) return true; // small letters
-  DBG Serial.print("  Faulty character ->");
+  DBG Serial.print("[MAIN]  Faulty character ->");
   DBG Serial.print(a,DEC);
   DBG Serial.print(" ");
   DBG Serial.write(a);
@@ -110,16 +110,20 @@ char c;
 //
 void setup() {
 
-// This should disable watchdog killing asynctcp
+// This should disable watchdog killing asynctcp and others - one of this should work :)
+  esp_task_wdt_init(1,false);
+  esp_task_wdt_init(2,false);
   rtc_wdt_protect_off();
   rtc_wdt_disable();
+  disableCore0WDT();
+  disableCore1WDT();
 
   // Serial port for debugging purposes
   DBG Serial.begin(115200);
 
   // Initialize SPIFFS
   if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
-    DBG Serial.println("An Error has occurred while mounting SPIFFS");
+    DBG Serial.println("[MAIN] An Error has occurred while mounting SPIFFS");
     return;
   }
 
@@ -138,7 +142,7 @@ void setup() {
   if(Prefs[PRF_WIFI_SSID].type && strlen(Prefs[PRF_WIFI_SSID].value.str) && strlen(Prefs[PRF_WIFI_PASS].value.str)){
     load_msg("connecting WiFi..");
     if(Setup_WiFi()){    // !!! Wifi connection FAILED
-      DBG Serial.println("WiFi connection failed");
+      DBG Serial.println("[MAIN] WiFi connection failed");
       load_msg(" WiFi con. failed");
     }else{
       DBG Serial.println(WiFi.localIP()); // Print ESP32 Local IP Address
@@ -155,6 +159,9 @@ void setup() {
   // (re)generate programs index file /programs/index.html
   Generate_INDEX();
 
+  // Generate logs.html index
+  Generate_LOGS_INDEX();
+  
   // Setup program module
   Program_Setup();
 
@@ -163,10 +170,8 @@ void setup() {
 }
 
 
-// Just a tiny loop ;)
+// Just a tiny loop - to be deleted ;)
 //
 void loop() {
-// Input_Loop();
-// Program_Loop();
   vTaskDelete(NULL);
 }

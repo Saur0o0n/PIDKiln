@@ -13,6 +13,7 @@
  <div class="topnav" id="myTopnav">
   <a href="/index.html">Main view</a>
   <a href="/programs/index.html">Manage programs</a>
+  <a href="/logs/index.html">Logs</a>
   <a href="/preferences.html" class="active">Preferences</a>
   <a href="/about.html">About</a>
   <a href="/debug_board.html">Debug ESP</a>
@@ -130,22 +131,6 @@
     <legend> Program configuration </legend>
      <div class="row">
       <div class="col-25">
-	<label for="MIN_Temperature"> Minimal temperature </label>
-      </div>
-      <div class="col-75">
-	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4">C
-      </div>
-     </div>
-     <div class="row">
-      <div class="col-25">
-	<label for="MAX_Temperature"> Maximum temperature </label>
-      </div>
-      <div class="col-75">
-	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4">C
-      </div>
-     </div>
-     <div class="row">
-      <div class="col-25">
 	<label for="PID_Window"> PID Window size (ms) </label>
       </div>
       <div class="col-75">
@@ -199,6 +184,34 @@
       </div>
       <div class="col-75">
 	<input type="number" name="LOG_Window" min="0" max="3600" step="1" value="~LOG_Window~">s
+      </div>
+     </div>
+   </fieldset>
+
+   <fieldset>
+    <legend> Safety features </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="MIN_Temperature"> Minimal temperature </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4">C
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="MAX_Temperature"> Maximum temperature </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4">C
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="MAX_Housing_Temperature"> Maximum housing temperature </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="MAX_Housing_Temperature" min="10" max="250" value="~MAX_Housing_Temperature~" size="4">C
       </div>
      </div>
    </fieldset>

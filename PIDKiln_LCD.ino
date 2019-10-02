@@ -35,6 +35,9 @@ U8G2_ST7920_128X64_F_HW_SPI u8g2(U8G2_R2, /* CS=*/ LCD_CS, /* reset=*/ LCD_RESET
 **
 */
 
+
+
+
 // Cut string for LCD width, return 1 if there's something left
 // (input string, rest to output, screen width modificator, screen width, default = SCREEN_W)
 boolean return_LCD_string(char* msg,char* rest, int mod, uint16_t screen_w){
@@ -114,7 +117,7 @@ char rest[MAX_CHARS_PL];
   x_txt=x+(x_w-2-width)/2;            // find out how to put a text in the middle of the button
 
   u8g2.drawFrame(x,y-chh,x_w,chh);  // draw frame around text w+1 because start point is also counted to witdh
-  DBG Serial.printf("Width:%d cnt:%d el:%d x:%d x_txt:%d x_w:%d\n",SCREEN_W,cnt,el,x,x_txt,x_w);
+  DBG Serial.printf("[LCD] Width:%d cnt:%d el:%d x:%d x_txt:%d x_w:%d\n",SCREEN_W,cnt,el,x,x_txt,x_w);
   
   if(sel){
       u8g2.drawBox(x, y-chh, x_w, chh);
@@ -225,7 +228,7 @@ char msg[MAX_CHARS_PL];
   if(ttime) scx=(int)((mxx*100)/ttime);   // 1 minute is scx pixels * 100 on graph 
   if(mxtemp) scy=(int)((mxy*100)/mxtemp); // 1 celsius is scy pixel * 100
 
-  DBG Serial.printf("Graph. mxx:%d mxy:%d ttime:%d mxtemp:%d scx:%d scy:%d\n",mxx,mxy,ttime,mxtemp,scx,scy);
+  DBG Serial.printf("[LCD] Graph. mxx:%d mxy:%d ttime:%d mxtemp:%d scx:%d scy:%d\n",mxx,mxy,ttime,mxtemp,scx,scy);
 
   // Draw axies
   u8g2.drawHLine(1,SCREEN_H-1,mxx);
@@ -366,8 +369,8 @@ struct tm timeinfo,*tmm;
 
   // Print Step number/all steps and if it's Run od Dwell, print proportional heat time of SSR and case temperature
   //if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%%  Cse:%2dC",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100.0);
-  if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%%",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100);
-  else sprintf(msg,"Stp:0/%d r/d Ht:0%%  Cse:0C",Program_run_size);
+  if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%% Cse:%.0fC",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100,case_temp);
+  else sprintf(msg,"Stp:0/%d r/d Ht:0%% Cse:%.0fC",Program_run_size,case_temp);
   u8g2.drawStr(x,y+=chh-1,msg);
   
   u8g2.sendBuffer();
@@ -402,22 +405,22 @@ int m_startpos=LCD_Menu;
 uint8_t chh,center=5;
 
   LCD_State=SCR_MENU;
-  DBG Serial.printf("Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
+  DBG Serial.printf("[LCD] Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(FONT7);
   u8g2.setFontPosBaseline();
   chh=u8g2.getMaxCharHeight();
   center=floor((SCREEN_H-(chh+SCR_MENU_SPACE)*SCR_MENU_LINES)/2); // how much we have to move Y to be on the middle with all menu
-  DBG Serial.printf("In menu we can print %d lines, with %dpx space, and char height %d\n",SCR_MENU_LINES,SCR_MENU_SPACE,chh);
+  DBG Serial.printf("[LCD] In menu we can print %d lines, with %dpx space, and char height %d\n",SCR_MENU_LINES,SCR_MENU_SPACE,chh);
   
   if(LCD_Menu>SCR_MENU_MIDDLE) m_startpos=LCD_Menu-(SCR_MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from LCD_Menu - SCR_MENU_MIDDLE-1
   else if(LCD_Menu<=SCR_MENU_MIDDLE) m_startpos=LCD_Menu-SCR_MENU_MIDDLE+1;  // if current menu pos < middle part - start
-  DBG Serial.printf(" Start pos is %d, chosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
+  DBG Serial.printf("[LCD] Start pos is %d, chosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
   
   for(int a=1; a<=SCR_MENU_LINES; a++){
     if(a==SCR_MENU_MIDDLE){   // reverse colors if we print middle part o menu
       u8g2.setDrawColor(1); /* color 1 for the box */
-      DBG Serial.printf("x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+SCR_MENU_SPACE+center, SCREEN_W , chh+SCR_MENU_SPACE);
+      DBG Serial.printf("[LCD] x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+SCR_MENU_SPACE+center, SCREEN_W , chh+SCR_MENU_SPACE);
       u8g2.drawBox(0, (a-1)*chh+SCR_MENU_SPACE+center+1, SCREEN_W , chh+SCR_MENU_SPACE);
       u8g2.setDrawColor(0);
     }
@@ -457,12 +460,12 @@ char msg[MAX_CHARS_PL];
     max_lines+=start_pos;
     if(max_lines>Programs_DIR_size) max_lines=Programs_DIR_size;
   }
-  DBG Serial.printf(" Start pos:%d, sel_prg:%d, max_lines:%d\n",start_pos,sel,max_lines);
+  DBG Serial.printf("[LCD] Start pos:%d, sel_prg:%d, max_lines:%d\n",start_pos,sel,max_lines);
   
   for(start_pos; start_pos<max_lines && start_pos<Programs_DIR_size; start_pos++){
     if(Programs_DIR[start_pos].filesize<999) sprintf(msg,"%-15.15s %3db",Programs_DIR[start_pos].filename,Programs_DIR[start_pos].filesize);
     else sprintf(msg,"%-15.15s %2dkb",Programs_DIR[start_pos].filename,(int)(Programs_DIR[start_pos].filesize/1024));
-    DBG Serial.printf(" Program list:%s: sel:%d\n",msg,Programs_DIR[start_pos].sel);
+    DBG Serial.printf("[LCD] Program list:%s: sel:%d\n",msg,Programs_DIR[start_pos].sel);
     if(Programs_DIR[start_pos].sel){
       u8g2.setDrawColor(1);
       u8g2.drawBox(0,y,SCREEN_W,chh);
@@ -611,7 +614,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
   DBG Serial.printf("[LCD] Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Programs_DIR[sel].filename);
   
   sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
-  DBG Serial.printf("\tprogram path: %s\n",file_path);
+  DBG Serial.printf("[LCD]\tprogram path: %s\n",file_path);
   if(SPIFFS.exists(file_path)){
     u8g2.clearBuffer();
     
@@ -659,7 +662,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     sprintf(msg,"Time:%uh %dm",total_t/60,total_t%60);
     DrawMenuEl(msg,y,2,2,0);
     
-    DBG Serial.printf(" Creating program menu prog_menu:%d dir:%d\n",prog_menu,dir);
+    DBG Serial.printf("[LCD] Creating program menu prog_menu:%d dir:%d\n",prog_menu,dir);
     prog_menu+=dir;
     if(prog_menu>=Prog_Menu_Size) prog_menu=Prog_Menu_Size-1;
     else if(prog_menu<0) prog_menu=0;
@@ -919,8 +922,7 @@ void LCD_Reconect_WiFi(){
     load_msg(" No WiFi SSID set!");
     return;
   }
-  WiFi.disconnect();
-  load_msg("connecting WiFi..");
+  load_msg("Reconnecting WiFi..");
   if(Setup_WiFi()){    // !!! Wifi connection FAILED
     DBG Serial.println("[LCD] WiFi connection failed");
     load_msg(" WiFi con. failed");

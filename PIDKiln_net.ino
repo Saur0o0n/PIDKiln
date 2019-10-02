@@ -30,7 +30,7 @@ bool wifi_failed=true;
 void printLocalTime(){
 struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
+    Serial.println("[NET] Failed to obtain time");
     return;
   }
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
@@ -47,28 +47,28 @@ char *tmp,msg[20];
 
   strcpy(msg,Prefs[PRF_INIT_DATE].value.str);
   tmp=strtok(msg,".-:");
-  DBG Serial.printf("Y:%s ",tmp);
+  DBG Serial.printf("[NET] Y:%s ",tmp);
   mytm.tm_year = atoi(tmp)-1900;  // year after 1900
   
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("M:%s ",tmp);
+  DBG Serial.printf("[NET] M:%s ",tmp);
   mytm.tm_mon = atoi(tmp)-1;        //0-11 WHY???
   
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("D:%s ",tmp);
+  DBG Serial.printf("[NET] D:%s ",tmp);
   mytm.tm_mday = atoi(tmp);       //1-31 - depending on month
 
   strcpy(msg,Prefs[PRF_INIT_TIME].value.str);
   tmp=strtok(msg,".-:");
-  DBG Serial.printf("\tH:%s ",tmp);
+  DBG Serial.printf("[NET] H:%s ",tmp);
   mytm.tm_hour = atoi(tmp);       //0-23
 
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("m:%s ",tmp);
+  DBG Serial.printf("[NET] m:%s ",tmp);
   mytm.tm_min = atoi(tmp);        //0-59
 
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("s:%s\n",tmp);
+  DBG Serial.printf("[NET] s:%s\n",tmp);
   mytm.tm_sec = atoi(tmp);        //0-59
   
   time_t t = mktime(&mytm);
@@ -102,4 +102,18 @@ struct tm timeinfo;
     setup_webserver(); // Setup function for Webserver from PIDKiln_http.ino
     return 0;
   }else return 1;
+}
+
+boolean Restart_WiFi(){
+  server.end();
+  sleep(100);
+
+  for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
+    delay(1000);
+    if (WiFi.disconnect()){ // disconnected!
+      delay(500);
+      return Setup_WiFi();
+    }
+  }
+  return 1;
 }

@@ -12,23 +12,23 @@ boolean Change_prefs_value(String item, String value){
       if(Prefs[a].type==STRING){
         if(Prefs[a].value.str) free(Prefs[a].value.str);
         Prefs[a].value.str=strdup(value.c_str());
-        DBG Serial.printf("  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
+        DBG Serial.printf("[PREFS]  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==UINT8){
         Prefs[a].value.uint8=(uint8_t)value.toInt();
-        DBG Serial.printf("  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+        DBG Serial.printf("[PREFS]  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==UINT16){
         Prefs[a].value.uint16=(uint16_t)value.toInt();
-        DBG Serial.printf("  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+        DBG Serial.printf("[PREFS]  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==INT16){
         Prefs[a].value.int16=(uint16_t)value.toInt();
-        DBG Serial.printf("  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
+        DBG Serial.printf("[PREFS]  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==VFLOAT){
         Prefs[a].value.vfloat=(double)value.toDouble();
-        DBG Serial.printf("  -> For %s saved VFLOAT item value:%f type:%d\n",PrefsName[a],Prefs[a].value.vfloat,(int)Prefs[a].type);
+        DBG Serial.printf("[PREFS]  -> For %s saved VFLOAT item value:%f type:%d\n",PrefsName[a],Prefs[a].value.vfloat,(int)Prefs[a].type);
         return true;
       }
     }
@@ -96,10 +96,10 @@ int pos=0;
     // For debuging only
     DBG Serial.println("[PREFS] -=-=-= PREFS DISPLAY =-=-=-");
     for(uint16_t a=0; a<PRF_end; a++){
-      if(Prefs[a].type==STRING) DBG Serial.printf(" %d) '%s' = '%s'\t%d\n",a,PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
-      if(Prefs[a].type==UINT8) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
-      if(Prefs[a].type==UINT16) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
-      if(Prefs[a].type==INT16) DBG Serial.printf(" %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
+      if(Prefs[a].type==STRING) DBG Serial.printf("[PREFS] %d) '%s' = '%s'\t%d\n",a,PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
+      if(Prefs[a].type==UINT8) DBG Serial.printf("[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+      if(Prefs[a].type==UINT16) DBG Serial.printf("[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+      if(Prefs[a].type==INT16) DBG Serial.printf("[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
     }
 }
 
@@ -171,15 +171,6 @@ char tmp[30];
         Prefs[PRF_INIT_TIME].value.str=strdup("12:00:00");
         break;
 
-      case PRF_MIN_TEMP:
-        Prefs[PRF_MIN_TEMP].type=UINT8;
-        Prefs[PRF_MIN_TEMP].value.uint8=10;
-        break;
-      case PRF_MAX_TEMP:
-        Prefs[PRF_MAX_TEMP].type=UINT16;
-        Prefs[PRF_MAX_TEMP].value.uint16=1350;
-        break;
-
       case PRF_PID_WINDOW:  // how often recaluclate SSR on/off - 5second window default
         Prefs[PRF_PID_WINDOW].type=UINT16;
         Prefs[PRF_PID_WINDOW].value.uint16=5000;
@@ -208,6 +199,19 @@ char tmp[30];
       case PRF_LOG_WINDOW:
         Prefs[PRF_LOG_WINDOW].type=UINT16;
         Prefs[PRF_LOG_WINDOW].value.uint16=30;
+        break;
+
+      case PRF_MIN_TEMP:
+        Prefs[PRF_MIN_TEMP].type=UINT8;
+        Prefs[PRF_MIN_TEMP].value.uint8=10;
+        break;
+      case PRF_MAX_TEMP:
+        Prefs[PRF_MAX_TEMP].type=UINT16;
+        Prefs[PRF_MAX_TEMP].value.uint16=1350;
+        break;
+      case PRF_MAX_HOUS_TEMP:
+        Prefs[PRF_MAX_HOUS_TEMP].type=UINT16;
+        Prefs[PRF_MAX_HOUS_TEMP].value.uint16=130;
         break;
         
       default:

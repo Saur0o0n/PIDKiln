@@ -1,5 +1,5 @@
 /*
-** Pidkiln input (rotary encoder, buttons) subsystem
+** Pidkiln program routines - main program functions and all PID magic
 **
 */
 #include <PID_v1.h>
@@ -40,7 +40,7 @@ int multi=1;
   // Looking for line dddd:dddd:dddd (temperature:time in minutes:time in minutes) - assume max 1350:9999:9999
   char p_line[15];
   strcpy(p_line,linia.c_str());
-  DBG Serial.printf(" Sanitizing line: '%s'\n",p_line);
+  DBG Serial.printf("[PRG] Sanitizing line: '%s'\n",p_line);
   a=linia.length(); // going back to front
   prg[2]=0;prg[1]=prg[0]=0;
   while(a--){
@@ -60,7 +60,7 @@ int multi=1;
   Program[Program_size].temp=prg[0];
   Program[Program_size].togo=prg[1];
   Program[Program_size].dwell=prg[2];
-  DBG Serial.printf("Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
+  DBG Serial.printf("[PRG] Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
   Program_size++;
   return 0;
 }
@@ -78,14 +78,14 @@ File prg;
 
   if(file){  // if function got an argument - this can happen if you want to validate new program uploaded by http
     sprintf(file_path,"%s/%s",PRG_Directory,file);
-    DBG Serial.printf("Got pointer to load:'%s'\n",file);
+    DBG Serial.printf("[PRG] Got pointer to load:'%s'\n",file);
     Program_name=String(file);
   }else{
     if((sel=Find_selected_program())<0) return Cleanup_program(1);
     sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
     Program_name=String(Programs_DIR[sel].filename);
   }
-  DBG Serial.printf("Load program name: '%s'\n",file_path);
+  DBG Serial.printf("[PRG] Load program name: '%s'\n",file_path);
   
   if(prg = SPIFFS.open(file_path,"r")){
     Program_desc="";  // erase current program
@@ -95,9 +95,9 @@ File prg;
       line.trim();
       if(!line.length()) continue; // empty line - skip it
       
-      DBG Serial.printf("Raw line: '%s'\n",line.c_str());
+      DBG Serial.printf("[PRG] Raw line: '%s'\n",line.c_str());
       if(line.startsWith("#")){ // skip every comment line
-        DBG Serial.println("  comment");
+        DBG Serial.println("[PRG]  comment");
         if(!Program_desc.length()){
           line=line.substring(1);  // If it's the first line with comment - copy it without trailing #
           line.trim();
@@ -113,10 +113,10 @@ File prg;
         if(line.length()>15) return Cleanup_program(2);  // program line too long
         else if(err=add_program_line(line)) return Cleanup_program(err); // line adding failed!!
         
-        DBG Serial.printf("San line: '%s'\n",line.c_str());
+        DBG Serial.printf("[PRG] San line: '%s'\n",line.c_str());
       }
     }
-    DBG Serial.printf("Found description: %s\n",Program_desc.c_str());
+    DBG Serial.printf("[PRG] Found description: %s\n",Program_desc.c_str());
     if(!Program_desc.length()) Program_desc="No description";   // if after reading file program still has no description - add it
     
     return 0;
@@ -154,7 +154,7 @@ File dir,file;
     Programs_DIR[Programs_DIR_size].filesize=file.size();
     Programs_DIR[Programs_DIR_size].sel=0;
     
-    DBG Serial.printf("FName: %s\t FSize:%d\tSel:%d\n",Programs_DIR[Programs_DIR_size].filename,Programs_DIR[Programs_DIR_size].filesize,Programs_DIR[Programs_DIR_size].sel);
+    DBG Serial.printf("[PRG] FName: %s\t FSize:%d\tSel:%d\n",Programs_DIR[Programs_DIR_size].filename,Programs_DIR[Programs_DIR_size].filesize,Programs_DIR[Programs_DIR_size].sel);
     
     Programs_DIR_size++;
   }
@@ -463,10 +463,10 @@ void START_Program(){
 //
 void SAFETY_Check(){
   if(kiln_temp<Prefs[PRF_MIN_TEMP].value.uint8){
-    DBG Serial.printf("[PROG] Safety check failed - MIN temperature < %d\n",Prefs[PRF_MIN_TEMP].value.uint8);
+    DBG Serial.printf("[PRG] Safety check failed - MIN temperature < %d\n",Prefs[PRF_MIN_TEMP].value.uint8);
     ABORT_Program();
   }else if(kiln_temp>Prefs[PRF_MAX_TEMP].value.uint16){
-    DBG Serial.printf("[PROG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
+    DBG Serial.printf("[PRG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
     ABORT_Program();  
   }
 }
@@ -489,6 +489,10 @@ uint32_t now;
       // Update temperature readout
       Update_TemperatureA();
 
+       // Do slow stuff every 10th second - cnt1=[0..9]
+       //
+      if(cnt1>9) cnt1=0;
+      else cnt1++;
 #ifdef MAXCS2
       if(cnt1==3){  // just to make it in other time then next if cnt1
         Update_TemperatureB();      // this does not have to be updated so often as kiln temp
@@ -502,12 +506,9 @@ uint32_t now;
         // Do all the program recalc
         Program_calculate_steps();
 
-        // Do slow stuff every 10th second
-        //
-        cnt1++;
-        if(cnt1==5){
+        if(cnt1==6){
           SAFETY_Check();
-        }else if(cnt1>9){
+        }else if(cnt1==9){
           cnt1=0;
           if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
           DBG Serial.printf("[PRG] Pid_out:%.2f Now-window:%d WindowSize:%d Prg_state:%d\n",pid_out,(now - windowStartTime), Prefs[PRF_PID_WINDOW].value.uint16, (byte)Program_run_state);

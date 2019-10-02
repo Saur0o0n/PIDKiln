@@ -91,7 +91,7 @@ void rotate(){
     return;
   }
   }else if(LCD_State==SCR_MENU){
-    DBG Serial.printf("Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
+    DBG Serial.printf("[INPUT] Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
     if(encoderValue<0){
       if(LCD_Menu>M_SCR_MAIN_VIEW) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu-1);
     }else{
@@ -100,7 +100,7 @@ void rotate(){
     LCD_display_menu();
     return;
   }else if(LCD_State==SCR_PROGRAM_LIST){
-    DBG Serial.printf("Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
+    DBG Serial.printf("[INPUT] Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
     rotate_selected_program(encoderValue);
     LCD_display_programs();
   }else if(LCD_State==SCR_PROGRAM_SHOW) LCD_Display_program_summary(encoderValue,1);
@@ -134,10 +134,10 @@ void Input_Loop(void * parameter) {
       vTaskDelay( ENCODER_BUTTON_DELAY / portTICK_PERIOD_MS );
       if(digitalRead(ENCODER0_BUTTON)!=LOW){ // Button is still pressed - skip, perhaps it's a long press
         if(encoderButton+Long_Press>=millis()){ // quick press
-          DBG Serial.printf("Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
+          DBG Serial.printf("[INPUT] Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
           button_Short_Press();
         }else{  // long press
-          DBG Serial.printf("Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
+          DBG Serial.printf("[INPUT] Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
           button_Long_Press();
         }
         encoderButton=0;
@@ -145,7 +145,7 @@ void Input_Loop(void * parameter) {
     }else if(encoderValue!=0){
       vTaskDelay(ENCODER_ROTATE_DELAY / portTICK_PERIOD_MS);
       rotate(); // encoderValue is global..
-      DBG Serial.printf("Encoder rotated %d\n",encoderValue);
+      DBG Serial.printf("[INPUT] Encoder rotated %d\n",encoderValue);
       encoderValue=0;
     }
     yield();

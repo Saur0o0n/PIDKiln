@@ -126,7 +126,8 @@ typedef enum { // program menu positions
 PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
 const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended","Waiting"};
 
-/* Program errors:
+/* 
+**  Program errors:
 */
 typedef enum {
   PR_ERR_FILE_LOAD,       // failed to load file
@@ -154,8 +155,12 @@ struct DIRECTORY {
   uint8_t sel=0;
 };
 
-DIRECTORY* Programs_DIR;
+DIRECTORY* Programs_DIR=NULL;
 uint16_t Programs_DIR_size=0;
+
+DIRECTORY* Logs_DIR=NULL;
+uint16_t Logs_DIR_size=0;
+
 /* Directory loading errors:
 ** 1 - cant open "/programs" directory
 ** 2 - file name is too long or too short (this should not happened)
@@ -169,11 +174,11 @@ uint16_t Programs_DIR_size=0;
 */
 #define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
-#define DBG if(DEBUG)
+const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
+
+const char *LOG_Directory = "/logs";
 
 #define FORMAT_SPIFFS_IF_FAILED true
-
-const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
 
 /*
 **  Preference definitions
@@ -200,9 +205,6 @@ typedef enum { // program menu positions
   PRF_INIT_DATE,
   PRF_INIT_TIME,
   
-  PRF_MIN_TEMP,
-  PRF_MAX_TEMP,
-
   PRF_PID_WINDOW,
   PRF_PID_KP,
   PRF_PID_KI,
@@ -211,6 +213,10 @@ typedef enum { // program menu positions
   PRF_PID_TEMP_THRESHOLD,
 
   PRF_LOG_WINDOW,
+
+  PRF_MIN_TEMP,
+  PRF_MAX_TEMP,
+  PRF_MAX_HOUS_TEMP,
   
   PRF_end
 } PREFERENCES;
@@ -218,9 +224,9 @@ typedef enum { // program menu positions
 const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
-"MIN_Temperature","MAX_Temperature",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window",
+"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature",
 };
 
 // Preferences types definitions
@@ -248,14 +254,16 @@ struct PrefsStruct {
 struct PrefsStruct Prefs[PRF_end];
 
 // Pointer to a log file
-File LOGFile;
+File CSVFile,LOGFile;
 
 /*
 ** Other stuff
 **
 */
 const char *PVer = "PIDKiln v0.8";
-const char *PDate = "2019.09.30";
+const char *PDate = "2019.10.02";
+
+#define DBG if(DEBUG)
 
 /*
 ** Function defs
