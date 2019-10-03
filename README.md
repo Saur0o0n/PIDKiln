@@ -13,7 +13,7 @@ This is still work in progress, but since of release v0.7 (2019.09.24) it's full
 - safety features build in (temperature run out protection, probe failure, SSR failure, kiln insulation failure)
 - simply cool and cheap (comparing to commercially available products) all in one solution
 
-![LCD menu sample](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/images/PIDKiln_LCD_sample.png)
+![LCD menu sample](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/images/PIDKiln_LCD_sample2.png)
 
 ## Required components:
 - ESP32 board
@@ -120,6 +120,8 @@ GND     | GND
 5-48V*  | VCC
 
  * Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
+
+![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_wiring.png)
 
 ## Power consideration
 
