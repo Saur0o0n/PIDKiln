@@ -119,7 +119,7 @@ GND     | GND
 21      | IN
 5-48V*  | VCC
 
- * Do not connect 5V from ESP - use external source. This can be 5V-48V power supply.
+ * Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
 
 ## Power consideration
 
