@@ -16,7 +16,8 @@ table.debug th {
   font-weight: bold;
   background-color: #4CAF50;
   color: white;
-  padding: 10px;
+  padding: 8px;
+  padding-left: 20px;
   border-radius: 7px;
 }
 

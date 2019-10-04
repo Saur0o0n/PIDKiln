@@ -217,6 +217,7 @@ typedef enum { // program menu positions
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
   PRF_MAX_HOUS_TEMP,
+  PRF_THERMAL_RUN,
   
   PRF_end
 } PREFERENCES;
@@ -226,7 +227,7 @@ const char *PrefsName[]={
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window",
-"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature",
+"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway",
 };
 
 // Preferences types definitions

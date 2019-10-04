@@ -270,7 +270,7 @@ char msg[MAX_CHARS_PL];
     currt=time(NULL)-Program_run_start;     // where are we now?
     prop=(float)currt/(float)fullt;   // current progress status
     u8g2.setDrawColor(2);
-    DBG Serial.printf("[LCD] Redrawing box on graph width:%d fullt:%d currt:%d prop:%f\n",(int)((SCREEN_W-2)*prop),fullt,currt,prop);
+    DBG Serial.printf("[LCD] Redrawing box on graph width:%.2f fullt:%d currt:%d prop:%f\n",(float)((SCREEN_W-2)*prop),fullt,currt,prop);
     u8g2.drawBox(2,1,(int)((SCREEN_W-2)*prop),SCREEN_H-2);
     u8g2.setDrawColor(1);
     u8g2.sendBuffer();
@@ -323,9 +323,9 @@ struct tm timeinfo,*tmm;
   // Program status & Clock
   u8g2.drawFrame(0,y-chh, SCREEN_W, chh+1);
   u8g2.drawFrame(0,y-chh, SCREEN_W/2, chh+1);
-  if(getLocalTime(&timeinfo)) sprintf(msg," %d:%02d:%02d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+  if(getLocalTime(&timeinfo)) strftime(msg, 20, "%T", &timeinfo);
   else sprintf(msg," No time");
-  u8g2.drawStr(SCREEN_W/2,y,msg);
+  u8g2.drawStr(SCREEN_W/2+3,y,msg);
 
   // Start time
   u8g2.setFont(FONT6);
@@ -844,7 +844,7 @@ struct tm timeinfo;
   sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
   u8g2.drawStr(x,y+=chh,msg);
   
-  if(getLocalTime(&timeinfo)) sprintf(msg,"Date:%4d-%02d-%02d %d:%02d:%02d",(1900+timeinfo.tm_year),(timeinfo.tm_mon+1),timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+  if(getLocalTime(&timeinfo)) strftime(msg, MAX_CHARS_PL, "%F %T", &timeinfo);
   else sprintf(msg,"Failed to acquire time");
   u8g2.drawStr(x,y+=chh,msg);
 

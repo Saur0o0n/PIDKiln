@@ -150,7 +150,6 @@ void Input_Loop(void * parameter) {
     }
     yield();
   }
-  vTaskDelete(NULL);
 }
 
 
@@ -190,11 +189,12 @@ void Setup_Input() {
   attachInterrupt(ENCODER0_PINB, handleInterrupt, CHANGE);
   attachInterrupt(ENCODER0_BUTTON, handleInterrupt, FALLING);
 
-  xTaskCreate(
+  xTaskCreatePinnedToCore(
+//  xTaskCreate(
               Input_Loop,       /* Task function. */
               "Input_loop",     /* String with name of task. */
               4096,             /* Stack size in bytes. */
               NULL,             /* Parameter passed as input of the task */
               1,                /* Priority of the task. */
-              NULL);            /* Task handle. */
+              NULL,0);            /* Task handle. */
 }

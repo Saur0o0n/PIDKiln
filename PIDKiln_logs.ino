@@ -7,7 +7,7 @@
 //
 void Init_log_file(){
 char str[33];
-struct tm timeinfo;
+struct tm timeinfo, *tmm;
 
   if(CSVFile) CSVFile.close();
   if(getLocalTime(&timeinfo)) strftime(str, 32, "/logs/%y%m%d_%H%M%S.csv", &timeinfo); //YYMMDD_HHMMSS.log
@@ -27,13 +27,21 @@ struct tm timeinfo;
     if(LOGFile=SPIFFS.open(str, "w")){
       LOGFile.printf("Program name: %s\n",Program_run_name);
       LOGFile.printf("Program desc: %s\n",Program_run_desc);
-      LOGFile.printf("Started at: %d\n",Program_run_start);
-      LOGFile.printf("Possible end at: %d\n",Program_run_end);
+      if(tmm = localtime(&Program_run_start)){
+        strftime(str, 29, "%F %T", tmm);
+        LOGFile.printf("Started at: %s\n", str);
+      }
+      if(tmm = localtime(&Program_run_end)){
+        strftime(str, 29, "%F %T", tmm);
+        LOGFile.printf("Possible end at: %s\n", str);
+      }
       LOGFile.printf("PID values. Kp:%.2f Kd:%.2f Ki:%.2f\n",Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KD].value.vfloat,Prefs[PRF_PID_KI].value.vfloat);
       LOGFile.printf("Start temperature: %.1fC\n",kiln_temp);
       LOGFile.printf("CSV filename: %s\n-=-=-= Starting program =-=-=-=-\n",str);
       LOGFile.flush();
 //      LOGFile.close();
+    }else{
+      DBG Serial.printf("[LOG] Failed to create .log file: %s\n",str);
     }
   }
   Generate_LOGS_INDEX();
@@ -45,7 +53,7 @@ struct tm timeinfo;
 void Add_log_line(){
 String tmp;
 char str[30];
-struct tm timeinfo;
+struct tm timeinfo,*tmm;
                  
   if(CSVFile){
     if(getLocalTime(&timeinfo)) strftime(str, 29, "%F %T", &timeinfo);

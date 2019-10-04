@@ -559,12 +559,13 @@ void Program_Setup(){
   Load_program("test_up_down.txt");
   Load_program_to_run();
 
-  xTaskCreate(
+  xTaskCreatePinnedToCore(
+//  xTaskCreate(
               Program_Loop,    /* Task function. */
               "Program_loop",  /* String with name of task. */
               4096,             /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
-              2,               /* Priority of the task. */
-              NULL);           /* Task handle. */
+              1,               /* Priority of the task. */
+              NULL,0);           /* Task handle. */
                     
 }

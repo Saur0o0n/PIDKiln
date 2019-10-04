@@ -5,7 +5,7 @@
 #include <soc/efuse_reg.h>
 #include <Esp.h>
 #include <ESPAsyncWebServer.h>
-
+#include <U8g2lib.h>
 // Other variables
 //
 String template_str;  // Stores template pareser output
@@ -583,7 +583,7 @@ int params = request->params();
 //
 String handleVars(const String& var){
 char str[30];
-struct tm *timeinfo,tmm;
+struct tm timeinfo, *tmm;
 
   if(var=="KILN_TEMP") return String(kiln_temp);
   else if(var=="SET_TEMP") return String(set_temp);
@@ -599,18 +599,15 @@ struct tm *timeinfo,tmm;
     return String(Program_run_step+1)+" of "+String(Program_run_size)+" - "+String(str);
   }
   else if(var=="CURR_TIME"){
-    struct tm tmm;
-    if(getLocalTime(&tmm)){
-      strftime (str, 29, "%F %T", &tmm);
+    if(getLocalTime(&timeinfo)){
+      strftime (str, 29, "%F %T", &timeinfo);
       return String(str);
     }
   }else if(var=="PROG_START" && Program_run_start){
-    struct tm *tmm;
     tmm = localtime(&Program_run_start);
     strftime (str, 29, "%F %T", tmm);
     return String(str);
   }else if(var=="PROG_END" && Program_run_end){
-    struct tm *tmm;
     tmm = localtime(&Program_run_end);
     strftime (str, 29, "%F %T", tmm);
     return String(str);
@@ -621,32 +618,32 @@ struct tm *timeinfo,tmm;
   else return String(" "); 
 }
 
+char *screenshot;
+void out(const char *s){
+  strcat(screenshot,s);
+}
 
 // Function writing LCD screenshot over WWW - not perfect - but working
 //
 void do_screenshot(AsyncWebServerRequest *request){
-uint8_t *addr=u8g2.getBufferPtr();
-char img[256];
-int c=0;
 
-  //AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-portable-bitmap", img);
+  screenshot=(char *)ps_malloc(SCREEN_W*SCREEN_H*2*sizeof(char)+1);
+  if(screenshot==NULL){
+    DBG Serial.println("[HTTP] Failed to allocate memory for screenshot");
+    request->send(500);
+    return;
+  }
+  *screenshot='\0';
+  //strcpy(screenshot,"");
+
   AsyncResponseStream *response = request->beginResponseStream("image/x-portable-bitmap");
   response->addHeader("Server","ESP Async Web Server");
-  response->addHeader("Content-Disposition","attachment; filename=\"img.pbm\"");
-  response->println("P1");
-  response->println("128 64");
+  response->addHeader("Content-Disposition","attachment; filename=\"PIDKiln_screenshot.pbm\"");
 
-  for(int a=0; a< u8g2.getBufferTileWidth()*u8g2.getDisplayHeight() ; a++){
-    for(int b=7; b>=0; b--){
-      img[c]=(addr[a] & (1u << b) ? '1' : '0');
-      c++;
-    }
-    if(a%16==0 && a!=0){
-      img[c]='\0';
-      response->println(img);
-      c=0;
-    }
-  }
+  u8g2_WriteBufferPBM2(u8g2.getU8g2(),out);
+  response->println(screenshot);
+  free(screenshot);
+  
   request->send(response);
 }
 

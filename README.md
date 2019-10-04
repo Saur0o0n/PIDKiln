@@ -152,4 +152,6 @@ connected directly to USB 5v output - but then you are limited by USB output and
 
 - Perhaps to add the power meter
 - Online firmware flashing
+- RTC clock for better timing and no Internet installations
+
 
