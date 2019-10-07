@@ -12,6 +12,9 @@
 #define MAXCS1  15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
 #define MAXCS2  27  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
+// If you have power meter - uncoment this
+//#define ENERGY_MON_PIN 33       // if you don't use - comment out
+
 /*
 ** Temperature, PID and probes variables/definitions
 */

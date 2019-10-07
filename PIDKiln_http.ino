@@ -310,6 +310,8 @@ char *str;
   }else if(var == "LOG_FILE"){
     if(CSVFile) return CSVFile.name();
     else return String("/logs/test.csv");
+  }else if(var == "PROGRAM_NAME"){
+    return String(Program_run_name);
   }else if(var == "CONFIG"){        // if we have log fie to show - show it on graph, otherwise show just program graph
     if(CSVFile) return String("config_with");
     else return String("config_without");
@@ -399,7 +401,7 @@ String tmp=String(PRG_Directory);
     if (newFile) newFile.close();
     newFile = SPIFFS.open( tmp.c_str(), "w");
   }
-  DBG Serial.println(" Next iteration of file upload...");
+  DBG Serial.println("[HTTP] Next iteration of file upload...");
   for(size_t i=0; i<len; i++){
     if(!check_valid_chars(data[i])){ // Basic sanitization - check for allowed characters
       request->send(200, "text/html", "<html><body><h1>File contains not allowed character(s)!</h1> You can use all letters, numbers and basic symbols in ASCII code.<br><br><a href=/>Return to main view</a></body></html");
@@ -618,13 +620,11 @@ struct tm timeinfo, *tmm;
   else return String(" "); 
 }
 
-char *screenshot;
-void out(const char *s){
-  strcat(screenshot,s);
-}
 
-// Function writing LCD screenshot over WWW - not perfect - but working
+// Function(s) writing LCD screenshot over WWW - not perfect - but working
 //
+char *screenshot;
+void out(const char *s){strcat(screenshot,s);}
 void do_screenshot(AsyncWebServerRequest *request){
 
   screenshot=(char *)ps_malloc(SCREEN_W*SCREEN_H*2*sizeof(char)+1);

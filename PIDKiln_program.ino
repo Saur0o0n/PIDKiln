@@ -488,9 +488,9 @@ uint32_t now;
 
       // Update temperature readout
       Update_TemperatureA();
-
-       // Do slow stuff every 10th second - cnt1=[0..9]
-       //
+        
+      // Do slow stuff every 10th second - cnt1=[0..9]
+      //
       if(cnt1>9) cnt1=0;
       else cnt1++;
 #ifdef MAXCS2
@@ -498,7 +498,11 @@ uint32_t now;
         Update_TemperatureB();      // this does not have to be updated so often as kiln temp
       }
 #endif
-
+#ifdef ENERGY_MON_PIN
+      if(cnt1==4){
+        Read_Energy_INPUT();
+      }
+#endif
       // Do Main view screen refreshing if there is a program and if it's running
       if(LCD_State==SCR_MAIN_VIEW && Program_run_size && LCD_Main==MAIN_VIEW1) LCD_display_mainv1();
 
@@ -556,8 +560,8 @@ void Program_Setup(){
   timerAlarmEnable(timer);
 
 // For testing!!!
-  Load_program("test_up_down.txt");
-  Load_program_to_run();
+//  Load_program("test_up_down.txt");
+//  Load_program_to_run();
 
   xTaskCreatePinnedToCore(
 //  xTaskCreate(

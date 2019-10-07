@@ -8,6 +8,16 @@
 SPIClass *ESP32_SPI = new SPIClass(HSPI);
 Adafruit_MAX31855 ThermocoupleA(MAXCS1);
 
+// If we have defines power meter pins
+#ifdef ENERGY_MON_PIN
+#include <EmonLib.h>
+#define ENERGY_MON_AMPS 30      // how many amps produces 1V on your meter (usualy with voltage output meters it's their max value).
+#define EMERGY_MON_VOLTAGE 230  // what is your mains voltage
+
+EnergyMonitor emon1;
+#endif
+
+// If you have second thermoucouple
 #ifdef MAXCS2
 Adafruit_MAX31855 ThermocoupleB(MAXCS2);
 #endif
@@ -102,6 +112,23 @@ double case_tmp1,case_tmp2;
 #endif
 
 
+// Measure current power usage - to be expanded
+//
+void Read_Energy_INPUT(){
+double Irms;
+
+#ifdef ENERGY_MON_PIN
+  Irms = emon1.calcIrms(1480);  // Calculate Irms only; 1480:number of samples
+  if(Irms<0.25) return;   // In my case everything below is just noise. Comparing to 10-30A we are going to use we can ignore it. Final readout is correct.  
+  DBG Serial.printf("[ADDONS] VCC:%d Energy input is. Power: %f, current: %f\n",emon1.readVcc(),Irms*EMERGY_MON_VOLTAGE,Irms);
+#else
+  return;
+#endif
+//  DBG Serial.printf("[ADDONS] Raw read: %d\n",analogRead(ENERGY_MON_PIN));
+}
+
+
+
 void Setup_Addons(){
   pinMode(EMR_RELAY_PIN, OUTPUT);
   pinMode(SSR_RELAY_PIN, OUTPUT);
@@ -110,5 +137,8 @@ void Setup_Addons(){
   ThermocoupleA.begin(ESP32_SPI);
 #ifdef MAXCS2
   ThermocoupleB.begin(ESP32_SPI);
-#endif  
+#endif
+#ifdef ENERGY_MON_PIN
+  emon1.current(ENERGY_MON_PIN, ENERGY_MON_AMPS);
+#endif
 }

@@ -73,23 +73,23 @@ void button_Long_Press(){
 
 // Handle or rotation encoder input
 //
-void rotate(){
+void Rotate(){
 
 // If we are in MAIN screen view
- if(LCD_State==SCR_MAIN_VIEW){
-  if(LCD_Main==MAIN_VIEW3){
-    LCD_display_mainv3(encoderValue,1);
-    return;
-  }
-  if(encoderValue<0){
-    if(LCD_Main>MAIN_VIEW1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main-1);
-    LCD_display_main_view();
-    return;
-  }else{
-    if(LCD_Main<MAIN_end-1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main+1);
-    LCD_display_main_view();
-    return;
-  }
+  if(LCD_State==SCR_MAIN_VIEW){
+    if(LCD_Main==MAIN_VIEW3 && Program_run_size){ // if we are on third screen and program is loaded - let the screen 3 know about turn
+      LCD_display_mainv3(encoderValue,1);
+      return;
+    }
+    if(encoderValue<0){   // other screens just go...
+      if(LCD_Main>MAIN_VIEW1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main-1);
+      LCD_display_main_view();
+      return;
+    }else{
+      if(LCD_Main<MAIN_end-1) LCD_Main=(LCD_MAIN_View_enum)((int)LCD_Main+1);
+      LCD_display_main_view();
+      return;
+    }
   }else if(LCD_State==SCR_MENU){
     DBG Serial.printf("[INPUT] Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
     if(encoderValue<0){
@@ -144,7 +144,7 @@ void Input_Loop(void * parameter) {
       }
     }else if(encoderValue!=0){
       vTaskDelay(ENCODER_ROTATE_DELAY / portTICK_PERIOD_MS);
-      rotate(); // encoderValue is global..
+      Rotate(); // encoderValue is global..
       DBG Serial.printf("[INPUT] Encoder rotated %d\n",encoderValue);
       encoderValue=0;
     }

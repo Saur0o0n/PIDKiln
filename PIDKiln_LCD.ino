@@ -392,7 +392,11 @@ char sname[40];
     sprintf(sname,"Main screen %d",(int)LCD_Main);
     u8g2.setFont(FONT8);
     u8g2.drawStr(25,30,sname);
-    u8g2.sendBuffer();          // transfer internal memory to the display 
+    u8g2.setFont(FONT7);
+    sprintf(sname,"please load program");
+    u8g2.drawStr(8,45,sname);
+    u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+    u8g2.sendBuffer();
   }
 }
 

@@ -121,6 +121,16 @@ GND     | GND
 
  * Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
 
+** Power meter **
+
+See the documentation for detailed instruction.
+
+ESP   | 30A/1V
+------|--------
+3,3V  | 3,3V
+GND   | GND
+33    | outer connection
+
 ![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_wiring.png)
 
 ## Power consideration

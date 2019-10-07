@@ -39,7 +39,7 @@ var config_with = {
 	options: {
 		title: {
 			display: true,
-			text: 'Programmed program vs actual temperature'
+			text: 'Set program: ~PROGRAM_NAME~ vs actual temperature'
 		},
 		responsive: true,
 		scales: {
@@ -89,7 +89,7 @@ var config_without = {
 	type: 'line',
 	data: {
 		datasets: [{
-			label: 'Running program',
+			label: 'Loaded program: ~PROGRAM_NAME~',
 			tension: 0.1,
 			backgroundColor: 'transparent',
 			borderColor: window.chartColors.blue,
