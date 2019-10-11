@@ -652,7 +652,7 @@ void do_screenshot(AsyncWebServerRequest *request){
 ** Setup Webserver screen 
 **
 */
-void setup_webserver(void) {
+void SETUP_WebServer(void) {
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->redirect("/index.html");
@@ -710,4 +710,11 @@ void setup_webserver(void) {
 
   // Start server
   server.begin();
+}
+
+
+// Stop/disable web server
+//
+void STOP_WebServer(){
+  server.end();
 }

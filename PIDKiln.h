@@ -10,7 +10,7 @@
 
 // MAX31855 variables/defs
 #define MAXCS1  15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
-#define MAXCS2  27  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
+//#define MAXCS2  27  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
 //#define ENERGY_MON_PIN 33       // if you don't use - comment out
@@ -23,12 +23,9 @@ double int_temp=20, kiln_temp=20, case_temp=20;
 double set_temp, pid_out;
 float temp_incr=0;
 uint32_t windowStartTime;
-uint16_t temp_over=0;           // count if we have reached over desire temperature - when 0 - check temp_threshold
 
 
 //Specify the links and initial tuning parameters
-//PID KilnPID(&kiln_temp, &pid_out, &set_temp, 2,5,1,P_ON_M, DIRECT); //P_ON_M specifies that Proportional on Measurement be used
-                                                                    //P_ON_E (Proportional on Error) is the default behavior
 PID KilnPID(&kiln_temp, &pid_out, &set_temp, 0, 0, 0, P_ON_E, DIRECT);
 
 /*
@@ -42,7 +39,7 @@ typedef enum {
   SCR_PROGRAM_SHOW,   // showing program content
   SCR_PROGRAM_DELETE, // deleting program
   SCR_PROGRAM_FULL,   // step by step program display
-  SCR_QUICK_PROGRAM, // set manually desire, single program step
+  SCR_QUICK_PROGRAM,  // set manually desire, single program step
   SCR_ABOUT,          // short info screen
   SCR_PREFERENCES,    // show current preferences
   SCR_OTHER           // some other screens like about that are stateless
@@ -66,11 +63,11 @@ typedef enum { // menu positions
   M_end
 } LCD_SCR_MENU_Item_enum;
 
-LCD_State_enum LCD_State=SCR_MAIN_VIEW;      // global variable to keep track on where we are in LCD screen
-LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;  // main screen has some views - where are we
+LCD_State_enum LCD_State=SCR_MAIN_VIEW;          // global variable to keep track on where we are in LCD screen
+LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;          // main screen has some views - where are we
 LCD_SCR_MENU_Item_enum LCD_Menu=M_SCR_MAIN_VIEW; // menu items
 
-const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Informations", "5) Preferences", "6) Reconnect WiFi", "7) About"};
+const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Information", "5) Preferences", "6) Reconnect WiFi", "7) About"};
 const byte Menu_Size=6;
 
 typedef enum { // program menu positions
@@ -109,7 +106,7 @@ uint8_t Program_size=0;           // number of actual entries in Program
 String Program_desc,Program_name; // First line of the selected program file - it's description
 
 PROGRAM* Program_run;             // running program (made as copy of selected Program)
-uint8_t Program_run_size=0;       // number of entries in running program (since elements count from 0 - this value is acctually bigger by 1 then numbers of steps)
+uint8_t Program_run_size=0;       // number of entries in running program (since elements count from 0 - this value is actually bigger by 1 then numbers of steps)
 char *Program_run_desc=NULL,*Program_run_name=NULL;
 time_t Program_run_start=0;       // date/time of started program
 time_t Program_run_end=0;         // date/time when program ends - during program it's ETA
@@ -135,7 +132,7 @@ const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","E
 typedef enum {
   PR_ERR_FILE_LOAD,       // failed to load file
   PR_ERR_TOO_LONG_LINE,   // program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
-  PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and sperator ":")
+  PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and separator ":")
   PR_ERR_TOO_HOT,         // exceeded max temperature defined in MAX_Temp
   PR_ERR_MAX31_INT_ERR,   // failed to read MAX31855 internal temperature
   PR_ERR_MAX31_KPROBE,    // failed to read K-probe temperature
@@ -243,6 +240,7 @@ typedef enum {
  VFLOAT,
 } TYPE;
 
+
 // Structure for keeping preferences values
 struct PrefsStruct {
   TYPE type=NONE;
@@ -264,8 +262,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.8";
-const char *PDate = "2019.10.02";
+const char *PVer = "PIDKiln v0.9";
+const char *PDate = "2019.10.12";
 
 #define DBG if(DEBUG)
 

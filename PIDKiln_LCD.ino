@@ -837,12 +837,26 @@ struct tm timeinfo;
   y+=chh=u8g2.getMaxCharHeight();
 
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
-  sprintf(msg,"WiFi status: %d",WiFi.isConnected());
-  u8g2.drawStr(x,y,msg);
-  sprintf(msg,"WiFi ssid: %s",Prefs[PRF_WIFI_SSID].value.str);
-  u8g2.drawStr(x,y+=chh,msg);
-  if(WiFi.isConnected()){
-    sprintf(msg,"WiFi IP: %s",WiFi.localIP().toString().c_str());
+  if(WiFi.getMode()==WIFI_OFF){
+    sprintf(msg,"WiFi status: disabled");
+    u8g2.drawStr(x,y,msg);
+  }else if(WiFi.getMode()==WIFI_STA){
+    sprintf(msg,"WiFi status: client");
+    u8g2.drawStr(x,y,msg);
+    sprintf(msg,"WiFi ssid: %s",Prefs[PRF_WIFI_SSID].value.str);
+    u8g2.drawStr(x,y+=chh,msg);
+    if(WiFi.isConnected()) sprintf(msg,"WiFi status: connected");
+    else sprintf(msg,"WiFi status: disconnected");
+    u8g2.drawStr(x,y+=chh,msg);
+  }else if(WiFi.getMode()==WIFI_AP){
+    sprintf(msg,"WiFi status: AP");
+    u8g2.drawStr(x,y,msg);
+  }
+
+  if(WiFi.getMode()){
+    IPAddress lips;      
+    Return_Current_IP(lips);
+    sprintf(msg,"WiFi IP: %s",lips.toString().c_str());
     u8g2.drawStr(x,y+=chh,msg);
   }
   sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
@@ -922,18 +936,21 @@ void LCD_Reconect_WiFi(){
   u8g2.setFont(FONT8);
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();
-  if(strlen(Prefs[PRF_WIFI_SSID].value.str)<1){
-    load_msg(" No WiFi SSID set!");
+  if(!Prefs[PRF_WIFI_MODE].value.uint8){
+    load_msg(" WiFi is disabled!");
     return;
   }
   load_msg("Reconnecting WiFi..");
   if(Setup_WiFi()){    // !!! Wifi connection FAILED
     DBG Serial.println("[LCD] WiFi connection failed");
-    load_msg(" WiFi con. failed");
+    load_msg(" WiFi con. failed ");
   }else{
-    DBG Serial.println(WiFi.localIP()); // Print ESP32 Local IP Address
+    IPAddress lips;
+      
+    Return_Current_IP(lips);
+    DBG Serial.println(lips); // Print ESP32 Local IP Address
     char lip[20];
-    sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
+    sprintf(lip," IP: %s",lips.toString().c_str());
     load_msg(lip);
   }
 }

@@ -164,14 +164,14 @@ char tmp[30];
         break;
       case PRF_INIT_DATE:
         Prefs[PRF_INIT_DATE].type=STRING;
-        Prefs[PRF_INIT_DATE].value.str=strdup("2019-09-08");
+        Prefs[PRF_INIT_DATE].value.str=strdup("2019-10-10");
         break;
       case PRF_INIT_TIME:
         Prefs[PRF_INIT_TIME].type=STRING;
         Prefs[PRF_INIT_TIME].value.str=strdup("12:00:00");
         break;
 
-      case PRF_PID_WINDOW:  // how often recaluclate SSR on/off - 5second window default
+      case PRF_PID_WINDOW:  // how often recalculate SSR on/off - 5 second window default
         Prefs[PRF_PID_WINDOW].type=UINT16;
         Prefs[PRF_PID_WINDOW].value.uint16=5000;
         break;
@@ -187,11 +187,11 @@ char tmp[30];
         Prefs[PRF_PID_KD].type=VFLOAT;
         Prefs[PRF_PID_KD].value.vfloat=0.1;
         break;
-      case PRF_PID_POE:   // it's acctualy boolean - but I did not want to create additional type - if we use  Proportional on Error (true) or Proportional on Measurement (false)
+      case PRF_PID_POE:   // it's actually boolean - but I did not want to create additional type - if we use  Proportional on Error (true) or Proportional on Measurement (false)
         Prefs[PRF_PID_POE].type=UINT8;
         Prefs[PRF_PID_POE].value.uint8=0;
         break;
-      case PRF_PID_TEMP_THRESHOLD:  // allowed difference in temperature between set and current when controler will go in dwell mode
+      case PRF_PID_TEMP_THRESHOLD:  // allowed difference in temperature between set and current when controller will go in dwell mode
         Prefs[PRF_PID_TEMP_THRESHOLD].type=INT16;
         Prefs[PRF_PID_TEMP_THRESHOLD].value.int16=-1;
         break;

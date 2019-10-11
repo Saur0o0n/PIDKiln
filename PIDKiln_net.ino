@@ -3,30 +3,13 @@
 **
 */
 
-// Tries to connect to wifi
+#define DEFAULT_AP "PIDKiln_AP"
+#define DEFAULT_PASS "hotashell"
+
+// Other variables
 //
-boolean Start_WiFi(){
-bool wifi_failed=true;
 
-  if(!strlen(Prefs[PRF_WIFI_SSID].value.str)) return 1;   // if there is no SSID
-    
-  WiFi.begin(Prefs[PRF_WIFI_SSID].value.str, Prefs[PRF_WIFI_PASS].value.str);
-  DBG Serial.println("[NET] Connecting to WiFi...");
-    
-  for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
-    delay(1000);
-    if (WiFi.status() == WL_CONNECTED){
-      wifi_failed=false;
-      return 0;
-    }
-    DBG Serial.println("[NET] Connecting to WiFi...");
-  }
-  
-  WiFi.disconnect();
-  return 1;
-}
-
-
+// Print local time to serial
 void printLocalTime(){
 struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -77,8 +60,69 @@ char *tmp,msg[20];
   tv.tv_usec = 0;
 
   settimeofday(&tv, NULL);
+}
+
+
+// Returns in lip current IP depending on WiFi mode
+//
+void Return_Current_IP(IPAddress &lip){
+  if(WiFi.getMode()==WIFI_STA){
+    lip=WiFi.localIP();
+  }else if(WiFi.getMode()==WIFI_AP){
+    lip=WiFi.softAPIP();
+  }
+}
+
+
+// Turns off WiFi
+//
+void Disable_WiFi(){
+  WiFi.disconnect(true);
+  WiFi.softAPdisconnect(true);
+  WiFi.mode(WIFI_OFF);
+}
+
+
+// Starts WiFi in SoftAP mode
+//
+boolean Start_WiFi_AP(){
+  if(!Prefs[PRF_WIFI_MODE].value.uint8) return 1;   // if WiFi disabled
+
+  WiFi.mode(WIFI_AP);
   
-  printLocalTime();
+  IPAddress local_IP(192,168,10,1);
+  IPAddress gateway(192,168,10,1);
+  IPAddress subnet(255,255,255,0);
+
+  WiFi.softAPConfig(local_IP, gateway, subnet);
+  
+  DBG Serial.println("[NET] Creating WiFi Access Point (AP)");
+  WiFi.softAP(DEFAULT_AP, DEFAULT_PASS, 8);
+  return 0;
+}
+
+
+// Tries to connect to WiFi AP
+//
+boolean Start_WiFi_CLIENT(){
+
+  if(!Prefs[PRF_WIFI_MODE].value.uint8) return 1;   // if WiFi disabled
+  if(strlen(Prefs[PRF_WIFI_SSID].value.str)<1 || strlen(Prefs[PRF_WIFI_PASS].value.str)<1) return 1;  // missing SSI or password
+
+  WiFi.mode(WIFI_STA);
+   
+  WiFi.begin(Prefs[PRF_WIFI_SSID].value.str, Prefs[PRF_WIFI_PASS].value.str);
+  DBG Serial.println("[NET] Connecting to WiFi as Client...");
+    
+  for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
+    delay(1000);
+    if (WiFi.status() == WL_CONNECTED) return 0;
+    DBG Serial.printf("[NET] Connecting to AP WiFi... %d/%d\n",a+1,Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
+  }
+
+  DBG Serial.println("[NET] Connecting to AP WiFi failed!");
+  Disable_WiFi();
+  return 1;
 }
 
 
@@ -88,32 +132,39 @@ boolean Setup_WiFi(){
 struct tm timeinfo;
 
   Setup_start_date();
-  if(strlen(Prefs[PRF_WIFI_SSID].value.str)){
-    if(Start_WiFi()){
-      Setup_start_date();
-      return 1;  // if we failed to connect, stop trying
-    }
-    
-    configTime(Prefs[PRF_GMT_OFFSET].value.uint16, Prefs[PRF_DAYLIGHT_OFFSET].value.uint16, Prefs[PRF_NTPSERVER1].value.str, Prefs[PRF_NTPSERVER2].value.str, Prefs[PRF_NTPSERVER3].value.str); // configure RTC clock with NTP server - ot at least try
-    if(!getLocalTime(&timeinfo)) Setup_start_date();    // if failed to setup NTP time - start default clock
+  if(Prefs[PRF_WIFI_MODE].value.uint8){ // we have WiFi enabled in config - start it
+    int err=0;
 
-    printLocalTime();
-      
-    setup_webserver(); // Setup function for Webserver from PIDKiln_http.ino
-    return 0;
-  }else return 1;
+    if(Prefs[PRF_WIFI_MODE].value.uint8==1 || Prefs[PRF_WIFI_MODE].value.uint8==2){ // 1 - tries as client if failed, be AP; 2 - just try as client
+      err=Start_WiFi_CLIENT();
+      if(!err){
+        configTime(Prefs[PRF_GMT_OFFSET].value.uint16, Prefs[PRF_DAYLIGHT_OFFSET].value.uint16, Prefs[PRF_NTPSERVER1].value.str, Prefs[PRF_NTPSERVER2].value.str, Prefs[PRF_NTPSERVER3].value.str); // configure RTC clock with NTP server - or at least try
+        SETUP_WebServer(); // Setup function for Webserver from PIDKiln_http.ino
+        return 0;    // all is ok - connected
+      }else if(Prefs[PRF_WIFI_MODE].value.uint8==2) return err;  // not connected and won't try be AP
+    }
+    // Now we try to be AP - if previous failed or not configured
+
+    err=Start_WiFi_AP();
+    
+    if(!err){ // WiFi enabled in client mode (connected to AP - perhaps with Internet - try it)
+      SETUP_WebServer();
+      return 0;
+    }return err;
+  }else{
+    Disable_WiFi();
+    return 1; // WiFi disabled
+  }
+
 }
 
-boolean Restart_WiFi(){
-  server.end();
-  sleep(100);
 
-  for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
-    delay(1000);
-    if (WiFi.disconnect()){ // disconnected!
-      delay(500);
-      return Setup_WiFi();
-    }
-  }
-  return 1;
+// Perform WiFi restart - usually when something does not work right - reinitialize it (perhaps preferences has changed)
+//
+boolean Restart_WiFi(){
+  STOP_WebServer();
+  sleep(100);
+  Disable_WiFi();
+  sleep(200);
+  return Setup_WiFi();
 }

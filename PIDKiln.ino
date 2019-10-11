@@ -1,5 +1,5 @@
 /*
-** PIDKiln v0.8 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.9 - high temperature kiln PID controller for ESP32
 **
 ** Copyright (C) 2019 - Adrian Siemieniak
 **
@@ -111,6 +111,8 @@ char c;
 void setup() {
 
 // This should disable watchdog killing asynctcp and others - one of this should work :)
+// This is not recommended, but if Webserver/AsyncTCP will hang (that has happen to me) - this will at least do not reset the device (and potentially ruin program).
+// ESP32 will continue to work properly even in AsynTCP will hang - there will be no HTTP connection. If you do not like this - comment out next 6 lines.
   esp_task_wdt_init(1,false);
   esp_task_wdt_init(2,false);
   rtc_wdt_protect_off();
@@ -138,21 +140,25 @@ void setup() {
   
   DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_MODE].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
   
-  // Connect to Wi-Fi if enabled
-  if(Prefs[PRF_WIFI_SSID].type && strlen(Prefs[PRF_WIFI_SSID].value.str) && strlen(Prefs[PRF_WIFI_PASS].value.str)){
+  // Connect to WiFi if enabled
+  if(Prefs[PRF_WIFI_MODE].value.uint8){ // If we want to have WiFi
     load_msg("connecting WiFi..");
     if(Setup_WiFi()){    // !!! Wifi connection FAILED
       DBG Serial.println("[MAIN] WiFi connection failed");
       load_msg(" WiFi con. failed");
     }else{
-      DBG Serial.println(WiFi.localIP()); // Print ESP32 Local IP Address
+      IPAddress lips;
+      
+      Return_Current_IP(lips);
+      DBG Serial.println(lips); // Print ESP32 Local IP Address
       char lip[20];
-      sprintf(lip," IP: %s",WiFi.localIP().toString().c_str());
+      sprintf(lip," IP: %s",lips.toString().c_str());
       load_msg(lip);
     }
   }else{
     // If we don't have Internet - assume there is no time set
     Setup_start_date(); // in PIDKiln_net
+    Disable_WiFi();
     load_msg("   -- Started! --");
   }
 
