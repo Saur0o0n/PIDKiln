@@ -46,8 +46,8 @@
 /* 
 ** Some definitions - usually you should not edit this, but you may want to
 */
-#define ENCODER0_PINA    35
-#define ENCODER0_PINB    34
+#define ENCODER0_PINA    34
+#define ENCODER0_PINB    35
 #define ENCODER0_BUTTON  32
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
