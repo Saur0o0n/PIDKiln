@@ -1,7 +1,7 @@
 #include <PID_v1.h>
 
 /*
-** Relays and thermocouple defs.
+** Relays and thermocouple defs. and other addons
 **
 */
 
@@ -14,6 +14,9 @@
 
 // If you have power meter - uncoment this
 //#define ENERGY_MON_PIN 33       // if you don't use - comment out
+
+#define ALARM_PIN 26
+uint16_t ALARM_countdown=0;
 
 /*
 ** Temperature, PID and probes variables/definitions
@@ -118,13 +121,13 @@ typedef enum { // program menu positions
   PR_READY,
   PR_RUNNING,
   PR_PAUSED,
-  PR_FAILED,
+  PR_ABORTED,
   PR_ENDED,
   PR_THRESHOLD,
   PR_end
 } PROGRAM_RUN_STATE;
 PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
-const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Failed","Ended","Waiting"};
+const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Aborted","Ended","Waiting"};
 
 /* 
 **  Program errors:
@@ -218,6 +221,7 @@ typedef enum { // program menu positions
   PRF_MAX_TEMP,
   PRF_MAX_HOUS_TEMP,
   PRF_THERMAL_RUN,
+  PRF_ALARM_TIMEOUT,
   
   PRF_end
 } PREFERENCES;
@@ -227,7 +231,7 @@ const char *PrefsName[]={
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window",
-"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway",
+"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout",
 };
 
 // Preferences types definitions

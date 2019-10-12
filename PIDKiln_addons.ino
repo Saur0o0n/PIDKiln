@@ -128,10 +128,26 @@ double Irms;
 }
 
 
+// Stops Alarm
+//
+void STOP_Alarm(){
+  ALARM_countdown=0;
+  digitalWrite(ENCODER0_PINA, LOW);
+}
+// Start Alarm
+//
+void START_Alarm(){
+  if(!Prefs[PRF_ALARM_TIMEOUT].value.uint16) return;
+  ALARM_countdown=Prefs[PRF_ALARM_TIMEOUT].value.uint16;
+  digitalWrite(ENCODER0_PINA, HIGH);
+}
+
 
 void Setup_Addons(){
   pinMode(EMR_RELAY_PIN, OUTPUT);
   pinMode(SSR_RELAY_PIN, OUTPUT);
+
+  pinMode(ALARM_PIN, OUTPUT);
 
   SSR_On=false;
   ThermocoupleA.begin(ESP32_SPI);

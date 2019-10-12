@@ -213,7 +213,10 @@ char tmp[30];
         Prefs[PRF_MAX_HOUS_TEMP].type=UINT16;
         Prefs[PRF_MAX_HOUS_TEMP].value.uint16=130;
         break;
-        
+      case PRF_ALARM_TIMEOUT:
+        Prefs[PRF_ALARM_TIMEOUT].type=UINT16;
+        Prefs[PRF_ALARM_TIMEOUT].value.uint16=0;
+        break;
       default:
         break;
     }

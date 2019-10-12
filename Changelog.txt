@@ -1,9 +1,10 @@
 
-0.9 (2019.10.04) Almost there
+0.9 (2019.10.12) Almost there
 - first release with changelog - all previous releases are only "git commit" documented
 - add power meter support
 - add AP mode for WiFi (already planed before - just implemented it) - in prefs user can choose between Client mode, AP mode or fail safe mode
 - created printable box case for PIDKiln (https://www.thingiverse.com/thing:3907643)
+- add alarm functionality with ALARM_PIN going high on Abort. There is also prefs value - how long keep alarm on.
 
 0.8
 - polished web interface

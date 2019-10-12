@@ -131,13 +131,21 @@ ESP   | 30A/1V
 GND   | GND
 33    | most outside mini jack connector
 
+**Alarm**
+
+This ALARM_PIN goes HIGH when program ABORT is called (somethings wrong, or user triggered). You can connect this pin to buzzer or small relay to trigger some other action on failure.
+
+ESP   | Relay/Buzzer
+------|-------------
+GND   | GND
+26    | +3,3V
+
 ![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_wiring.png)
 
 ## Power consideration
 
 Preferably you should power your PIDKiln device with regulated 5V. This way you can power ESP32 board through VIN (do not use VIN and USB at once!) pin and use 5V to directly power EMR relay (around 185mA) and LCD backlight.
-You could power board with just USB, but 5V output from my board (ESP32-Wrover TTGO with microsd) is two weak to handle EMR and LCD and most of other boards do not have 5V out. You could then use VIN as 5V vout - this path should be
-connected directly to USB 5v output - but then you are limited by USB output and how much board traces can handle.
+You could power board with just USB, but 5V output from my board (ESP32-Wrover TTGO with microsd) is too weak to handle EMR and LCD and most of other boards do not have 5V out. You could also use VIN as 5V vout (this pin should be connected directly to USB 5V output) - but then you are limited by USB output and how much board traces can handle.
 
 ## Installation
 

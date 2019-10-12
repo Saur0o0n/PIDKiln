@@ -309,9 +309,10 @@ void ABORT_Program(uint8_t error){
 
   if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
     END_Program();
-    Program_run_state=PR_FAILED;
+    Program_run_state=PR_ABORTED;
     //Program_run_start=0;
   }
+  START_Alarm();
 }
 
 
@@ -488,7 +489,13 @@ uint32_t now;
 
       // Update temperature readout
       Update_TemperatureA();
-        
+
+      // Check if there is Alarm ON - if so, lower time and call STOP
+      if(ALARM_countdown>0){
+        if(ALARM_countdown==1) STOP_Alarm();
+        ALARM_countdown--;
+      }
+
       // Do slow stuff every 10th second - cnt1=[0..9]
       //
       if(cnt1>9) cnt1=0;
