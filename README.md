@@ -28,6 +28,7 @@ Kind of optional, but recommended:
 Optional:
 - DC/AC secondary relay - like SLA-05VDC-SL-C (240V/30A) mechanical relay
 - Additional MAX31855 board with K-type thermocouple for housing temperature measuring
+- Coil power meter - 30A/1V. This is contact less power meter that generates small current when energy flows inside it's coil. Mine already had burden resistor - so on output it produces -1V to 1V, proportionally it's coil rated for 30A. We just need to measure it to know how much juice flows to the heater.
 - Perhaps a kiln :)
 
 ## BOM and expenses
@@ -45,7 +46,7 @@ Total expenses for this set should be around 30-40$
 
 ## Why this configuration?
 
-I've already used "kind of" controller made on Linux server and cron procedures, and it was ok.. for a while. Then I bought almost cheap Chinese controller PC410, just to find out, it is missing most of required stuff (that original PC410 should have), and I already was accustom to be able to see everything over Internet.
+I've already used "kind of" controller made on Linux server and cron procedures, and it was ok.. for a while. Then I bought cheap Chinese controller PC410, just to find out, it is missing most of required stuff (that original PC410 should have), and I already was accustom to be able to see everything over Internet.
 So I've made few attempts with Arduino - it was fine, but since I need remote access - ESP will be much better choice. I've started to work on ESP8266, but being afraid that I will be lacking some GPIOs - I've moved to ESP32. And since price difference is negligible, this is the platform of choice for this project.
 It is also beneficial, because it has build in flash memory, that I can use for all required data - without need of connecting additional SD cards.
 
@@ -53,10 +54,10 @@ MAX31855 comparing to more available MAX6675, is better choice since it allow us
 
 LC12864B is perhaps not the best choice, but I simply had this one already (I've used if before for my 3D printer). Perhaps later I'll change it. Problem with this LCD is that it has 5V logic. Sometimes it works on 3,3V (depending on version), in my case it does. But since it's one way communication (only MISO) hooking it up to 5V for both logic and back light works and does not crash my board. Clean solution would be to use logic voltage translator (there is plenty of them for 1$).
 
-Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often - SSR can do it, but it will get hot, so make sure you have good radiator. Also if you are going to use cheap Chinese knock offs, make sure it rated twice the output current of your heater.
-All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage EMR (Electromechanical Relay) relay in case of SSR failure. It's mechanical, so it won't get hot. This will allow to turn off the kiln in case of SSR failure with EMR one (and other way around too). Additional relay (SLA-05VDC-SL-C) is optional.
+Relays - Main relay is SSR (Solid State Relay) type. It's because we need to switch it fast and often - SSR can do it, but it will get hot, so make sure you have good radiator. Also if you are going to use cheap Chinese knock offs, make sure it's rated twice the output current of your heater.
+All relays may fail, and they may fail in closed (conductive) state. Because of it, I've also implemented second stage EMR (Electromechanical Relay) relay in case of SSR failure. It's mechanical, so it won't get hot. This will allow to turn off the kiln in case of SSR failure with EMR one (and other way around too). This additional relay (SLA-05VDC-SL-C) is optional.
 
-Initially for housing temperature readout I wanted to use thermistors, but since I've already had MAX31855 connected (and it costs 2$), using additional one is only 1 mew GPIO on ESP. Without hassle to provide reference voltage etc. Low temperature thermocouples are also darn cheap.
+Initially for housing temperature readout I wanted to use thermistors, but since I've already had MAX31855 connected (and it costs 2$), using additional one is only 1 new GPIO on ESP. Without hassle to provide reference voltage etc. Low temperature thermocouples are also darn cheap.
 
 ## GPIO/PINs connection
 
