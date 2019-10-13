@@ -9,14 +9,14 @@
 #define SSR_RELAY_PIN 19
 
 // MAX31855 variables/defs
-#define MAXCS1  15  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
-//#define MAXCS2  27  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
+#define MAXCS1  27  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
+//#define MAXCS2  15  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
-//#define ENERGY_MON_PIN 33       // if you don't use - comment out
+#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
-#define ALARM_PIN 26
-uint16_t ALARM_countdown=0;
+#define ALARM_PIN 26        // Pin goes high on abort
+uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm
 
 /*
 ** Temperature, PID and probes variables/definitions
@@ -115,6 +115,7 @@ time_t Program_run_start=0;       // date/time of started program
 time_t Program_run_end=0;         // date/time when program ends - during program it's ETA
 int Program_run_step=-1;          // at which step are we now... (has to be it - so we can give it -1)
 uint16_t Program_start_temp=0;    // temperature on start of the program
+uint8_t Program_error=0;          // if program finished with errors - remember number
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -137,8 +138,11 @@ typedef enum {
   PR_ERR_TOO_LONG_LINE,   // program line too long (there is error probably in the line - it should be max. 1111:1111:1111 - so 14 chars, if there where more PIDKiln will throw error without checking why
   PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and separator ":")
   PR_ERR_TOO_HOT,         // exceeded max temperature defined in MAX_Temp
-  PR_ERR_MAX31_INT_ERR,   // failed to read MAX31855 internal temperature
-  PR_ERR_MAX31_KPROBE,    // failed to read K-probe temperature
+  PR_ERR_TOO_COLD,        // temperature redout below MIN_Temp
+  PR_ERR_MAX31A_INT_ERR,   // failed to read MAX31855 internal temperature on kiln
+  PR_ERR_MAX31A_KPROBE,    // failed to read K-probe temperature on kiln
+  PR_ERR_MAX31B_INT_ERR,   // failed to read MAX31855 internal temperature on case
+  PR_ERR_MAX31B_KPROBE,    // failed to read K-probe temperature on case
   PR_ERR_USER_ABORT,      // user aborted
   PR_ERR_end
 } PROGRAM_ERROR_STATE;

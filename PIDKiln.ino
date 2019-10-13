@@ -94,6 +94,12 @@ boolean check_valid_chars(byte a){
 }
 
 
+// Restart the ESP device
+//
+void Restart_ESP(){
+  ESP.restart();
+}
+
 // Check filename if it has only letters, numbers and . _ characters - other are not allowed for easy parsing and transfering
 //
 boolean valid_filename(char *file){

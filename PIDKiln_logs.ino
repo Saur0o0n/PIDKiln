@@ -77,6 +77,9 @@ void Close_log_file(){
   if(LOGFile){
     LOGFile.printf("Program ended at:%d\n",Program_run_end);
     LOGFile.printf("End temperature: %.1fC",kiln_temp);
+    if(Program_error){
+      LOGFile.printf("Program aborted with error: %d\n",Program_error);
+    }
     LOGFile.flush();
     LOGFile.close();
   }

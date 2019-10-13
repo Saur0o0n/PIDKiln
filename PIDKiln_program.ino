@@ -12,7 +12,6 @@ volatile SemaphoreHandle_t timerSemaphore;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 
-
 /*
 ** Core/main program functions
 **
@@ -312,6 +311,7 @@ void ABORT_Program(uint8_t error){
     Program_run_state=PR_ABORTED;
     //Program_run_start=0;
   }
+  Program_error=error;
   START_Alarm();
 }
 
@@ -465,10 +465,10 @@ void START_Program(){
 void SAFETY_Check(){
   if(kiln_temp<Prefs[PRF_MIN_TEMP].value.uint8){
     DBG Serial.printf("[PRG] Safety check failed - MIN temperature < %d\n",Prefs[PRF_MIN_TEMP].value.uint8);
-    ABORT_Program();
+    ABORT_Program(PR_ERR_TOO_COLD);
   }else if(kiln_temp>Prefs[PRF_MAX_TEMP].value.uint16){
     DBG Serial.printf("[PRG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
-    ABORT_Program();  
+    ABORT_Program(PR_ERR_TOO_HOT);  
   }
 }
 

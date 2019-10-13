@@ -97,7 +97,7 @@ EPS32	| MAX31855 A
 GND	| GND
 12	| SO/DO (slave output/data output)
 14	| SCK (clock)
-15	| CS (chip select)
+27	| CS (chip select)
 
 EPS32	| MAX31855 B
 --------|---------
@@ -105,7 +105,7 @@ EPS32	| MAX31855 B
 GND	| GND
 12	| SO/DO (slave output/data output)
 14	| SCK (clock)
-27	| CS (chip select)
+15	| CS (chip select)
 
 **Relays**
 

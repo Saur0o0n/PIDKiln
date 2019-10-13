@@ -573,7 +573,7 @@ int params = request->params();
       }else if(p->name().equalsIgnoreCase("prog_end") && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)){
         END_Program();
       }else if(p->name().equalsIgnoreCase("prog_abort")){
-        ABORT_Program();
+        ABORT_Program(PR_ERR_USER_ABORT);
       }
     }
   }

@@ -11,11 +11,12 @@ Adafruit_MAX31855 ThermocoupleA(MAXCS1);
 // If we have defines power meter pins
 #ifdef ENERGY_MON_PIN
 #include <EmonLib.h>
-#define ENERGY_MON_AMPS 30      // how many amps produces 1V on your meter (usualy with voltage output meters it's their max value).
-#define EMERGY_MON_VOLTAGE 230  // what is your mains voltage
-
+#define ENERGY_MON_AMPS 30        // how many amps produces 1V on your meter (usualy with voltage output meters it's their max value).
+#define EMERGY_MON_VOLTAGE 230    // what is your mains voltage
+#define ENERGY_IGNORE_VALUE 0.25  // if measured current is below this - ignore it (it's just noise)
 EnergyMonitor emon1;
 #endif
+uint16_t Energy_Wattage=0;        // global var. keeping current power consumtion
 
 // If you have second thermoucouple
 #ifdef MAXCS2
@@ -43,7 +44,7 @@ void Disable_SSR(){
 }
 
 void Enable_EMR(){
-  //digitalWrite(EMR_RELAY_PIN, HIGH);
+  digitalWrite(EMR_RELAY_PIN, HIGH);
 }
 
 void Disable_EMR(){
@@ -62,7 +63,7 @@ double kiln_tmp1,kiln_tmp2;
   kiln_tmp1 = ThermocoupleA.decodeInternal(raw); 
   if (isnan(kiln_tmp1)) {
     DBG Serial.println("[ADDONS] !! Something wrong with MAX31855-A! Internal readout failed");
-    ABORT_Program(PR_ERR_MAX31_INT_ERR);
+    ABORT_Program(PR_ERR_MAX31A_INT_ERR);
     return;
   }
   int_temp = (int_temp+kiln_tmp1)/2;
@@ -72,12 +73,12 @@ double kiln_tmp1,kiln_tmp2;
   
   if (isnan(kiln_tmp1) || isnan(kiln_tmp2)) {
     DBG Serial.println("[ADDONS] !! Something wrong with thermocoupleA! External readout failed");
-    ABORT_Program(PR_ERR_MAX31_KPROBE);
+    ABORT_Program(PR_ERR_MAX31A_KPROBE);
     return;
   }
   kiln_temp=(kiln_temp*0.9+kiln_tmp2*0.1);    // We try to make bigger hysteresis
 
-  //DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
+//  DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }
 
 
@@ -92,7 +93,7 @@ double case_tmp1,case_tmp2;
   case_tmp1 = ThermocoupleB.decodeInternal(raw); 
   if (isnan(case_tmp1)) {
     DBG Serial.println("[ADDONS] !! Something wrong with MAX31855-B! Internal readout failed");
-    ABORT_Program(PR_ERR_MAX31_INT_ERR);
+    ABORT_Program(PR_ERR_MAX31B_INT_ERR);
     return;
   }
   int_temp = (int_temp+case_tmp1)/2;
@@ -102,7 +103,7 @@ double case_tmp1,case_tmp2;
   
   if (isnan(case_tmp1) || isnan(case_tmp2)) {
     DBG Serial.println("[ADDONS] !! Something wrong with thermocoupleB! External readout failed");
-    ABORT_Program(PR_ERR_MAX31_KPROBE);
+    ABORT_Program(PR_ERR_MAX31B_KPROBE);
     return;
   }
   case_temp=(case_temp*0.8+case_tmp2*0.2);    // We try to make bigger hysteresis
@@ -118,9 +119,10 @@ void Read_Energy_INPUT(){
 double Irms;
 
 #ifdef ENERGY_MON_PIN
-  Irms = emon1.calcIrms(1480);  // Calculate Irms only; 1480:number of samples
-  if(Irms<0.25) return;   // In my case everything below is just noise. Comparing to 10-30A we are going to use we can ignore it. Final readout is correct.  
+  Irms = emon1.calcIrms(148);  // Calculate Irms only; 148 = number of samples (internaly ESP does 8 samples per measurement)
+  if(Irms<ENERGY_IGNORE_VALUE) return;   // In my case everything below is just noise. Comparing to 10-30A we are going to use we can ignore it. Final readout is correct.  
   DBG Serial.printf("[ADDONS] VCC:%d Energy input is. Power: %f, current: %f\n",emon1.readVcc(),Irms*EMERGY_MON_VOLTAGE,Irms);
+  Energy_Wattage=(uint16_t)(Energy_Wattage+Irms*EMERGY_MON_VOLTAGE)/2;  // just some small hysteresis
 #else
   return;
 #endif
