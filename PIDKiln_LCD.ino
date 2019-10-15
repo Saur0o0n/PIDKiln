@@ -428,7 +428,7 @@ uint8_t chh,center=5;
       u8g2.drawBox(0, (a-1)*chh+SCR_MENU_SPACE+center+1, SCREEN_W , chh+SCR_MENU_SPACE);
       u8g2.setDrawColor(0);
     }
-    if(m_startpos<0 || m_startpos>Menu_Size) u8g2.drawStr(15,(a*chh)+SCR_MENU_SPACE+center," ");  // just to add some top/bottom unselectable menu positions
+    if(m_startpos<0 || m_startpos>=M_END) u8g2.drawStr(15,(a*chh)+SCR_MENU_SPACE+center," ");  // just to add some top/bottom unselectable menu positions
     else{
       u8g2.drawStr(15,(a*chh)+SCR_MENU_SPACE+center,Menu_Names[m_startpos]);
     }
@@ -925,6 +925,21 @@ void LCD_Display_about(){
   u8g2.drawFrame(2,2,SCREEN_W-4,SCREEN_H-4);
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();
+}
+
+
+// Restart the ESP device
+//
+void Restart_ESP(){
+  u8g2.clearBuffer();
+  u8g2.setFont(FONT8);
+  u8g2.drawStr(25,30,PVer);
+  u8g2.setFont(FONT7);
+  u8g2.drawStr(18,45,"is restarting...");
+  u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
+  u8g2.sendBuffer();
+  delay(1000);
+  ESP.restart();
 }
 
 

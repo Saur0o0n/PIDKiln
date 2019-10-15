@@ -30,6 +30,7 @@ void pressed_menu(){
     case M_PREFERENCES: LCD_Display_prefs(); break;
     case M_CONNECT_WIFI: LCD_Reconect_WiFi(); break;
     case M_ABOUT: LCD_Display_about(); break;
+    case M_RESTART: Restart_ESP(); break;
     default: break;
   }
 }
@@ -91,11 +92,11 @@ void Rotate(){
       return;
     }
   }else if(LCD_State==SCR_MENU){
-    DBG Serial.printf("[INPUT] Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, Menu_Size, LCD_Menu);
+    DBG Serial.printf("[INPUT] Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, M_END, LCD_Menu);
     if(encoderValue<0){
       if(LCD_Menu>M_SCR_MAIN_VIEW) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu-1);
     }else{
-      if(LCD_Menu<M_end-1) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu+1);
+      if(LCD_Menu<M_END-1) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu+1);
     }
     LCD_display_menu();
     return;

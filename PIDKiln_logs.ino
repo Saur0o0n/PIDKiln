@@ -3,6 +3,8 @@
 **
 */
 
+double EnW_last=0;    // last energy consumption for csv report
+
 // Starts a new log file
 //
 void Init_log_file(){
@@ -44,6 +46,9 @@ struct tm timeinfo, *tmm;
       DBG Serial.printf("[LOG] Failed to create .log file: %s\n",str);
     }
   }
+  
+  EnW_last=0;   // reset last energy consumption with new program
+  
   Generate_LOGS_INDEX();
 }
 
@@ -55,15 +60,21 @@ String tmp;
 char str[30];
 struct tm timeinfo,*tmm;
                  
-  if(CSVFile){
-    if(getLocalTime(&timeinfo)) strftime(str, 29, "%F %T", &timeinfo);
-    else sprintf(str,"%d",millis());
+  if(!CSVFile) return;
+  
+  if(getLocalTime(&timeinfo)) strftime(str, 29, "%F %T", &timeinfo);
+  else sprintf(str,"%d",millis());
+
+  if(Energy_Usage){
+    tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0)+","+String(Energy_Usage-EnW_last,1);
+    EnW_last=Energy_Usage;
+  }else{
     tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0);
-    DBG Serial.printf("[LOG] Writing to log file:%s\n",tmp.c_str());
-    CSVFile.println();
-    CSVFile.print(tmp);
-    CSVFile.flush();
   }
+  DBG Serial.printf("[LOG] Writing to log file:%s\n",tmp.c_str());
+  CSVFile.println();
+  CSVFile.print(tmp);
+  CSVFile.flush();
 }
 
 
@@ -77,6 +88,7 @@ void Close_log_file(){
   if(LOGFile){
     LOGFile.printf("Program ended at:%d\n",Program_run_end);
     LOGFile.printf("End temperature: %.1fC",kiln_temp);
+    if(Energy_Wattage) LOGFile.printf("Used power: %.1f W/h",Energy_Wattage);
     if(Program_error){
       LOGFile.printf("Program aborted with error: %d\n",Program_error);
     }

@@ -13,10 +13,11 @@ Adafruit_MAX31855 ThermocoupleA(MAXCS1);
 #include <EmonLib.h>
 #define ENERGY_MON_AMPS 30        // how many amps produces 1V on your meter (usualy with voltage output meters it's their max value).
 #define EMERGY_MON_VOLTAGE 230    // what is your mains voltage
-#define ENERGY_IGNORE_VALUE 0.25  // if measured current is below this - ignore it (it's just noise)
+#define ENERGY_IGNORE_VALUE 0.3   // if measured current is below this - ignore it (it's just noise)
 EnergyMonitor emon1;
 #endif
-uint16_t Energy_Wattage=0;        // global var. keeping current power consumtion
+uint16_t Energy_Wattage=0;        // keeping present power consumtion in Watts
+double Energy_Usage=0;            // total energy used (Watt/time)
 
 // If you have second thermoucouple
 #ifdef MAXCS2
@@ -117,16 +118,42 @@ double case_tmp1,case_tmp2;
 //
 void Read_Energy_INPUT(){
 double Irms;
+static uint8_t cnt=0;
+static uint32_t last=0;
 
 #ifdef ENERGY_MON_PIN
-  Irms = emon1.calcIrms(148);  // Calculate Irms only; 148 = number of samples (internaly ESP does 8 samples per measurement)
-  if(Irms<ENERGY_IGNORE_VALUE) return;   // In my case everything below is just noise. Comparing to 10-30A we are going to use we can ignore it. Final readout is correct.  
-  DBG Serial.printf("[ADDONS] VCC:%d Energy input is. Power: %f, current: %f\n",emon1.readVcc(),Irms*EMERGY_MON_VOLTAGE,Irms);
+  Irms = emon1.calcIrms(512);  // Calculate Irms only; 512 = number of samples (internaly ESP does 8 samples per measurement)
+  if(Irms<ENERGY_IGNORE_VALUE){
+    Energy_Wattage=0;
+    return;   // In my case everything below 0,3A is just noise. Comparing to 10-30A we are going to use we can ignore it. Final readout is correct.  
+  }
   Energy_Wattage=(uint16_t)(Energy_Wattage+Irms*EMERGY_MON_VOLTAGE)/2;  // just some small hysteresis
+  if(last){
+    uint16_t ttime;
+    ttime=millis()-last;
+    Energy_Usage+=(double)(Energy_Wattage*ttime)/3600000;  // W/h - 60*60*1000 (miliseconds)
+  }
+  last=millis();
+
+  if(cnt++>20){
+    DBG Serial.printf("[ADDONS] VCC is set:%d ; RAW Power: %.1fW, Raw current: %.2fA, Power global:%d W/h:%.6f\n",emon1.readVcc(),Irms*EMERGY_MON_VOLTAGE,Irms,Energy_Wattage,Energy_Usage);
+    cnt=0;
+  }
+
 #else
   return;
 #endif
-//  DBG Serial.printf("[ADDONS] Raw read: %d\n",analogRead(ENERGY_MON_PIN));
+
+}
+
+
+// Power metter loop - read energy consumption
+//
+void Power_Loop(void * parameter){
+  for(;;){
+    Read_Energy_INPUT();  // current redout takes around 3-5ms - so we will do it 10 times a second.
+    vTaskDelay( 100 / portTICK_PERIOD_MS );
+  }
 }
 
 
@@ -158,5 +185,13 @@ void Setup_Addons(){
 #endif
 #ifdef ENERGY_MON_PIN
   emon1.current(ENERGY_MON_PIN, ENERGY_MON_AMPS);
+  xTaskCreatePinnedToCore(
+              Power_Loop,    /* Task function. */
+              "Power_metter",  /* String with name of task. */
+              2048,            /* Stack size in bytes. */
+              NULL,            /* Parameter passed as input of the task */
+              2,               /* Priority of the task. */
+              NULL,1);         /* Task handle. */
+              
 #endif
 }

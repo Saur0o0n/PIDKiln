@@ -439,6 +439,7 @@ void START_Program(){
   DBG Serial.println("[PRG] Starting new program!");
   Program_run_state=PR_RUNNING;
   Program_start_temp=kiln_temp;
+  Energy_Usage=0;
   
   Enable_EMR();
 
@@ -574,9 +575,9 @@ void Program_Setup(){
 //  xTaskCreate(
               Program_Loop,    /* Task function. */
               "Program_loop",  /* String with name of task. */
-              4096,             /* Stack size in bytes. */
+              4096,            /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
               1,               /* Priority of the task. */
-              NULL,0);           /* Task handle. */
+              NULL,0);         /* Task handle. */
                     
 }

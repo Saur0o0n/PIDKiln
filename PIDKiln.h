@@ -63,15 +63,15 @@ typedef enum { // menu positions
   M_PREFERENCES,
   M_CONNECT_WIFI,
   M_ABOUT,
-  M_end
+  M_RESTART,
+  M_END
 } LCD_SCR_MENU_Item_enum;
 
 LCD_State_enum LCD_State=SCR_MAIN_VIEW;          // global variable to keep track on where we are in LCD screen
 LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;          // main screen has some views - where are we
 LCD_SCR_MENU_Item_enum LCD_Menu=M_SCR_MAIN_VIEW; // menu items
 
-const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Information", "5) Preferences", "6) Reconnect WiFi", "7) About"};
-const byte Menu_Size=6;
+const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Information", "5) Preferences", "6) Reconnect WiFi", "7) About", "8) Restart"};
 
 typedef enum { // program menu positions
   P_EXIT,
