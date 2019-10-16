@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>PIDKiln Preferences</title>
+ <link rel="stylesheet" href="css/main.css">
+ <link rel="stylesheet" href="css/nav.css">
+ <script type="text/javascript" src="js/nav.js"></script>
+ <script type="text/javascript" src="js/programs.js"></script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+ <div class="topnav" id="myTopnav">
+  <a href="/index.html">Main view</a>
+  <a href="/programs/index.html">Manage programs</a>
+  <a href="/logs/index.html">Logs</a>
+  <a href="/preferences.html">Preferences</a>
+  <a href="/about.html">About</a>
+  <a href="/debug_board.html">Debug ESP</a>
+  <a href="/flash_firmware.html" class="active">Flash firmware</a>
+  <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
+    <i class="fa fa-bars"></i>
+  </a>
+ </div>
+
+ <div class="container">
+  ~ERRORS~
+  <form method='POST' action='flash_firmware.html' enctype='multipart/form-data'>
+  <fieldset>
+   <legend> Upload new firmware </legend>
+    <label for"file"> Choose the firmware file: </label>
+    <input type='file' name='update' id="update_firmware" accept=".bin">
+    <input class="floatr" type='submit' value='Upload new firmware'>
+  </fieldset>
+  </form>
+ </div>
+<br>
+
+</body>
+</html>

@@ -4,14 +4,15 @@ Ceramic/glass/metal kiln PID controller based on Arduino IDE and Weemos/ESP32 bo
 This is still work in progress, but since of release v0.7 (2019.09.24) it's fully functional. Just needs some more polishing.
 
 ## Key features:
-- interface accessible both from LCD screen and WWW webpage
-- unlimited (only by storage) kiln programs number, program file size limited to 10KiB (but this is artificial limit - can be extended)
-- internal ESP storage for programs, data, logs (perhaps later SD - but I'm not sure yet)
-- local preferences on disk, editable with Web interface
-- online monitoring, program management, editing, graphs and kiln control
-- build in clock synchronised with NTP servers (if Internet connected)
-- safety features build in (temperature run out protection, probe failure, SSR failure, kiln insulation failure)
-- simply cool and cheap (comparing to commercially available products) all in one solution
+- Interface accessible both from LCD screen and WWW Webpage
+- Unlimited (limited only by storage) temperature programs number, program file size limited to 10KiB (but this is artificial limit - can be extended)
+- Internal ESP SPIFFS storage for programs, data, logs, configuration (perhaps later SD - but I'm not sure yet)
+- Local preferences on disk, editable with Web interface
+- Online monitoring, program management, editing, graphs and kiln control
+- Build in clock synchronised with NTP servers (if Internet connected)
+- Safety features build in (temperature run out protection, probe failure, SSR failure, kiln insulation failure)
+- Online PIDKiln firmware upgrade with web interface
+- ...simply cool and cheap (comparing to commercially available products) all in one solution
 
 ![LCD menu sample](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/images/PIDKiln_LCD_sample2.png)
 
@@ -141,6 +142,12 @@ ESP   | Relay/Buzzer
 GND   | GND
 26    | +3,3V
 
+** Minimal configuration of PIDKiln **
+
+![PIDkiln minimal wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_Wiring-min.png)
+
+** Stanard configuration of PIDKiln **
+
 ![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_Wiring.png)
 
 ## Power consideration
@@ -169,8 +176,8 @@ You could power board with just USB, but 5V output from my board (ESP32-Wrover T
 
 ## Some future ideas
 
-- Perhaps to add the power meter
-- Online firmware flashing
+Almost all, what I had in mind is done.. so not much to write here :)
+Perhaps...
 - RTC clock for better timing and no Internet installations
 
 

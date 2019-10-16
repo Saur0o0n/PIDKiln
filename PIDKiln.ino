@@ -1,5 +1,5 @@
 /*
-** PIDKiln v0.9 - high temperature kiln PID controller for ESP32
+** PIDKiln v0.95 - high temperature kiln PID controller for ESP32
 **
 ** Copyright (C) 2019 - Adrian Siemieniak
 **
