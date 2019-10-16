@@ -955,7 +955,7 @@ void LCD_Reconect_WiFi(){
     load_msg(" WiFi is disabled!");
     return;
   }
-  load_msg("Reconnecting WiFi..");
+  load_msg("Reconnecting WiFi");
   if(Setup_WiFi()){    // !!! Wifi connection FAILED
     DBG Serial.println("[LCD] WiFi connection failed");
     load_msg(" WiFi con. failed ");

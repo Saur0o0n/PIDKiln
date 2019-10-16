@@ -270,8 +270,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.9";
-const char *PDate = "2019.10.12";
+const char *PVer = "PIDKiln v0.95";
+const char *PDate = "2019.10.16";
 
 #define DBG if(DEBUG)
 

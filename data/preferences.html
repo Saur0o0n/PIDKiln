@@ -17,7 +17,7 @@
   <a href="/preferences.html" class="active">Preferences</a>
   <a href="/about.html">About</a>
   <a href="/debug_board.html">Debug ESP</a>
-  <a href="#about">Flash firmware</a>
+  <a href="/flash_firmware.html">Flash firmware</a>
   <a href="javascript:void(0);" class="icon" onclick="switch_nav()">
     <i class="fa fa-bars"></i>
   </a>
@@ -196,7 +196,7 @@
 	<label for="MIN_Temperature"> Minimal temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4">C
+	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4">&#176;C
       </div>
      </div>
      <div class="row">
@@ -204,7 +204,7 @@
 	<label for="MAX_Temperature"> Maximum temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4">C
+	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4">&#176;C
       </div>
      </div>
      <div class="row">
@@ -212,7 +212,15 @@
 	<label for="MAX_Housing_Temperature"> Maximum housing temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MAX_Housing_Temperature" min="10" max="250" value="~MAX_Housing_Temperature~" size="4">C
+	<input type="number" name="MAX_Housing_Temperature" min="10" max="250" value="~MAX_Housing_Temperature~" size="4">&#176;C
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="Alarm_Timeout"> Alarm timeout </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="Alarm_Timeout" min="0" max="3600" value="~Alarm_Timeout~" size="4">s
       </div>
      </div>
    </fieldset>

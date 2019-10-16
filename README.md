@@ -141,7 +141,7 @@ ESP   | Relay/Buzzer
 GND   | GND
 26    | +3,3V
 
-![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_wiring.png)
+![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_Wiring.png)
 
 ## Power consideration
 

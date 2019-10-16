@@ -6,11 +6,15 @@
 #include <Esp.h>
 #include <ESPAsyncWebServer.h>
 #include <U8g2lib.h>
+#include <Update.h>
+
 // Other variables
 //
 String template_str;  // Stores template pareser output
 char *Errors;         // pointer to string if there are some errors during POST
 
+//flag to use from web update to reboot the ESP
+bool shouldReboot = false;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -43,7 +47,8 @@ String Preferences_parser(const String& var){
  else if(var=="MIN_Temperature") return String(Prefs[PRF_MIN_TEMP].value.uint8);
  else if(var=="MAX_Temperature") return String(Prefs[PRF_MAX_TEMP].value.uint16);
  else if(var=="MAX_Housing_Temperature") return String(Prefs[PRF_MAX_HOUS_TEMP].value.uint16);
- 
+ else if(var=="Alarm_Timeout") return String(Prefs[PRF_ALARM_TIMEOUT].value.uint16);
+
  else if(var=="PID_Window") return String(Prefs[PRF_PID_WINDOW].value.uint16);
  else if(var=="PID_Kp") return String(Prefs[PRF_PID_KP].value.vfloat);
  else if(var=="PID_Ki") return String(Prefs[PRF_PID_KI].value.vfloat);
@@ -648,6 +653,42 @@ void do_screenshot(AsyncWebServerRequest *request){
 }
 
 
+// Funnctin handling firmware upload/update (from https://github.com/lbernstone/asyncUpdate/blob/master/AsyncUpdate.ino)
+//
+void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+size_t content_len;
+  
+  if (!index){
+    DBG Serial.println("[HTTP] Beginning firmware update");
+    content_len = request->contentLength();
+    // if filename includes spiffs, update the spiffs partition
+    int cmd = (filename.indexOf("spiffs") > -1) ? U_SPIFFS : U_FLASH;
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN, cmd)) {
+      Update.printError(Serial);
+    }
+  }
+
+  if (Update.write(data, len) != len) {
+    Update.printError(Serial);
+  }
+
+  if (final) {
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
+    response->addHeader("Refresh", "30; url=/about.html");
+    response->addHeader("Connection", "close");
+    request->send(response);
+    delay(1000);
+    if (!Update.end(true)){
+      Update.printError(Serial);
+    } else {
+      DBG Serial.println("[HTTP] Update complete");
+      DBG Serial.flush();
+      Restart_ESP();
+    }
+  }
+}
+
+
 /* 
 ** Setup Webserver screen 
 **
@@ -700,6 +741,16 @@ void SETUP_WebServer(void) {
   server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/about.html", String(), false, About_parser);
   });
+
+  server.on("/flash_firmware.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/flash_firmware.html", String(), false, Preferences_parser);
+  });
+  
+  server.on("/flash_firmware.html", HTTP_POST,
+    [](AsyncWebServerRequest *request) {},
+    [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data,
+                  size_t len, bool final) {handleDoUpdate(request, filename, index, data, len, final);}
+  );
   
   // Serve some static data
   server.serveStatic("/icons/", SPIFFS, "/icons/");
