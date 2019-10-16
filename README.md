@@ -142,11 +142,11 @@ ESP   | Relay/Buzzer
 GND   | GND
 26    | +3,3V
 
-** Minimal configuration of PIDKiln **
+**Minimal configuration of PIDKiln**
 
 ![PIDkiln minimal wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_Wiring-min.png)
 
-** Stanard configuration of PIDKiln **
+**Standard configuration of PIDKiln**
 
 ![PIDkiln wiring](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/PIDKiln_Wiring.png)
 
