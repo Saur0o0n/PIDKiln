@@ -18,7 +18,11 @@ struct tm timeinfo, *tmm;
   
   if(CSVFile=SPIFFS.open(str, "w")){
     DBG Serial.printf("[LOG] Created new log file %s\n",str);
+#ifdef ENERGY_MON_PIN
+    CSVFile.print(String("Date,Temperature,Housing,Energy"));
+#else
     CSVFile.print(String("Date,Temperature,Housing"));
+#endif
   }
 
   // Try to create additional info-log file if not.. well
@@ -65,12 +69,13 @@ struct tm timeinfo,*tmm;
   if(getLocalTime(&timeinfo)) strftime(str, 29, "%F %T", &timeinfo);
   else sprintf(str,"%d",millis());
 
-  if(Energy_Usage){
-    tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0)+","+String(Energy_Usage-EnW_last,1);
+#ifdef ENERGY_MON_PIN
+    tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0)+","+String((int)(Energy_Usage-EnW_last));
     EnW_last=Energy_Usage;
-  }else{
+#else
     tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0);
-  }
+#endif
+
   DBG Serial.printf("[LOG] Writing to log file:%s\n",tmp.c_str());
   CSVFile.println();
   CSVFile.print(tmp);

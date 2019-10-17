@@ -4,15 +4,15 @@ var chart_update_id;
 var chartColors = {
 	red: 'rgb(255, 99, 132)',
 	blue: 'rgb(54, 162, 235)',
-	yel: 'rgb(54, 162, 35)'
+	yel: 'rgb(150, 100, 0)',
+	green: 'rgba(0, 170, 70, 0.1)'
 };
 
 var color = Chart.helpers.color;
 var config_with = {
 	type: 'line',
 	data: {
-		datasets:
-		     [{
+		datasets: [{
 			yAxisID: 'temperature',
 			backgroundColor: 'transparent',
 			borderColor: chartColors.red,
@@ -27,11 +27,17 @@ var config_with = {
 			tension: 0.1,
 			fill: false
 		     }, {
-			label: 'Program ready to run',
-			tension: 0.1,
+			yAxisID: 'watts',
+			backgroundColor: chartColors.green,
+			borderColor: 'transparent',
+			fill: true
+		     }, {
+			label: 'Running program ~PROGRAM_NAME~',
+			yAxisID: 'temperature',
 			backgroundColor: 'transparent',
-			borderColor: window.chartColors.blue,
+			borderColor: chartColors.blue,
 			fill: false,
+			tension: 0.1,
 			data: [~CHART_DATA~]
 		}]
 	},
@@ -67,7 +73,21 @@ var config_with = {
 				},
 				scaleLabel: {
 					display: true,
-					labelString: 'Temperature (&deg;C)'
+					labelString: "Temperature (C)"
+				}
+			},{
+				id: 'watts',
+				position: 'right',
+				gridLines: {
+					display: false
+				},
+				scaleLabel: {
+					display: true,
+					labelString: 'Watts'
+				},
+				ticks: {
+					bounds: 'data',
+					beginAtZero: true,
 				}
 			}]
 		},
@@ -91,8 +111,9 @@ var config_without = {
 		datasets: [{
 			label: 'Loaded program: ~PROGRAM_NAME~',
 			tension: 0.1,
+			yAxisID: 'temperature',
 			backgroundColor: 'transparent',
-			borderColor: window.chartColors.blue,
+			borderColor: chartColors.blue,
 			fill: false,
 			data: [~CHART_DATA~]
 		}]

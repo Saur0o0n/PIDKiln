@@ -13,7 +13,7 @@ Adafruit_MAX31855 ThermocoupleA(MAXCS1);
 #include <EmonLib.h>
 #define ENERGY_MON_AMPS 30        // how many amps produces 1V on your meter (usualy with voltage output meters it's their max value).
 #define EMERGY_MON_VOLTAGE 230    // what is your mains voltage
-#define ENERGY_IGNORE_VALUE 0.3   // if measured current is below this - ignore it (it's just noise)
+#define ENERGY_IGNORE_VALUE 0.4   // if measured current is below this - ignore it (it's just noise)
 EnergyMonitor emon1;
 #endif
 uint16_t Energy_Wattage=0;        // keeping present power consumtion in Watts
