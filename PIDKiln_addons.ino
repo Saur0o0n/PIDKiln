@@ -30,16 +30,20 @@ boolean SSR_On; // just to narrow down state changes.. I don't know if this is n
 //
 void Enable_SSR(){
   if(!SSR_On){
-//    DBG Serial.println("[ADDONS] Enable SSR");
-    digitalWrite(SSR_RELAY_PIN, HIGH);
+    digitalWrite(SSR1_RELAY_PIN, HIGH);
+#ifdef SSR2_RELAY_PIN
+    digitalWrite(SSR2_RELAY_PIN, HIGH);
+#endif
     SSR_On=true;
   }
 }
 
 void Disable_SSR(){
   if(SSR_On){
-//    DBG Serial.println("[ADDONS] Disable SSR");
-    digitalWrite(SSR_RELAY_PIN, LOW);
+    digitalWrite(SSR1_RELAY_PIN, LOW);
+#ifdef SSR2_RELAY_PIN
+    digitalWrite(SSR2_RELAY_PIN, LOW);
+#endif
     SSR_On=false;
   }
 }
@@ -174,7 +178,10 @@ void START_Alarm(){
 
 void Setup_Addons(){
   pinMode(EMR_RELAY_PIN, OUTPUT);
-  pinMode(SSR_RELAY_PIN, OUTPUT);
+  pinMode(SSR1_RELAY_PIN, OUTPUT);
+#ifdef SSR2_RELAY_PIN
+    pinMode(SSR2_RELAY_PIN, OUTPUT);
+#endif
 
   pinMode(ALARM_PIN, OUTPUT);
 

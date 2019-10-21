@@ -6,14 +6,15 @@
 */
 
 #define EMR_RELAY_PIN 21
-#define SSR_RELAY_PIN 19
+#define SSR1_RELAY_PIN 19
+//#define SSR2_RELAY_PIN 22   // if you want to use additional SSR for second heater, uncoment this
 
 // MAX31855 variables/defs
-#define MAXCS1  27  // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
-//#define MAXCS2  15  // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
+#define MAXCS1  27    // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
+//#define MAXCS2  15    // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
-#define ENERGY_MON_PIN 33       // if you don't use - comment out
+//#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
 #define ALARM_PIN 26        // Pin goes high on abort
 uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm
@@ -271,7 +272,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v0.95";
-const char *PDate = "2019.10.16";
+const char *PDate = "2019.10.21";
 
 #define DBG if(DEBUG)
 
