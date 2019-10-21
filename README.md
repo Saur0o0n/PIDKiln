@@ -121,8 +121,8 @@ GND     | GND
 21      | IN
 5-48V*  | VCC
 
- * Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
- ** For additional SSR relay (works simultaneously with first one) use PIN 22 - see documentation for explanation
+ (*) Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
+ (**) For additional SSR relay (works simultaneously with first one) use PIN 22 - see documentation for explanation
 
 **Power meter**
 
@@ -153,8 +153,8 @@ GND   | GND
 
 ## Power consideration
 
-Preferably you should power your PIDKiln device with regulated 5V. This way you can power ESP32 board through VIN (do not use VIN and USB at once!) pin and use 5V to directly power EMR relay (around 185mA) and LCD backlight.
-You could power board with just USB, but 5V output from my board (ESP32-Wrover TTGO with microsd) is too weak to handle EMR and LCD and most of other boards do not have 5V out. You could also use VIN as 5V vout (this pin should be connected directly to USB 5V output) - but then you are limited by USB output and how much board traces can handle.
+Preferably you should power your PIDKiln device with regulated 5V. This way you can power ESP32 board through VIN (do not use VIN and USB at once!) pin and use 5V to directly power EMR relay (around 185mA) and LCD backlight (depends of brightness).
+You could power board with just USB, but 5V output from my board (ESP32-Wrover TTGO with microsd) is too weak to handle EMR and LCD and most of other boards even do not have 5V out. You could also use VIN as 5V vout (this pin should be connected directly to USB 5V output) - but then you are limited by USB output and how much board traces can handle.
 
 ## Installation
 
