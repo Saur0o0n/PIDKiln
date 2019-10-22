@@ -1,7 +1,8 @@
 
-0.95 (2019.10.21) Almost, almost there ;)
+0.95 (2019.10.22) Almost, almost there ;)
 - add binary firmware flashing with Webpage
 - add second SSR for additional heater (works at the same time as SSR1) on GPIO 22 - read explanation in docs
+- created new, lazy OTA Installation script for quick installation (I'm not sure if its a good idea but since I could, I've done it ;) )
 
 0.9 (2019.10.12) Almost there
 - first release with changelog - all previous releases are only "git commit" documented
