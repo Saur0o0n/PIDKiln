@@ -121,8 +121,9 @@ GND     | GND
 21      | IN
 5-48V*  | VCC
 
- (*) Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
- (**) For additional SSR relay (works simultaneously with first one) use PIN 22 - see documentation for explanation
+(*) Do not connect 5V from ESP - use external source. This can be any 5V-48V power supply with around 1W power.
+
+(**) For additional SSR relay (works simultaneously with first one) use PIN 22 - see documentation for explanation
 
 **Power meter**
 
@@ -172,7 +173,7 @@ You could power board with just USB, but 5V output from my board (ESP32-Wrover T
 
 ## Documentation
 
-- Most of the documentation you can find on [PIDKiln github page](https://github.com/Saur0o0n/pidkiln) - so please use it
+- Most of the documentation you can find on [PIDKiln github page](https://github.com/Saur0o0n/pidkiln/wiki) - so please use it
 - Some less formal updates information and step by step instructions will be on [my webpage](https://adrian.siemieniak.net/portal/tag/PIDKiln/)
 
 ## Some future ideas
