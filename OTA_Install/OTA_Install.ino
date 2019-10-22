@@ -8,9 +8,14 @@
 
 static char* WiFi_SSID="";
 static char* WiFi_PASS="";
+//           EDIT THIS ^^^^^^^^^^^^^^
 
 
 
+#define BIN_SPIFFS "http://adrian.siemieniak.net/PIDKiln/PIDKiln.spiffs.bin"
+//#define BIN_SPIFFS "https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/OTA_Install/PIDKiln.spiffs.bin"
+#define BIN_SKETCH "http://adrian.siemieniak.net/PIDKiln/PIDKiln.ino.esp32.bin"
+//#define BIN_SKETCH "https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/OTA_Install/PIDKiln.ino.esp32.bin"
 
 #include <Arduino.h>
 
@@ -63,12 +68,12 @@ void loop() {
     // On a good connection the LED should flash regularly. On a bad connection the LED will be
     // on much longer than it will be off. Other pins than LED_BUILTIN may be used. The second
     // value is used to put the LED on. If the LED is on with HIGH, that value should be passed
-    // httpUpdate.setLedPin(LED_BUILTIN, LOW);
+    //httpUpdate.setLedPin(LED_BUILTIN, LOW);
 
-    t_httpUpdate_return ret = httpUpdate.updateSpiffs(client, "http://adrian.siemieniak.net/ftp/PIDKiln.spiffs.bin");
+    t_httpUpdate_return ret = httpUpdate.updateSpiffs(client, BIN_SPIFFS);
     if (ret == HTTP_UPDATE_OK) {
       Serial.println("Update sketch...");
-      ret = httpUpdate.update(client, "http://adrian.siemieniak.net/ftp/PIDKiln.ino.esp32.bin");
+      ret = httpUpdate.update(client, BIN_SKETCH);
 
       switch (ret) {
         case HTTP_UPDATE_FAILED:
