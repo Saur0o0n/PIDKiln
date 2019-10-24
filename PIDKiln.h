@@ -205,6 +205,9 @@ typedef enum { // program menu positions
   PRF_WIFI_AP_USERNAME,
   PRF_WIFI_AP_PASS,
 
+  PRF_AUTH_USER,
+  PRF_AUTH_PASS,
+
   PRF_NTPSERVER1,
   PRF_NTPSERVER2,
   PRF_NTPSERVER3,
@@ -233,6 +236,7 @@ typedef enum { // program menu positions
 
 const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
+"Auth_Username","Auth_Password",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window",
@@ -271,8 +275,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v0.95";
-const char *PDate = "2019.10.21";
+const char *PVer = "PIDKiln v1.0";
+const char *PDate = "2019.10.24";
 
 #define DBG if(DEBUG)
 

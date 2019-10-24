@@ -142,6 +142,15 @@ char tmp[30];
         Prefs[PRF_WIFI_RETRY_CNT].value.uint8=6;
         break;
 
+      case PRF_AUTH_USER:
+        Prefs[PRF_AUTH_USER].type=STRING;
+        Prefs[PRF_AUTH_USER].value.str=strdup("admin");
+        break;
+      case PRF_AUTH_PASS:
+        Prefs[PRF_AUTH_PASS].type=STRING;
+        Prefs[PRF_AUTH_PASS].value.str=strdup("hotashell");
+        break;
+
       case PRF_NTPSERVER1:
         Prefs[PRF_NTPSERVER1].type=STRING;
         Prefs[PRF_NTPSERVER1].value.str=strdup("pool.ntp.org");

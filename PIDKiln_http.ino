@@ -35,6 +35,9 @@ String Preferences_parser(const String& var){
  else if(var=="WiFi_Mode1" && Prefs[PRF_WIFI_MODE].value.uint8==1) return "checked";
  else if(var=="WiFi_Mode2" && Prefs[PRF_WIFI_MODE].value.uint8==2) return "checked";
  else if(var=="WiFi_Retry_cnt") return String(Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
+
+ else if(var=="Auth_Username") return String(Prefs[PRF_AUTH_USER].value.str);
+ else if(var=="Auth_Password") return String(Prefs[PRF_AUTH_PASS].value.str);
  
  else if(var=="NTP_Server1") return String(Prefs[PRF_NTPSERVER1].value.str);
  else if(var=="NTP_Server2") return String(Prefs[PRF_NTPSERVER2].value.str);
@@ -283,6 +286,7 @@ template_str=String();
   index.close(); 
 }
 
+
 // Template preprocessor for chart.js
 //
 String Chart_parser(const String& var) {
@@ -444,6 +448,8 @@ String tmp=String(PRG_Directory);
 //
 void POST_Handle_Delete(AsyncWebServerRequest *request){
 
+  if(!_webAuth(request)) return;
+
   //Check if POST (but not File) parameter exists
   if(request->hasParam("prog_name", true) && request->hasParam("yes", true)){
     AsyncWebParameter* p = request->getParam("yes", true);
@@ -525,7 +531,9 @@ char prname[MAX_FILENAME];
 //
 void handlePrefs(AsyncWebServerRequest *request){
 boolean save=false;
-  
+
+  if(!_webAuth(request)) return;
+
   int params = request->params();
   for(int i=0;i<params;i++){
     AsyncWebParameter* p = request->getParam(i);
@@ -565,6 +573,8 @@ boolean save=false;
 //
 void handleIndexPost(AsyncWebServerRequest *request){
 int params = request->params();
+
+  if(!_webAuth(request)) return;
 
   for(int i=0;i<params;i++){
     AsyncWebParameter* p = request->getParam(i);
@@ -674,7 +684,7 @@ size_t content_len;
 
   if (final) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", "Please wait while the device reboots...");
-    response->addHeader("Refresh", "30; url=/about.html");
+    response->addHeader("Refresh", "20; url=/about.html");
     response->addHeader("Connection", "close");
     request->send(response);
     delay(1000);
@@ -689,6 +699,17 @@ size_t content_len;
 }
 
 
+// Basic WEB authentication
+//
+bool _webAuth(AsyncWebServerRequest *request){
+    if(!request->authenticate(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str,NULL,false)) {
+      request->requestAuthentication(NULL,false); // force basic auth
+      return false;
+    }
+    return true;
+}
+
+
 /* 
 ** Setup Webserver screen 
 **
@@ -699,32 +720,37 @@ void SETUP_WebServer(void) {
     request->redirect("/index.html");
   });
 
-  server.serveStatic("/index.html", SPIFFS, "/index.html");
+  server.serveStatic("/index.html", SPIFFS, "/index.html").setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
   
   server.on("/index.html", HTTP_POST, handleIndexPost);
   
   server.on("/js/chart.js", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(SPIFFS, "/js/chart.js", String(), false, Chart_parser);
   });
 
   server.on("/PIDKiln_vars.json", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(SPIFFS, "/PIDKiln_vars.json", "application/json", false, handleVars);
   });
 
   // Set default file for programs to index.html - because webserver was programmed by some Windows @%$$# :/
-  server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html");
-  server.serveStatic("/logs/", SPIFFS, "/logs/").setDefaultFile("index.html");
+  server.serveStatic("/programs/", SPIFFS, "/programs/").setDefaultFile("index.html").setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
+  server.serveStatic("/logs/", SPIFFS, "/logs/").setDefaultFile("index.html").setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
 
   // Upload new programs
   server.on("/upload", HTTP_POST, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(200);
   }, handleUpload);
 
   server.on("/debug_board.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(SPIFFS, "/debug_board.html", String(), false, Debug_ESP32);
   });
 
   server.on("/preferences.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(SPIFFS, "/preferences.html", String(), false, Preferences_parser);
   });
 
@@ -739,15 +765,17 @@ void SETUP_WebServer(void) {
   server.on("/screenshot.html", HTTP_GET, do_screenshot);
 
   server.on("/about.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(SPIFFS, "/about.html", String(), false, About_parser);
   });
 
   server.on("/flash_firmware.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(!_webAuth(request)) return;
     request->send(SPIFFS, "/flash_firmware.html", String(), false, Preferences_parser);
   });
   
   server.on("/flash_firmware.html", HTTP_POST,
-    [](AsyncWebServerRequest *request) {},
+    [](AsyncWebServerRequest *request) { if(!_webAuth(request)) return; },
     [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data,
                   size_t len, bool final) {handleDoUpdate(request, filename, index, data, len, final);}
   );
@@ -756,7 +784,7 @@ void SETUP_WebServer(void) {
   server.serveStatic("/icons/", SPIFFS, "/icons/");
   server.serveStatic("/js/", SPIFFS, "/js/");
   server.serveStatic("/css/", SPIFFS, "/css/");
-  server.serveStatic(PREFS_FILE, SPIFFS, PREFS_FILE);
+  server.serveStatic(PREFS_FILE, SPIFFS, PREFS_FILE).setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
   server.serveStatic("/favicon.ico", SPIFFS, "/icons/heat.png");
 
   // Start server

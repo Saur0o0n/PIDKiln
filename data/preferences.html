@@ -33,7 +33,7 @@
 	<label for="WiFi_SSID"> WiFi access point SSID </label>
       </div>
       <div class="col-75">
-	<input type="tex" name="WiFi_SSID" value="~WiFi_SSID~" width="20">
+	<input type="text" name="WiFi_SSID" value="~WiFi_SSID~" width="20">
       </div>
      </div>
      <div class="row">
@@ -43,7 +43,7 @@
       <div class="col-75">
        <div style="display: inline-block;">
 	<input type="password" id="WiFi_Password" name="WiFi_Password" value="~WiFi_Password~" width="20">
-	<span id="pass_toggler" class="fa fa-fw fa-eye-slash field-icon toggle-password" onclick="toggle_password(WiFi_Password)"></span>
+	<span id="WiFi_Password_toggler" class="fa fa-fw fa-eye-slash field-icon toggle-password" onclick="toggle_password(WiFi_Password)"></span>
        </div>
       </div>
      </div>
@@ -64,6 +64,29 @@
       </div>
       <div class="col-75">
 	<input type="number" name="WiFi_Retry_cnt" value="~WiFi_Retry_cnt~" min="0" max="254"> seconds
+      </div>
+     </div>
+   </fieldset>
+
+   <fieldset>
+    <legend> Web authentication </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="Auth_Username"> Auth Username </label>
+      </div>
+      <div class="col-75">
+	<input type="text" name="Auth_Username" value="~Auth_Username~" width="20">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="Auth_Password"> Auth Password </label>
+      </div>
+      <div class="col-75">
+       <div style="display: inline-block;">
+	<input type="password" id="Auth_Password" name="Auth_Password" value="~Auth_Password~" width="20">
+	<span id="Auth_Password_toggler" class="fa fa-fw fa-eye-slash field-icon toggle-password" onclick="toggle_password(Auth_Password)"></span>
+       </div>
       </div>
      </div>
    </fieldset>

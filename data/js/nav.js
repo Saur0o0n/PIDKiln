@@ -10,7 +10,8 @@ function switch_nav() {
 
 
 function toggle_password(input) {
-  var el = document.getElementById("pass_toggler");
+  var name=input.name+"_toggler";
+  var el = document.getElementById(name);
 
   el.classList.toggle("fa-eye-slash");
   el.classList.toggle("fa-eye");
