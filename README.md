@@ -1,7 +1,5 @@
 # pidkiln
-Ceramic/glass/metal kiln PID controller based on Arduino IDE and ESP32-Wrover board.
-
-This is still work in progress, but since of release v0.7 (2019.09.24) it's fully functional. Just needs some more polishing.
+PIDKiln is PID temperature controller, for any task involving high temperatures - like burning ceramic, glass fusing, soft metal melting, burning lost wax casting forms - and probably much more.
 
 ## Key features:
 - Interface accessible both from LCD screen and WWW Webpage
@@ -158,6 +156,8 @@ Preferably you should power your PIDKiln device with regulated 5V. This way you 
 You could power board with just USB, but 5V output from my board (ESP32-Wrover TTGO with microsd) is too weak to handle EMR and LCD and most of other boards even do not have 5V out. You could also use VIN as 5V vout (this pin should be connected directly to USB 5V output) - but then you are limited by USB output and how much board traces can handle.
 
 ## Installation
+
+This is short version - for detailed one, please see [Wiki documentation](https://github.com/Saur0o0n/pidkiln/wiki/Hardware-assembly)
 
 - Assembly hardware, as specified above.
 - Clone git into the Arduino user programs directory (on Linux "/home/username/Arduino/").
