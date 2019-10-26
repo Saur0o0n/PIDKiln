@@ -1,5 +1,7 @@
 1.0 (2019.10.24)
 - implemented basic authentication for WWW interface (add preferences for it) - default username/pw is admin/hotashell
+- added PID window divider (as define in PIDKiln.h) - can be use to increase PID responsiveness
+- reverse sorting of logs (new = first)
 
 0.95 (2019.10.22) Almost, almost there ;)
 - add binary firmware flashing with Webpage

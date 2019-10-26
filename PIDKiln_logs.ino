@@ -41,7 +41,7 @@ struct tm timeinfo, *tmm;
         strftime(str, 29, "%F %T", tmm);
         LOGFile.printf("Possible end at: %s\n", str);
       }
-      LOGFile.printf("PID values. Kp:%.2f Kd:%.2f Ki:%.2f\n",Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KD].value.vfloat,Prefs[PRF_PID_KI].value.vfloat);
+      LOGFile.printf("PID values. Kp:%.2f Ki:%.2f Kd:%.2f\n",Prefs[PRF_PID_KP].value.vfloat,Prefs[PRF_PID_KI].value.vfloat,Prefs[PRF_PID_KD].value.vfloat);
       LOGFile.printf("Start temperature: %.1fC\n",kiln_temp);
       LOGFile.printf("CSV filename: %s\n-=-=-= Starting program =-=-=-=-\n",str);
       LOGFile.flush();
@@ -155,7 +155,7 @@ File dir,file;
     if(Logs_DIR_size>1) // if we have at least 2 progs
       for(int a=0; a<Logs_DIR_size-1; a++){
         DIRECTORY tmp;
-        if(strcmp(Logs_DIR[a].filename,Logs_DIR[a+1].filename)>0){
+        if(strcmp(Logs_DIR[a].filename,Logs_DIR[a+1].filename)<0){
           tmp=Logs_DIR[a];
           Logs_DIR[a]=Logs_DIR[a+1];
           Logs_DIR[a+1]=tmp;
