@@ -369,7 +369,7 @@ struct tm timeinfo,*tmm;
 
   // Print Step number/all steps and if it's Run od Dwell, print proportional heat time of SSR and case temperature
   //if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%%  Cse:%2dC",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100.0);
-  if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%% Cse:%.0fC",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100,case_temp);
+  if(Program_run_step>-1) sprintf(msg,"Stp:%d/%d%c Ht:%3.0f%% Cse:%.0fC",Program_run_step+1,Program_run_size,(temp_incr!=0)?'r':'d',(pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100*PID_WINDOW_DIVIDER,case_temp);
   else sprintf(msg,"Stp:0/%d r/d Ht:0%% Cse:%.0fC",Program_run_size,case_temp);
   u8g2.drawStr(x,y+=chh-1,msg);
   

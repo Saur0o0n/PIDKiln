@@ -606,7 +606,7 @@ struct tm timeinfo, *tmm;
   else if(var=="SET_TEMP") return String(set_temp);
   else if(var=="ENV_TEMP") return String(int_temp);
   else if(var=="CASE_TEMP") return String(case_temp);
-  else if(var=="HEAT_TIME") return String((pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100);
+  else if(var=="HEAT_TIME") return String((pid_out/Prefs[PRF_PID_WINDOW].value.uint16)*100*PID_WINDOW_DIVIDER);
   else if(var=="TEMP_CHANGE") return String(temp_incr);
   else if(var=="STEP"){
     if(Program_run_state==PR_RUNNING){

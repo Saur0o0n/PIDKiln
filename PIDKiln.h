@@ -14,7 +14,7 @@
 //#define MAXCS2  15    // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
-//#define ENERGY_MON_PIN 33       // if you don't use - comment out
+#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
 #define ALARM_PIN 26        // Pin goes high on abort
 uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm
@@ -27,7 +27,7 @@ double int_temp=20, kiln_temp=20, case_temp=20;
 double set_temp, pid_out;
 float temp_incr=0;
 uint32_t windowStartTime;
-
+#define PID_WINDOW_DIVIDER 1
 
 //Specify the links and initial tuning parameters
 PID KilnPID(&kiln_temp, &pid_out, &set_temp, 0, 0, 0, P_ON_E, DIRECT);

@@ -61,7 +61,7 @@ struct tm timeinfo, *tmm;
 //
 void Add_log_line(){
 String tmp;
-char str[30];
+char str[33];
 struct tm timeinfo,*tmm;
                  
   if(!CSVFile) return;
@@ -86,14 +86,20 @@ struct tm timeinfo,*tmm;
 // Closes cleanly log file
 //
 void Close_log_file(){
+struct tm timeinfo, *tmm;
+char str[33];
+
   if(CSVFile){
     CSVFile.flush();
     CSVFile.close();
   }
   if(LOGFile){
-    LOGFile.printf("Program ended at:%d\n",Program_run_end);
+    if(tmm = localtime(&Program_run_end)){
+      strftime(str, 29, "%F %T", tmm);
+      LOGFile.printf("Program ended at: %s\n", str);
+    }
     LOGFile.printf("End temperature: %.1fC",kiln_temp);
-    if(Energy_Wattage) LOGFile.printf("Used power: %.1f W/h",Energy_Wattage);
+    if(Energy_Wattage) LOGFile.printf("Used power: %.1f W/h\n",Energy_Wattage);
     if(Program_error){
       LOGFile.printf("Program aborted with error: %d\n",Program_error);
     }
