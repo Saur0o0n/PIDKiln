@@ -173,6 +173,8 @@ void setup() {
 
   // Setup all sensors/relays
   Setup_Addons();
+
+  Clean_LOGS();
 }
 
 

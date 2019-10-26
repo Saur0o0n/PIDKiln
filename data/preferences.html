@@ -53,9 +53,9 @@
       </div>
       <div class="col-75">
 	<input type="radio" name="WiFi_Mode" value="0" ~WiFi_Mode0~> 0 - no WiFi<br>
-	<input type="radio" name="WiFi_Mode" value="1" ~WiFi_Mode0~> 1 - connect to AP - if failed, be AP (default)<br>
-	<input type="radio" name="WiFi_Mode" value="2" ~WiFi_Mode1~> 2 - connect only to AP<br>
-	<input type="radio" name="WiFi_Mode" value="3" ~WiFi_Mode2~> 3 - be only AP<br>
+	<input type="radio" name="WiFi_Mode" value="1" ~WiFi_Mode1~> 1 - connect to AP - if failed, be AP (default)<br>
+	<input type="radio" name="WiFi_Mode" value="2" ~WiFi_Mode2~> 2 - connect only to AP<br>
+	<input type="radio" name="WiFi_Mode" value="3" ~WiFi_Mode3~> 3 - be only AP<br>
       </div>
      </div>
      <div class="row">
@@ -208,6 +208,14 @@
       </div>
       <div class="col-75">
 	<input type="number" name="LOG_Window" min="0" max="3600" step="1" value="~LOG_Window~">s
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="LOG_Files_Limit"> Log files limit </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="LOG_Files_Limit" min="0" max="3600" step="1" value="~LOG_Files_Limit~">
       </div>
      </div>
    </fieldset>

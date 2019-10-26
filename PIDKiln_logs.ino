@@ -110,6 +110,20 @@ char str[33];
 }
 
 
+// Function leans logs on SPIFFs depending on preferences value "LOG_Files_Limit"
+//
+void Clean_LOGS(){
+char fname[MAX_FILENAME];
+
+  if(Logs_DIR_size<=Prefs[PRF_LOG_LIMIT].value.uint16) return;
+  for(uint16_t a=Prefs[PRF_LOG_LIMIT].value.uint16; a<Logs_DIR_size; a++){
+    sprintf(fname,"%s/%s",LOG_Directory,Logs_DIR[a].filename);
+    DBG Serial.printf("[LOG] Deleting file:%s\n",fname);
+    SPIFFS.remove(fname);
+  }
+}
+
+
 // Load logs directory into memory - to sort it etc for easier processing PSMmem is plenty
 //
 uint8_t Load_LOGS_Dir(){

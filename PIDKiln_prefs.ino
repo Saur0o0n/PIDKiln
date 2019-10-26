@@ -209,6 +209,10 @@ char tmp[30];
         Prefs[PRF_LOG_WINDOW].type=UINT16;
         Prefs[PRF_LOG_WINDOW].value.uint16=30;
         break;
+      case PRF_LOG_LIMIT:
+        Prefs[PRF_LOG_LIMIT].type=UINT16;
+        Prefs[PRF_LOG_LIMIT].value.uint16=40;
+        break;
 
       case PRF_MIN_TEMP:
         Prefs[PRF_MIN_TEMP].type=UINT8;

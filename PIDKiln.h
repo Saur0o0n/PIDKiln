@@ -224,6 +224,7 @@ typedef enum { // program menu positions
   PRF_PID_TEMP_THRESHOLD,
 
   PRF_LOG_WINDOW,
+  PRF_LOG_LIMIT,
 
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
@@ -239,7 +240,7 @@ const char *PrefsName[]={
 "Auth_Username","Auth_Password",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
-"LOG_Window",
+"LOG_Window","LOG_Files_Limit",
 "MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout",
 };
 
@@ -276,7 +277,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.0";
-const char *PDate = "2019.10.24";
+const char *PDate = "2019.10.26";
 
 #define DBG if(DEBUG)
 
