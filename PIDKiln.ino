@@ -165,8 +165,11 @@ void setup() {
   // (re)generate programs index file /programs/index.html
   Generate_INDEX();
 
-  // Generate logs.html index
-  Generate_LOGS_INDEX();
+  // Loads logs index
+  Load_LOGS_Dir();
+  
+  // Clean logs on start - this will also call logs index generator
+  Clean_LOGS();
   
   // Setup program module
   Program_Setup();
@@ -174,7 +177,6 @@ void setup() {
   // Setup all sensors/relays
   Setup_Addons();
 
-  Clean_LOGS();
 }
 
 

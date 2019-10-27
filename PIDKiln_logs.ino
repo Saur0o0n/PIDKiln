@@ -106,7 +106,7 @@ char str[33];
     LOGFile.flush();
     LOGFile.close();
   }
-  Generate_LOGS_INDEX();
+  Clean_LOGS();
 }
 
 
@@ -116,11 +116,13 @@ void Clean_LOGS(){
 char fname[MAX_FILENAME];
 
   if(Logs_DIR_size<=Prefs[PRF_LOG_LIMIT].value.uint16) return;
+  DBG Serial.println("[LOG] Cleaning logs...");
   for(uint16_t a=Prefs[PRF_LOG_LIMIT].value.uint16; a<Logs_DIR_size; a++){
     sprintf(fname,"%s/%s",LOG_Directory,Logs_DIR[a].filename);
     DBG Serial.printf("[LOG] Deleting file:%s\n",fname);
     SPIFFS.remove(fname);
   }
+  Generate_LOGS_INDEX();
 }
 
 
@@ -166,7 +168,7 @@ File dir,file;
   bool nok=true;
   while(nok){
     nok=false;
-    if(Logs_DIR_size>1) // if we have at least 2 progs
+    if(Logs_DIR_size>1) // if we have at least 2 logs
       for(int a=0; a<Logs_DIR_size-1; a++){
         DIRECTORY tmp;
         if(strcmp(Logs_DIR[a].filename,Logs_DIR[a+1].filename)<0){
@@ -178,6 +180,6 @@ File dir,file;
       }    
    }
 
-  //if(Logs_DIR_size) Logs_DIR[0].sel=1; // make first program seleted if we have at least one
+  //if(Logs_DIR_size) Logs_DIR[0].sel=1; // make first log seleted if we have at least one
   return 0;
 }

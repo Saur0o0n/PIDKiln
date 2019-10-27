@@ -248,7 +248,7 @@ template_str=String();
   // Open index for writting
   tmp=String(LOG_Directory)+String("/index.html");
   if(!(index = SPIFFS.open(tmp.c_str(), "w"))){
-    DBG Serial.println("[HTTP] Failed to open for writing logs.html");
+    DBG Serial.println("[HTTP] Failed to open for writing log/index.html");
     return;
   }
 
@@ -278,7 +278,7 @@ template_str=String();
 
   // Copy end of the index template
   if(tmpf=SPIFFS.open("/logs_end.txt", "r")){
-    DBG Serial.println("[HTTP] End of index - copying...");
+    DBG Serial.println("[HTTP] End of log index - copying...");
     tmp=tmpf.readString();
     //DBG Serial.println(tmp);
     index.print(tmp);
