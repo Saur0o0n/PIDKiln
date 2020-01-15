@@ -13,13 +13,12 @@ function toggle_password(input) {
   var name=input.name+"_toggler";
   var el = document.getElementById(name);
 
-  el.classList.toggle("fa-eye-slash");
-  el.classList.toggle("fa-eye");
-
   if (input.type == "password") {
     input.type = "text";
+    el.src="icons/eyeo.png";
   } else {
     input.type = "password";
+    el.src="icons/eyec.png";
   }
 }
 

@@ -166,11 +166,12 @@ input.index {
 
 .field-icon {
   float: right;
-  margin-left: -25px;
-  margin-top: 0.6em;
+  margin-left: -3em;
+  margin-top: 0.4em;
   margin-right: 0.2em;
   position: relative;
   z-index: 2;
+  height: 1.5em;
 }
 
 /* Chart part */

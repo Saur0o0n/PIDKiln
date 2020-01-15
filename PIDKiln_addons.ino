@@ -165,14 +165,14 @@ void Power_Loop(void * parameter){
 //
 void STOP_Alarm(){
   ALARM_countdown=0;
-  digitalWrite(ENCODER0_PINA, LOW);
+  digitalWrite(ALARM_PIN, LOW);
 }
 // Start Alarm
 //
 void START_Alarm(){
   if(!Prefs[PRF_ALARM_TIMEOUT].value.uint16) return;
   ALARM_countdown=Prefs[PRF_ALARM_TIMEOUT].value.uint16;
-  digitalWrite(ENCODER0_PINA, HIGH);
+  digitalWrite(ALARM_PIN, HIGH);
 }
 
 

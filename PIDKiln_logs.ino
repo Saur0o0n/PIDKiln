@@ -98,7 +98,7 @@ char str[33];
       strftime(str, 29, "%F %T", tmm);
       LOGFile.printf("Program ended at: %s\n", str);
     }
-    LOGFile.printf("End temperature: %.1fC",kiln_temp);
+    LOGFile.printf("End temperature: %.1fC\n",kiln_temp);
     if(Energy_Wattage) LOGFile.printf("Used power: %.1f W/h\n",Energy_Wattage);
     if(Program_error){
       LOGFile.printf("Program aborted with error: %d\n",Program_error);

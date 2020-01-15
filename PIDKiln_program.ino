@@ -306,12 +306,13 @@ void END_Program(){
 //
 void ABORT_Program(uint8_t error){
 
+  Program_error=error;
+  DBG Serial.printf("[PRG] Aborting program with error: %d\n",Program_error);
   if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
     END_Program();
     Program_run_state=PR_ABORTED;
     //Program_run_start=0;
   }
-  Program_error=error;
   START_Alarm();
 }
 
@@ -494,7 +495,7 @@ uint32_t now;
 
       // Check if there is Alarm ON - if so, lower time and call STOP
       if(ALARM_countdown>0){
-        if(ALARM_countdown==1) STOP_Alarm();
+        if(ALARM_countdown<=1) STOP_Alarm();
         ALARM_countdown--;
       }
 
