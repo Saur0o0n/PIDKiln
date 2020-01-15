@@ -178,13 +178,13 @@ void handleInterrupt() {
 //
 void Setup_Input() {
 
-  pinMode(ENCODER0_PINA, INPUT); 
-  pinMode(ENCODER0_PINB, INPUT);
-  pinMode(ENCODER0_BUTTON, INPUT);
+  pinMode(ENCODER0_PINA, INPUT_PULLUP); 
+  pinMode(ENCODER0_PINB, INPUT_PULLUP);
+  pinMode(ENCODER0_BUTTON, INPUT_PULLUP);
 
-  digitalWrite(ENCODER0_PINA, HIGH); //turn pullup resistor on
-  digitalWrite(ENCODER0_PINB, HIGH); //turn pullup resistor on
-  digitalWrite(ENCODER0_BUTTON, HIGH); //turn pullup resistor on
+  //digitalWrite(ENCODER0_PINA, HIGH); //turn pullup resistor on
+  //digitalWrite(ENCODER0_PINB, HIGH); //turn pullup resistor on
+  //digitalWrite(ENCODER0_BUTTON, HIGH); //turn pullup resistor on
 
   attachInterrupt(ENCODER0_PINA, handleInterrupt, CHANGE);
   attachInterrupt(ENCODER0_PINB, handleInterrupt, CHANGE);

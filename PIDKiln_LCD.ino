@@ -841,7 +841,7 @@ struct tm timeinfo;
     sprintf(msg,"WiFi status: disabled");
     u8g2.drawStr(x,y,msg);
   }else if(WiFi.getMode()==WIFI_STA){
-    sprintf(msg,"WiFi status: client");
+    sprintf(msg,"WiFi mode: client");
     u8g2.drawStr(x,y,msg);
     sprintf(msg,"WiFi ssid: %s",Prefs[PRF_WIFI_SSID].value.str);
     u8g2.drawStr(x,y+=chh,msg);
@@ -849,7 +849,7 @@ struct tm timeinfo;
     else sprintf(msg,"WiFi status: disconnected");
     u8g2.drawStr(x,y+=chh,msg);
   }else if(WiFi.getMode()==WIFI_AP){
-    sprintf(msg,"WiFi status: AP");
+    sprintf(msg,"WiFi mode: AP");
     u8g2.drawStr(x,y,msg);
   }
 
@@ -859,6 +859,12 @@ struct tm timeinfo;
     sprintf(msg,"WiFi IP: %s",lips.toString().c_str());
     u8g2.drawStr(x,y+=chh,msg);
   }
+
+  uint64_t chipid;
+  chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
+  sprintf(msg,"MAC: %04X%08X",(uint16_t)(chipid>>32),(uint32_t)chipid);
+  u8g2.drawStr(x,y+=chh,msg);
+  
   sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
   u8g2.drawStr(x,y+=chh,msg);
   

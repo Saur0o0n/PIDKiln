@@ -1,5 +1,17 @@
 #include <PID_v1.h>
 
+/* 
+** Some definitions - usually you should not edit this, but you may want to
+*/
+#define ENCODER0_PINA    34
+#define ENCODER0_PINB    35
+#define ENCODER0_BUTTON  32
+#define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
+#define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
+const uint16_t Long_Press=400; // long press button takes about 0,9 second
+
+const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
+
 /*
 ** Relays and thermocouple defs. and other addons
 **
@@ -14,7 +26,7 @@
 //#define MAXCS2  15    // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
-#define ENERGY_MON_PIN 33       // if you don't use - comment out
+//#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
 #define ALARM_PIN 26        // Pin goes high on abort
 uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm
@@ -276,8 +288,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v1.0";
-const char *PDate = "2019.10.27";
+const char *PVer = "PIDKiln v1.1";
+const char *PDate = "2020.01.15";
 
 #define DBG if(DEBUG)
 

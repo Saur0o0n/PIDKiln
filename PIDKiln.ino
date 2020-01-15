@@ -1,7 +1,7 @@
 /*
-** PIDKiln v1.0 - high temperature kiln PID controller for ESP32
+** PIDKiln v1.1 - high temperature kiln PID controller for ESP32
 **
-** Copyright (C) 2019 - Adrian Siemieniak
+** Copyright (C) 2019-2020 - Adrian Siemieniak
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
@@ -41,22 +41,6 @@
 
 #define DEBUG true
 //#define DEBUG false
-
-
-/* 
-** Some definitions - usually you should not edit this, but you may want to
-*/
-#define ENCODER0_PINA    34
-#define ENCODER0_PINB    35
-#define ENCODER0_BUTTON  32
-#define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
-#define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
-const uint16_t Long_Press=400; // long press button takes about 0,9 second
-
-const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
-
-// Other variables
-//
 
 
 // Close cleanly file and delete file from SPIFFS
@@ -170,6 +154,9 @@ void setup() {
   
   // Clean logs on start - this will also call logs index generator
   Clean_LOGS();
+
+  // Generate log index after cleanup
+  Generate_LOGS_INDEX();
   
   // Setup program module
   Program_Setup();

@@ -107,6 +107,7 @@ char str[33];
     LOGFile.close();
   }
   Clean_LOGS();
+  Generate_LOGS_INDEX();
 }
 
 
@@ -122,7 +123,6 @@ char fname[MAX_FILENAME];
     DBG Serial.printf("[LOG] Deleting file:%s\n",fname);
     SPIFFS.remove(fname);
   }
-  Generate_LOGS_INDEX();
 }
 
 
