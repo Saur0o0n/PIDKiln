@@ -39,7 +39,7 @@ int multi=1;
   // Looking for line dddd:dddd:dddd (temperature:time in minutes:time in minutes) - assume max 1350:9999:9999
   char p_line[15];
   strcpy(p_line,linia.c_str());
-  DBG Serial.printf("[PRG] Sanitizing line: '%s'\n",p_line);
+  DBG dbgLog(LOG_DEBUG,"[PRG] Sanitizing line: '%s'\n",p_line);
   a=linia.length(); // going back to front
   prg[2]=0;prg[1]=prg[0]=0;
   while(a--){
@@ -59,7 +59,7 @@ int multi=1;
   Program[Program_size].temp=prg[0];
   Program[Program_size].togo=prg[1];
   Program[Program_size].dwell=prg[2];
-  DBG Serial.printf("[PRG] Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
+  DBG dbgLog(LOG_DEBUG,"[PRG] Program_pos: %d, Temp: %dC Time to: %ds Dwell: %ds\n",Program_size,Program[Program_size].temp,Program[Program_size].togo,Program[Program_size].dwell);
   Program_size++;
   return 0;
 }
@@ -77,14 +77,14 @@ File prg;
 
   if(file){  // if function got an argument - this can happen if you want to validate new program uploaded by http
     sprintf(file_path,"%s/%s",PRG_Directory,file);
-    DBG Serial.printf("[PRG] Got pointer to load:'%s'\n",file);
+    DBG dbgLog(LOG_DEBUG,"[PRG] Got pointer to load:'%s'\n",file);
     Program_name=String(file);
   }else{
     if((sel=Find_selected_program())<0) return Cleanup_program(1);
     sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
     Program_name=String(Programs_DIR[sel].filename);
   }
-  DBG Serial.printf("[PRG] Load program name: '%s'\n",file_path);
+  DBG dbgLog(LOG_INFO,"[PRG] Load program name: '%s'\n",file_path);
   
   if(prg = SPIFFS.open(file_path,"r")){
     Program_desc="";  // erase current program
@@ -94,9 +94,9 @@ File prg;
       line.trim();
       if(!line.length()) continue; // empty line - skip it
       
-      DBG Serial.printf("[PRG] Raw line: '%s'\n",line.c_str());
+      DBG dbgLog(LOG_DEBUG,"[PRG] Raw line: '%s'\n",line.c_str());
       if(line.startsWith("#")){ // skip every comment line
-        DBG Serial.println("[PRG]  comment");
+        DBG dbgLog(LOG_DEBUG,"[PRG]  comment");
         if(!Program_desc.length()){
           line=line.substring(1);  // If it's the first line with comment - copy it without trailing #
           line.trim();
@@ -112,10 +112,10 @@ File prg;
         if(line.length()>15) return Cleanup_program(2);  // program line too long
         else if(err=add_program_line(line)) return Cleanup_program(err); // line adding failed!!
         
-        DBG Serial.printf("[PRG] San line: '%s'\n",line.c_str());
+        DBG dbgLog(LOG_DEBUG,"[PRG] San line: '%s'\n",line.c_str());
       }
     }
-    DBG Serial.printf("[PRG] Found description: %s\n",Program_desc.c_str());
+    DBG dbgLog(LOG_DEBUG,"[PRG] Found description: %s\n",Program_desc.c_str());
     if(!Program_desc.length()) Program_desc="No description";   // if after reading file program still has no description - add it
     
     return 0;
@@ -133,7 +133,7 @@ File dir,file;
   if(!dir) return 1;  // directory open failed
   DBG Serial.println("[PRG] Loading directory...");
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
-  DBG Serial.printf("[PRG]\tcounted %d files\n",count);
+  DBG dbgLog(LOG_DEBUG,"[PRG]\tcounted %d files\n",count);
   if(Programs_DIR) free(Programs_DIR);
   Programs_DIR=(DIRECTORY*)ps_malloc(sizeof(DIRECTORY)*count);
   Programs_DIR_size=0;
@@ -402,29 +402,29 @@ static boolean is_it_dwell=false;
         is_it_dwell=true;   // next step will be dwell
         step_start=time(NULL);
         next_step_end=step_start+Program_run[Program_run_step].togo*60;
-        DBG Serial.printf("[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%.3f\n",next_step_end,step_start,Program_run[Program_run_step].togo,Program_run_step,Program_run_size,set_temp);
+        DBG dbgLog(LOG_DEBUG,"[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%.3f\n",next_step_end,step_start,Program_run[Program_run_step].togo,Program_run_step,Program_run_size,set_temp);
         
         if(Program_run_step>0){ // is this a next step?
           temp_incr=(float)(Program_run[Program_run_step].temp-Program_run[Program_run_step-1].temp)/(Program_run[Program_run_step].togo*60);
-          DBG Serial.printf("[PRG] temp_inc:%f Step_temp:%d Step-1_temp:%d\n",temp_incr,Program_run[Program_run_step].temp,Program_run[Program_run_step-1].temp);
+          DBG dbgLog(LOG_DEBUG,"[PRG] temp_inc:%f Step_temp:%d Step-1_temp:%d\n",temp_incr,Program_run[Program_run_step].temp,Program_run[Program_run_step-1].temp);
         }else{      // or this is teh first one?
-          DBG Serial.printf("[DBG] First step.\n");
+          DBG dbgLog(LOG_DEBUG,"[DBG] First step.\n");
           set_temp=kiln_temp;
           temp_incr=(float)(Program_run[Program_run_step].temp-kiln_temp)/(Program_run[Program_run_step].togo*60);
         }
         Program_recalculate_ETA(false);   // recalculate ETA for normal step
       }else{
-        DBG Serial.println("[DBG] Calculating new DWELL step!");
+        DBG dbgLog(LOG_DEBUG,"[DBG] Calculating new DWELL step!");
         is_it_dwell=false;      // next step will be normal
         temp_incr=0;
         step_start=time(NULL);
         next_step_end=step_start+Program_run[Program_run_step].dwell*60;
         set_temp=Program_run[Program_run_step].temp;
-        DBG Serial.printf("[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%f\n",next_step_end,step_start,Program_run[Program_run_step].dwell,Program_run_step,Program_run_size,set_temp);
+        DBG dbgLog(LOG_DEBUG,"[PRG] Next step:%d Start step:%d Togo:%d Run_step:%d/%d Set_temp:%f\n",next_step_end,step_start,Program_run[Program_run_step].dwell,Program_run_step,Program_run_size,set_temp);
         Program_recalculate_ETA(true);  // recalculate ETA for dwell
       }
     }
-    DBG Serial.printf("[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Pid_out:%.2f Step: %d\n", kiln_temp, set_temp, temp_incr, pid_out*PID_WINDOW_DIVIDER, Program_run_step);
+    DBG dbgLog(LOG_INFO,"[PRG] Curr temp: %.0f, Set_temp: %.0f, Incr: %.2f Pid_out:%.2f Step: %d\n", kiln_temp, set_temp, temp_incr, pid_out*PID_WINDOW_DIVIDER, Program_run_step);
   }
 
   if(Program_run_state!=PR_PAUSED && Program_run_state!=PR_THRESHOLD) set_temp+=temp_incr;  // increase desire temperature...
@@ -437,7 +437,7 @@ void START_Program(){
 
   if(Program_run_state==PR_NONE || Program_run_state==PR_PAUSED) return; // check if program is ready (we can start also from ended,failed etc,) and not paused
   
-  DBG Serial.println("[PRG] Starting new program!");
+  DBG dbgLog(LOG_INFO,"[PRG] Starting new program!");
   Program_run_state=PR_RUNNING;
   Program_start_temp=kiln_temp;
   Energy_Usage=0;
@@ -454,9 +454,9 @@ void START_Program(){
   KilnPID.SetOutputLimits(0, Prefs[PRF_PID_WINDOW].value.uint16/PID_WINDOW_DIVIDER);
   KilnPID.SetMode(AUTOMATIC);
 
-  DBG Serial.printf("[PRG] Trying to start log - window size:%d\n",Prefs[PRF_LOG_WINDOW].value.uint16);
+  DBG dbgLog(LOG_INFO,"[PRG] Trying to start log - window size:%d\n",Prefs[PRF_LOG_WINDOW].value.uint16);
   if(Prefs[PRF_LOG_WINDOW].value.uint16){ // if we should create log file
-    DBG Serial.println("[PRG] Trying to create logs");
+    DBG dbgLog(LOG_INFO,"[PRG] Trying to create logs");
     Init_log_file();
     Add_log_line();
   }
@@ -467,10 +467,10 @@ void START_Program(){
 //
 void SAFETY_Check(){
   if(kiln_temp<Prefs[PRF_MIN_TEMP].value.uint8){
-    DBG Serial.printf("[PRG] Safety check failed - MIN temperature < %d\n",Prefs[PRF_MIN_TEMP].value.uint8);
+    DBG dbgLog(LOG_ERR,"[PRG] Safety check failed - MIN temperature < %d\n",Prefs[PRF_MIN_TEMP].value.uint8);
     ABORT_Program(PR_ERR_TOO_COLD);
   }else if(kiln_temp>Prefs[PRF_MAX_TEMP].value.uint16){
-    DBG Serial.printf("[PRG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
+    DBG dbgLog(LOG_ERR,"[PRG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
     ABORT_Program(PR_ERR_TOO_HOT);  
   }
 }
@@ -525,7 +525,7 @@ uint32_t now;
         }else if(cnt1==9){
           cnt1=0;
           if(LCD_Main==MAIN_VIEW2 && (Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED)) LCD_display_mainv2();
-          DBG Serial.printf("[PRG] Pid_out RAW:%.2f Pid_out:%.2f Now-window:%d WindowSize:%d Prg_state:%d\n",pid_out,pid_out*PID_WINDOW_DIVIDER,(now - windowStartTime), Prefs[PRF_PID_WINDOW].value.uint16, (byte)Program_run_state);
+          DBG dbgLog(LOG_INFO,"[PRG] Pid_out RAW:%.2f Pid_out:%.2f Now-window:%d WindowSize:%d Prg_state:%d\n",pid_out,pid_out*PID_WINDOW_DIVIDER,(now - windowStartTime), Prefs[PRF_PID_WINDOW].value.uint16, (byte)Program_run_state);
         }
        }
     }

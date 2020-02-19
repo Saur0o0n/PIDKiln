@@ -37,6 +37,9 @@ String Preferences_parser(const String& var){
  else if(var=="WiFi_Mode3" && Prefs[PRF_WIFI_MODE].value.uint8==3) return "checked";
  else if(var=="WiFi_Retry_cnt") return String(Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
 
+ else if(var=="HTTP_Local_JS0" && Prefs[PRF_HTTP_JS_LOCAL].value.uint8==0) return "checked";
+ else if(var=="HTTP_Local_JS1" && Prefs[PRF_HTTP_JS_LOCAL].value.uint8==1) return "checked";
+ 
  else if(var=="Auth_Username") return String(Prefs[PRF_AUTH_USER].value.str);
  else if(var=="Auth_Password") return String(Prefs[PRF_AUTH_PASS].value.str);
  
@@ -87,7 +90,7 @@ String Debug_ESP32(const String& var){
    char tmp[14];
    chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
    sprintf(tmp,"%04X%08X",(uint16_t)(chipid>>32),(uint32_t)chipid);
-   DBG Serial.printf("[HTTP] Chip id: %s\n",tmp);
+   DBG dbgLog(LOG_INFO,"[HTTP] Chip id: %s\n",tmp);
    return String(tmp);
  }else if (var=="SDK_VERSION") return String(ESP.getSdkVersion());
  else if (var=="CPU_FREQ") return String(ESP.getCpuFreqMHz());
@@ -97,19 +100,19 @@ String Debug_ESP32(const String& var){
  //
  else if (var=="SFLASH_RAM"){
    float flashChipSize = (float)ESP.getFlashChipSize() / 1024.0 / 1024.0;
-   DBG Serial.printf("[HTTP] flashChipSize: %f\n",flashChipSize);
+   DBG dbgLog(LOG_INFO,"[HTTP] flashChipSize: %f\n",flashChipSize);
    return String(flashChipSize);
  }else if (var=="FLASH_FREQ"){
    float flashFreq = (float)ESP.getFlashChipSpeed() / 1000.0 / 1000.0;
-   DBG Serial.printf("[HTTP] flashFreq: %f\n",flashFreq);
+   DBG dbgLog(LOG_INFO,"[HTTP] flashFreq: %f\n",flashFreq);
    return String(flashFreq);
  }else if (var=="SKETCH_SIZE"){
    float sketchSize = (float)ESP.getSketchSize() / 1024;
-   DBG Serial.printf("[HTTP] sketchSize: %f\n",sketchSize);
+   DBG dbgLog(LOG_INFO,"[HTTP] sketchSize: %f\n",sketchSize);
    return String(sketchSize);
  }else if (var=="SKETCH_TOTAL"){ // There is an error in ESP framework that shows Total space as freespace - wrong name for the function
    float freeSketchSpace = (float)ESP.getFreeSketchSpace() / 1024;
-   DBG Serial.printf("[HTTP] freeSketchSpace: %f\n",freeSketchSpace);
+   DBG dbgLog(LOG_INFO,"[HTTP] freeSketchSpace: %f\n",freeSketchSpace);
    return String(freeSketchSpace);
  }else if (var=="FLASH_MODE"){
    String mode;
@@ -129,7 +132,7 @@ String Debug_ESP32(const String& var){
  //
  else if (var=="TOTAL_PSRAM"){
    float psramSize = (float)ESP.getPsramSize() / 1024;
-   DBG Serial.printf("[HTTP] psramSize: %f\n",psramSize);
+   DBG dbgLog(LOG_INFO,"[HTTP] psramSize: %f\n",psramSize);
    return String(psramSize);
  }else if (var=="FREE_PSRAM"){
    float freePsram = (float)ESP.getFreePsram() / 1024;
@@ -378,7 +381,7 @@ String tmp=String(PRG_Directory);
   }
     
   if(!index){
-    DBG Serial.printf("UploadStart: %s\n", tmp.c_str() );
+    DBG dbgLog(LOG_INFO,"UploadStart: %s\n", tmp.c_str() );
     
     // Check if declared file size in header is not too large
     if(request->hasHeader("Content-Length")){
@@ -417,7 +420,7 @@ String tmp=String(PRG_Directory);
     if(!check_valid_chars(data[i])){ // Basic sanitization - check for allowed characters
       request->send(200, "text/html", "<html><body><h1>File contains not allowed character(s)!</h1> You can use all letters, numbers and basic symbols in ASCII code.<br><br><a href=/>Return to main view</a></body></html");
       delete_file(newFile);
-      DBG Serial.printf("[HTTP] Basic program check failed!\n");
+      DBG dbgLog(LOG_ERR,"[HTTP] Basic program check failed!\n");
       abort=true;
       return;
     }else newFile.write(data[i]);
@@ -429,7 +432,7 @@ String tmp=String(PRG_Directory);
 
     char fname[22];
     strcpy(fname,filename.c_str());
-    DBG Serial.printf("[HTTP] Checking uploaded program structure: '%s'\n",fname); 
+    DBG dbgLog(LOG_INFO,"[HTTP] Checking uploaded program structure: '%s'\n",fname); 
     uint8_t err=Load_program(fname);
     
     if(err){  // program did not validate correctly
@@ -646,7 +649,7 @@ void do_screenshot(AsyncWebServerRequest *request){
 
   screenshot=(char *)ps_malloc(SCREEN_W*SCREEN_H*2*sizeof(char)+1);
   if(screenshot==NULL){
-    DBG Serial.println("[HTTP] Failed to allocate memory for screenshot");
+    DBG dbgLog(LOG_ERR,"[HTTP] Failed to allocate memory for screenshot");
     request->send(500);
     return;
   }

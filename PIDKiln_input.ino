@@ -40,7 +40,7 @@ void pressed_menu(){
 // Just redirect pressed button to separate functions
 //
 void button_Short_Press(){
-  DBG Serial.printf(" Short press. Current view %d\n",(int)LCD_State);
+  DBG dbgLog(LOG_DEBUG," Short press. Current view %d\n",(int)LCD_State);
   if(LCD_State==SCR_MENU) pressed_menu();
   else if(LCD_State==SCR_MAIN_VIEW && LCD_Main==MAIN_VIEW3) LCD_display_mainv3(0,2);
   else if(LCD_State==SCR_PROGRAM_LIST) LCD_Display_program_summary(0,0);

@@ -69,6 +69,19 @@
    </fieldset>
 
    <fieldset>
+    <legend> HTTP server configuration </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="HTTP_Local_JS"> Send large JS from local server<br>(change requires restart) </label>
+      </div>
+      <div class="col-75">
+	<input type="radio" name="HTTP_Local_JS" value="0" ~HTTP_Local_JS0~> Redirect to Internet sources (recommended) <br>
+	<input type="radio" name="HTTP_Local_JS" value="1" ~HTTP_Local_JS1~> Send from local HTTP server <br>
+      </div>
+     </div>
+   </fieldset>
+
+   <fieldset>
     <legend> Web authentication </legend>
      <div class="row">
       <div class="col-25">

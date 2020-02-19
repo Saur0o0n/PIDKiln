@@ -113,7 +113,7 @@ double case_tmp1,case_tmp2;
   }
   case_temp=(case_temp*0.8+case_tmp2*0.2);    // We try to make bigger hysteresis
 
-  DBG Serial.printf("[ADDONS] TemperatureB readout: Internal = %.1f \t Case raw = %.1f \t Case final = %.1f\n", int_temp, case_tmp1, case_temp); 
+  DBG dbgLog(LOG_INFO,"[ADDONS] TemperatureB readout: Internal = %.1f \t Case raw = %.1f \t Case final = %.1f\n", int_temp, case_tmp1, case_temp); 
 }
 #endif
 

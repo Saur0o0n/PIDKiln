@@ -5,6 +5,7 @@
 
 double EnW_last=0;    // last energy consumption for csv report
 
+
 // Starts a new log file
 //
 void Init_log_file(){
@@ -182,4 +183,48 @@ File dir,file;
 
   //if(Logs_DIR_size) Logs_DIR[0].sel=1; // make first log seleted if we have at least one
   return 0;
+}
+
+
+/*
+** Debuging and logging to syslog
+*/
+
+
+void dbgLog(uint16_t pri, const char *fmt, ...) {
+  char *message;
+  va_list args;
+  size_t initialLen;
+  size_t len;
+  bool result;
+
+  initialLen = strlen(fmt);
+
+  message = new char[initialLen + 1];
+
+  va_start(args, fmt);
+  len = vsnprintf(message, initialLen + 1, fmt, args);
+  if (len > initialLen) {
+    delete[] message;
+    message = new char[len + 1];
+
+    vsnprintf(message, len + 1, fmt, args);
+  }
+  va_end(args);
+    
+  if(Prefs[PRF_DBG_SERIAL].value.uint8) Serial.print(message);
+  if(Prefs[PRF_DBG_SYSLOG].value.uint8) syslog.logf(pri,message);
+
+  delete[] message;
+}
+
+
+void initSysLog(){
+  if(Prefs[PRF_DBG_SYSLOG].value.uint8){
+    syslog.server(SYSLOG_SERVER, SYSLOG_PORT);
+    syslog.deviceHostname("PIDKiln-ESP32");
+    syslog.appName("PIDKiln");
+    syslog.defaultPriority(LOG_KERN);
+    syslog.log(LOG_INFO, "Begin syslog");
+  }
 }

@@ -1,7 +1,8 @@
 1.1 (2020.01.15)
 - synced my local repo with github for MAX31855 library (link in documentation/readme) - there were missing part with linear computation, without it PIDKiln would not compile
 - added MAC address information in LCD Info screen (if you would need to add it to your WiFi filtering)
-- get rid of awesome font - it required Internet and it's much too heavy for two icons - replaced with pngs
+- get rid of awesome font - it required Internet and it's much too heavy for two icons - replaced with PNGs
+- replaced index_local.html (with locally provided large JavaScript files for WiFi without Internet) with preference switch - whether to send file locally or remotely (recommended)
 
 1.0 (2019.10.26)
 - implemented basic authentication for WWW interface (add preferences for it) - default username/pw is admin/hotashell

@@ -25,6 +25,7 @@
 */
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include <WiFiUdp.h>
 #include <FS.h>   // Include the SPIFFS library
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>

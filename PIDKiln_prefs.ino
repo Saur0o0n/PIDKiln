@@ -219,6 +219,15 @@ char tmp[30];
         Prefs[PRF_LOG_LIMIT].value.uint16=40;
         break;
 
+      case PRF_DBG_SERIAL:
+        Prefs[PRF_DBG_SERIAL].type=UINT8;
+        Prefs[PRF_DBG_SERIAL].value.uint8=1;
+        break;
+      case PRF_DBG_SYSLOG:
+        Prefs[PRF_DBG_SYSLOG].type=UINT8;
+        Prefs[PRF_DBG_SYSLOG].value.uint8=1;
+        break;
+
       case PRF_MIN_TEMP:
         Prefs[PRF_MIN_TEMP].type=UINT8;
         Prefs[PRF_MIN_TEMP].value.uint8=10;

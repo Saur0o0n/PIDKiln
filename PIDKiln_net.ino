@@ -140,6 +140,7 @@ struct tm timeinfo;
       if(!err){
         configTime(Prefs[PRF_GMT_OFFSET].value.uint16, Prefs[PRF_DAYLIGHT_OFFSET].value.uint16, Prefs[PRF_NTPSERVER1].value.str, Prefs[PRF_NTPSERVER2].value.str, Prefs[PRF_NTPSERVER3].value.str); // configure RTC clock with NTP server - or at least try
         SETUP_WebServer(); // Setup function for Webserver from PIDKiln_http.ino
+        initSysLog();
         return 0;    // all is ok - connected
       }else if(Prefs[PRF_WIFI_MODE].value.uint8==2) return err;  // not connected and won't try be AP
     }
