@@ -723,13 +723,45 @@ void SETUP_WebServer(void) {
   });
 
   server.serveStatic("/index.html", SPIFFS, "/index.html").setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
+  server.serveStatic("/index_local.html", SPIFFS, "/index_local.html").setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
   
   server.on("/index.html", HTTP_POST, handleIndexPost);
+  server.on("/index_local.html", HTTP_POST, handleIndexPost);
   
   server.on("/js/chart.js", HTTP_GET, [](AsyncWebServerRequest *request){
     if(!_webAuth(request)) return;
     request->send(SPIFFS, "/js/chart.js", String(), false, Chart_parser);
   });
+
+
+  if(Prefs[PRF_HTTP_JS_LOCAL].value.str){
+    server.on("/js/jquery-3.4.1.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/js/jquery-3.4.1.js", "text/javascript");
+      response->addHeader("Content-Encoding", "gzip");
+      request->send(response);
+    });
+    server.on("/js/Chart.2.8.0.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/js/Chart.2.8.0.bundle.min.js", "text/javascript");
+      response->addHeader("Content-Encoding", "gzip");
+      request->send(response);
+    });
+    server.on("/js/chartjs-datasource.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/js/chartjs-datasource.min.js", "text/javascript");
+      response->addHeader("Content-Encoding", "gzip");
+      request->send(response);
+    });
+  }else{
+    server.on("/js/jquery-3.4.1.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->redirect(JS_JQUERY);
+    });
+    server.on("/js/Chart.2.8.0.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->redirect(JS_CHART);
+    });
+    server.on("/js/chartjs-datasource.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->redirect(JS_CHART_DS);
+    });
+  }
+
 
   server.on("/PIDKiln_vars.json", HTTP_GET, [](AsyncWebServerRequest *request){
     if(!_webAuth(request)) return;

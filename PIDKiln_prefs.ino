@@ -142,6 +142,11 @@ char tmp[30];
         Prefs[PRF_WIFI_RETRY_CNT].value.uint8=6;
         break;
 
+      case PRF_HTTP_JS_LOCAL:
+        Prefs[PRF_HTTP_JS_LOCAL].type=UINT8;
+        Prefs[PRF_HTTP_JS_LOCAL].value.uint8=0;
+        break;
+
       case PRF_AUTH_USER:
         Prefs[PRF_AUTH_USER].type=STRING;
         Prefs[PRF_AUTH_USER].value.str=strdup("admin");

@@ -1,4 +1,5 @@
 #include <PID_v1.h>
+#include <Syslog.h>
 
 /* 
 ** Some definitions - usually you should not edit this, but you may want to
@@ -217,6 +218,8 @@ typedef enum { // program menu positions
   PRF_WIFI_AP_USERNAME,
   PRF_WIFI_AP_PASS,
 
+  PRF_HTTP_JS_LOCAL,
+
   PRF_AUTH_USER,
   PRF_AUTH_PASS,
 
@@ -249,6 +252,7 @@ typedef enum { // program menu positions
 
 const char *PrefsName[]={
 "None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
+"HTTP_Local_JS",
 "Auth_Username","Auth_Password",
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
@@ -289,9 +293,16 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.1";
-const char *PDate = "2020.01.15";
+const char *PDate = "2020.02.19";
 
 #define DBG if(DEBUG)
+#define DBG_TYPE serial
+//#define DBG_TYPE syslog
+
+#define JS_JQUERY "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+#define JS_CHART "https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.bundle.min.js"
+#define JS_CHART_DS "https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource"
+
 
 /*
 ** Function defs

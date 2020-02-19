@@ -181,5 +181,5 @@ This is short version - for detailed one, please see [Wiki documentation](https:
 Almost all, what I had in mind is done.. so not much to write here :)
 Perhaps...
 - RTC clock for better timing and no Internet installations
-
+- UDP Syslog support for logging/debug
 
