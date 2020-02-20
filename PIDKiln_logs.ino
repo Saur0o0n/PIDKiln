@@ -15,10 +15,10 @@ struct tm timeinfo, *tmm;
   if(CSVFile) CSVFile.close();
   if(getLocalTime(&timeinfo)) strftime(str, 32, "/logs/%y%m%d_%H%M%S.csv", &timeinfo); //YYMMDD_HHMMSS.log
   else sprintf(str,"/logs/%d.csv",millis());  // if we don't have a clock - use millis - this should NOT happend
-  DBG Serial.printf("[LOG] Trying to create log file:%s\n",str);
+  DBG dbgLog(LOG_INFO,"[LOG] Trying to create log file:%s\n",str);
   
   if(CSVFile=SPIFFS.open(str, "w")){
-    DBG Serial.printf("[LOG] Created new log file %s\n",str);
+    DBG dbgLog(LOG_INFO,"[LOG] Created new log file %s\n",str);
 #ifdef ENERGY_MON_PIN
     CSVFile.print(String("Date,Temperature,Housing,Energy"));
 #else
@@ -48,7 +48,7 @@ struct tm timeinfo, *tmm;
       LOGFile.flush();
 //      LOGFile.close();
     }else{
-      DBG Serial.printf("[LOG] Failed to create .log file: %s\n",str);
+      DBG dbgLog(LOG_ERR,"[LOG] Failed to create .log file: %s\n",str);
     }
   }
   
@@ -77,7 +77,7 @@ struct tm timeinfo,*tmm;
     tmp=String(str)+","+String(kiln_temp,0)+","+String(case_temp,0);
 #endif
 
-  DBG Serial.printf("[LOG] Writing to log file:%s\n",tmp.c_str());
+  DBG dbgLog(LOG_INFO,"[LOG] Writing to log file:%s\n",tmp.c_str());
   CSVFile.println();
   CSVFile.print(tmp);
   CSVFile.flush();
@@ -118,10 +118,10 @@ void Clean_LOGS(){
 char fname[MAX_FILENAME];
 
   if(Logs_DIR_size<=Prefs[PRF_LOG_LIMIT].value.uint16) return;
-  DBG Serial.println("[LOG] Cleaning logs...");
+  DBG dbgLog(LOG_INFO,"[LOG] Cleaning logs...\n");
   for(uint16_t a=Prefs[PRF_LOG_LIMIT].value.uint16; a<Logs_DIR_size; a++){
     sprintf(fname,"%s/%s",LOG_Directory,Logs_DIR[a].filename);
-    DBG Serial.printf("[LOG] Deleting file:%s\n",fname);
+    DBG dbgLog(LOG_INFO,"[LOG] Deleting file:%s\n",fname);
     SPIFFS.remove(fname);
   }
 }
@@ -135,10 +135,10 @@ File dir,file;
 
   dir = SPIFFS.open(LOG_Directory);
   if(!dir) return 1;  // directory open failed
-  DBG Serial.println("[LOG] Loading dir: Loading directory...");
+  DBG dbgLog(LOG_INFO,"[LOG] Loading dir: Loading directory...\n");
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   
-  DBG Serial.printf("[LOG] Loading dir:\tcounted %d files\n",count);
+  DBG dbgLog(LOG_INFO,"[LOG] Loading dir:\tcounted %d files\n",count);
   if(Logs_DIR) free(Logs_DIR);
   Logs_DIR=(DIRECTORY*)ps_malloc(sizeof(DIRECTORY)*count);
   Logs_DIR_size=0;
@@ -159,7 +159,7 @@ File dir,file;
     Logs_DIR[Logs_DIR_size].filesize=file.size();
     Logs_DIR[Logs_DIR_size].sel=0;
     
-    DBG Serial.printf("[LOG] FName: %s\t FSize:%d\tSel:%d\n",Logs_DIR[Logs_DIR_size].filename,Logs_DIR[Logs_DIR_size].filesize,Logs_DIR[Logs_DIR_size].sel);
+    DBG dbgLog(LOG_DEBUG,"[LOG] FName: %s\t FSize:%d\tSel:%d\n",Logs_DIR[Logs_DIR_size].filename,Logs_DIR[Logs_DIR_size].filesize,Logs_DIR[Logs_DIR_size].sel);
     
     Logs_DIR_size++;
   }
@@ -226,5 +226,12 @@ void initSysLog(){
     syslog.appName("PIDKiln");
     syslog.defaultPriority(LOG_KERN);
     syslog.log(LOG_INFO, "Begin syslog");
+  }
+}
+
+
+void initSerial(){
+  if(Prefs[PRF_DBG_SERIAL].value.uint8){
+    Serial.begin(115200);
   }
 }

@@ -117,7 +117,7 @@ char rest[MAX_CHARS_PL];
   x_txt=x+(x_w-2-width)/2;            // find out how to put a text in the middle of the button
 
   u8g2.drawFrame(x,y-chh,x_w,chh);  // draw frame around text w+1 because start point is also counted to witdh
-  DBG Serial.printf("[LCD] Width:%d cnt:%d el:%d x:%d x_txt:%d x_w:%d\n",SCREEN_W,cnt,el,x,x_txt,x_w);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Width:%d cnt:%d el:%d x:%d x_txt:%d x_w:%d\n",SCREEN_W,cnt,el,x,x_txt,x_w);
   
   if(sel){
       u8g2.drawBox(x, y-chh, x_w, chh);
@@ -228,7 +228,7 @@ char msg[MAX_CHARS_PL];
   if(ttime) scx=(int)((mxx*100)/ttime);   // 1 minute is scx pixels * 100 on graph 
   if(mxtemp) scy=(int)((mxy*100)/mxtemp); // 1 celsius is scy pixel * 100
 
-  DBG Serial.printf("[LCD] Graph. mxx:%d mxy:%d ttime:%d mxtemp:%d scx:%d scy:%d\n",mxx,mxy,ttime,mxtemp,scx,scy);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Graph. mxx:%d mxy:%d ttime:%d mxtemp:%d scx:%d scy:%d\n",mxx,mxy,ttime,mxtemp,scx,scy);
 
   // Draw axies
   u8g2.drawHLine(1,SCREEN_H-1,mxx);
@@ -270,7 +270,7 @@ char msg[MAX_CHARS_PL];
     currt=time(NULL)-Program_run_start;     // where are we now?
     prop=(float)currt/(float)fullt;   // current progress status
     u8g2.setDrawColor(2);
-    DBG Serial.printf("[LCD] Redrawing box on graph width:%.2f fullt:%d currt:%d prop:%f\n",(float)((SCREEN_W-2)*prop),fullt,currt,prop);
+    DBG dbgLog(LOG_DEBUG,"[LCD] Redrawing box on graph width:%.2f fullt:%d currt:%d prop:%f\n",(float)((SCREEN_W-2)*prop),fullt,currt,prop);
     u8g2.drawBox(2,1,(int)((SCREEN_W-2)*prop),SCREEN_H-2);
     u8g2.setDrawColor(1);
     u8g2.sendBuffer();
@@ -409,22 +409,22 @@ int m_startpos=LCD_Menu;
 uint8_t chh,center=5;
 
   LCD_State=SCR_MENU;
-  DBG Serial.printf("[LCD] Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Entering menu (%d) display: %s\n",LCD_Menu,Menu_Names[LCD_Menu]);
   u8g2.clearBuffer();          // clear the internal memory
   u8g2.setFont(FONT7);
   u8g2.setFontPosBaseline();
   chh=u8g2.getMaxCharHeight();
   center=floor((SCREEN_H-(chh+SCR_MENU_SPACE)*SCR_MENU_LINES)/2); // how much we have to move Y to be on the middle with all menu
-  DBG Serial.printf("[LCD] In menu we can print %d lines, with %dpx space, and char height %d\n",SCR_MENU_LINES,SCR_MENU_SPACE,chh);
+  DBG dbgLog(LOG_DEBUG,"[LCD] In menu we can print %d lines, with %dpx space, and char height %d\n",SCR_MENU_LINES,SCR_MENU_SPACE,chh);
   
   if(LCD_Menu>SCR_MENU_MIDDLE) m_startpos=LCD_Menu-(SCR_MENU_MIDDLE-1); // if current menu pos > middle part of menu - start from LCD_Menu - SCR_MENU_MIDDLE-1
   else if(LCD_Menu<=SCR_MENU_MIDDLE) m_startpos=LCD_Menu-SCR_MENU_MIDDLE+1;  // if current menu pos < middle part - start
-  DBG Serial.printf("[LCD] Start pos is %d, chosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Start pos is %d, chosen position is %d, screen center is %d\n",m_startpos,LCD_Menu,center);
   
   for(int a=1; a<=SCR_MENU_LINES; a++){
     if(a==SCR_MENU_MIDDLE){   // reverse colors if we print middle part o menu
       u8g2.setDrawColor(1); /* color 1 for the box */
-      DBG Serial.printf("[LCD] x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+SCR_MENU_SPACE+center, SCREEN_W , chh+SCR_MENU_SPACE);
+      DBG dbgLog(LOG_DEBUG,"[LCD] x0: %d, y0: %d, w: %d, h: %d\n",0, (a-1)*chh+SCR_MENU_SPACE+center, SCREEN_W , chh+SCR_MENU_SPACE);
       u8g2.drawBox(0, (a-1)*chh+SCR_MENU_SPACE+center+1, SCREEN_W , chh+SCR_MENU_SPACE);
       u8g2.setDrawColor(0);
     }
@@ -464,12 +464,12 @@ char msg[MAX_CHARS_PL];
     max_lines+=start_pos;
     if(max_lines>Programs_DIR_size) max_lines=Programs_DIR_size;
   }
-  DBG Serial.printf("[LCD] Start pos:%d, sel_prg:%d, max_lines:%d\n",start_pos,sel,max_lines);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Start pos:%d, sel_prg:%d, max_lines:%d\n",start_pos,sel,max_lines);
   
   for(start_pos; start_pos<max_lines && start_pos<Programs_DIR_size; start_pos++){
     if(Programs_DIR[start_pos].filesize<999) sprintf(msg,"%-15.15s %3db",Programs_DIR[start_pos].filename,Programs_DIR[start_pos].filesize);
     else sprintf(msg,"%-15.15s %2dkb",Programs_DIR[start_pos].filename,(int)(Programs_DIR[start_pos].filesize/1024));
-    DBG Serial.printf("[LCD] Program list:%s: sel:%d\n",msg,Programs_DIR[start_pos].sel);
+    DBG dbgLog(LOG_INFO,"[LCD] Program list:%s: sel:%d\n",msg,Programs_DIR[start_pos].sel);
     if(Programs_DIR[start_pos].sel){
       u8g2.setDrawColor(1);
       u8g2.drawBox(0,y,SCREEN_W,chh);
@@ -615,10 +615,10 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
   chh=u8g2.getMaxCharHeight();
   
   sel=Find_selected_program();    // get selected program
-  DBG Serial.printf("[LCD] Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Programs_DIR[sel].filename);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Show single program (dir %d, load_prg %d): %s\n",dir,load_prg,Programs_DIR[sel].filename);
   
   sprintf(file_path,"%s/%s",PRG_Directory,Programs_DIR[sel].filename);
-  DBG Serial.printf("[LCD]\tprogram path: %s\n",file_path);
+  DBG dbgLog(LOG_DEBUG,"[LCD]\tprogram path: %s\n",file_path);
   if(SPIFFS.exists(file_path)){
     u8g2.clearBuffer();
     
@@ -657,7 +657,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     for(int a=0;a<Program_size;a++){
       if(Program[a].temp>max_t) max_t=Program[a].temp;
       total_t+=Program[a].togo+Program[a].dwell;
-      DBG Serial.printf("[LCD] PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
+      DBG dbgLog(LOG_DEBUG,"[LCD] PRG: %d/%d Temp: %dC Time:%dm Dwell:%dm\n",a,Program_size,Program[a].temp,Program[a].togo,Program[a].dwell);
     }
     
     y=SCREEN_H-chh-1;
@@ -666,7 +666,7 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     sprintf(msg,"Time:%uh %dm",total_t/60,total_t%60);
     DrawMenuEl(msg,y,2,2,0);
     
-    DBG Serial.printf("[LCD] Creating program menu prog_menu:%d dir:%d\n",prog_menu,dir);
+    DBG dbgLog(LOG_DEBUG,"[LCD] Creating program menu prog_menu:%d dir:%d\n",prog_menu,dir);
     prog_menu+=dir;
     if(prog_menu>=Prog_Menu_Size) prog_menu=Prog_Menu_Size-1;
     else if(prog_menu<0) prog_menu=0;
@@ -710,15 +710,15 @@ char msg[100];
       LCD_display_menu();
       return;
     }else if(what==11){  // load program end exit
-      DBG Serial.println("[LCD] Replacing current program in memory - start");
+      DBG dbgLog(LOG_INFO,"[LCD] Replacing current program in memory - start");
       // We need to define program here
       Initialize_program_to_run();  // clear current program
       sprintf(msg,"Manually created quick program.");
-      DBG Serial.printf("[LCD] Replacing current program in memory:%d \n",strlen(msg));
+      DBG dbgLog(LOG_DEBUG,"[LCD] Replacing current program in memory:%d \n",strlen(msg));
       Program_run_desc=(char *)ps_malloc((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_desc,msg);
       sprintf(msg,"QuickProgram");
-      DBG Serial.printf("[LCD] Replacing current program in memory:%d \n",strlen(msg));
+      DBG dbgLog(LOG_DEBUG,"[LCD] Replacing current program in memory:%d \n",strlen(msg));
       Program_run_name=(char *)ps_malloc((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_name,msg);
       Update_program_step(0, qp[0], qp[1], qp[2]);
@@ -751,7 +751,7 @@ char msg[100];
   }
   else what+=dir; // rotate menu
 
-  DBG Serial.printf("[LCD] Dir: %d What:%d Pos:%d\n",dir,what,pos);
+  DBG dbgLog(LOG_DEBUG,"[LCD] Dir: %d What:%d Pos:%d\n",dir,what,pos);
   
   // If button pressed - cycle
   // 0-3 - temperature, 4-6 - time, 7-9 - dwell, 10 - cancel, 11 - load, 12 - back to edit
@@ -963,7 +963,7 @@ void LCD_Reconect_WiFi(){
   }
   load_msg("Reconnecting WiFi");
   if(Setup_WiFi()){    // !!! Wifi connection FAILED
-    DBG Serial.println("[LCD] WiFi connection failed");
+    DBG dbgLog(LOG_INFO,"[LCD] WiFi connection failed\n");
     load_msg(" WiFi con. failed ");
   }else{
     IPAddress lips;

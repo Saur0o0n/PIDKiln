@@ -67,7 +67,7 @@ double kiln_tmp1,kiln_tmp2;
   raw = ThermocoupleA.readRaw();
   kiln_tmp1 = ThermocoupleA.decodeInternal(raw); 
   if (isnan(kiln_tmp1)) {
-    DBG Serial.println("[ADDONS] !! Something wrong with MAX31855-A! Internal readout failed");
+    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with MAX31855-A! Internal readout failed\n");
     ABORT_Program(PR_ERR_MAX31A_INT_ERR);
     return;
   }
@@ -77,7 +77,7 @@ double kiln_tmp1,kiln_tmp2;
   kiln_tmp2 = ThermocoupleA.linearizeCelcius(int_temp, kiln_tmp1);
   
   if (isnan(kiln_tmp1) || isnan(kiln_tmp2)) {
-    DBG Serial.println("[ADDONS] !! Something wrong with thermocoupleA! External readout failed");
+    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with thermocoupleA! External readout failed\n");
     ABORT_Program(PR_ERR_MAX31A_KPROBE);
     return;
   }
@@ -97,7 +97,7 @@ double case_tmp1,case_tmp2;
   raw = ThermocoupleB.readRaw();
   case_tmp1 = ThermocoupleB.decodeInternal(raw); 
   if (isnan(case_tmp1)) {
-    DBG Serial.println("[ADDONS] !! Something wrong with MAX31855-B! Internal readout failed");
+    DBG dbgLog(LOG_DEBUG,"[ADDONS] !! Something wrong with MAX31855-B! Internal readout failed\n");
     ABORT_Program(PR_ERR_MAX31B_INT_ERR);
     return;
   }
@@ -107,7 +107,7 @@ double case_tmp1,case_tmp2;
   case_tmp2 = ThermocoupleB.linearizeCelcius(int_temp, case_tmp1);
   
   if (isnan(case_tmp1) || isnan(case_tmp2)) {
-    DBG Serial.println("[ADDONS] !! Something wrong with thermocoupleB! External readout failed");
+    DBG dbgLog(LOG_DEBUG,"[ADDONS] !! Something wrong with thermocoupleB! External readout failed\n");
     ABORT_Program(PR_ERR_MAX31B_KPROBE);
     return;
   }
@@ -140,7 +140,7 @@ static uint32_t last=0;
   last=millis();
 
   if(cnt++>20){
-    DBG Serial.printf("[ADDONS] VCC is set:%d ; RAW Power: %.1fW, Raw current: %.2fA, Power global:%d W/h:%.6f\n",emon1.readVcc(),Irms*EMERGY_MON_VOLTAGE,Irms,Energy_Wattage,Energy_Usage);
+    DBG dbgLog(LOG_DEBUG,"[ADDONS] VCC is set:%d ; RAW Power: %.1fW, Raw current: %.2fA, Power global:%d W/h:%.6f\n",emon1.readVcc(),Irms*EMERGY_MON_VOLTAGE,Irms,Energy_Wattage,Energy_Usage);
     cnt=0;
   }
 

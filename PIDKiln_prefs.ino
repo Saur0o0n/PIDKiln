@@ -12,23 +12,23 @@ boolean Change_prefs_value(String item, String value){
       if(Prefs[a].type==STRING){
         if(Prefs[a].value.str) free(Prefs[a].value.str);
         Prefs[a].value.str=strdup(value.c_str());
-        DBG Serial.printf("[PREFS]  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
+        DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==UINT8){
         Prefs[a].value.uint8=(uint8_t)value.toInt();
-        DBG Serial.printf("[PREFS]  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+        DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved UINT8 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==UINT16){
         Prefs[a].value.uint16=(uint16_t)value.toInt();
-        DBG Serial.printf("[PREFS]  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+        DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved UINT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==INT16){
         Prefs[a].value.int16=(uint16_t)value.toInt();
-        DBG Serial.printf("[PREFS]  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
+        DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
         return true;
       }else if(Prefs[a].type==VFLOAT){
         Prefs[a].value.vfloat=(double)value.toDouble();
-        DBG Serial.printf("[PREFS]  -> For %s saved VFLOAT item value:%f type:%d\n",PrefsName[a],Prefs[a].value.vfloat,(int)Prefs[a].type);
+        DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved VFLOAT item value:%f type:%d\n",PrefsName[a],Prefs[a].value.vfloat,(int)Prefs[a].type);
         return true;
       }
     }
@@ -42,7 +42,7 @@ boolean Change_prefs_value(String item, String value){
 void Save_prefs(){
 File prf;
 
-  DBG Serial.println("[PREFS] Writing prefs to file");
+  DBG dbgLog(LOG_INFO,"[PREFS] Writing prefs to file");
   if(prf=SPIFFS.open(PREFS_FILE,"w")){
     for(uint16_t a=1; a<PRF_end; a++){
       if(Prefs[a].type==STRING){
@@ -70,7 +70,7 @@ File prf;
 String line,item,value;
 int pos=0;
 
-  DBG Serial.println("[PREFS] Loading prefs from file");
+  DBG dbgLog(LOG_INFO,"[PREFS] Loading prefs from file");
   if(prf=SPIFFS.open(PREFS_FILE,"r"))
     while(prf.available()){
       line=prf.readStringUntil('\n');
@@ -94,12 +94,12 @@ int pos=0;
     }
 
     // For debuging only
-    DBG Serial.println("[PREFS] -=-=-= PREFS DISPLAY =-=-=-");
+    DBG dbgLog(LOG_DEBUG,"[PREFS] -=-=-= PREFS DISPLAY =-=-=-");
     for(uint16_t a=0; a<PRF_end; a++){
-      if(Prefs[a].type==STRING) DBG Serial.printf("[PREFS] %d) '%s' = '%s'\t%d\n",a,PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
-      if(Prefs[a].type==UINT8) DBG Serial.printf("[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
-      if(Prefs[a].type==UINT16) DBG Serial.printf("[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
-      if(Prefs[a].type==INT16) DBG Serial.printf("[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
+      if(Prefs[a].type==STRING) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%s'\t%d\n",a,PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
+      if(Prefs[a].type==UINT8) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
+      if(Prefs[a].type==UINT16) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
+      if(Prefs[a].type==INT16) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
     }
 }
 
@@ -122,7 +122,7 @@ void Setup_Prefs(void){
 char tmp[30];
 
   // Fill the preferences with default values - if there is such a need
-  DBG Serial.println("[PREFS] Preference initialization");
+  DBG dbgLog(LOG_INFO,"[PREFS] Preference initialization");
   for(uint16_t a=1; a<PRF_end; a++)
     switch(a){
       case PRF_WIFI_SSID:

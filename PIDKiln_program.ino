@@ -131,7 +131,7 @@ File dir,file;
 
   dir = SPIFFS.open(PRG_Directory);
   if(!dir) return 1;  // directory open failed
-  DBG Serial.println("[PRG] Loading directory...");
+  DBG dbgLog(LOG_INFO,"[PRG] Loading directory...\n");
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   DBG dbgLog(LOG_DEBUG,"[PRG]\tcounted %d files\n",count);
   if(Programs_DIR) free(Programs_DIR);
@@ -153,7 +153,7 @@ File dir,file;
     Programs_DIR[Programs_DIR_size].filesize=file.size();
     Programs_DIR[Programs_DIR_size].sel=0;
     
-    DBG Serial.printf("[PRG] FName: %s\t FSize:%d\tSel:%d\n",Programs_DIR[Programs_DIR_size].filename,Programs_DIR[Programs_DIR_size].filesize,Programs_DIR[Programs_DIR_size].sel);
+    DBG dbgLog(LOG_DEBUG,"[PRG] FName: %s\t FSize:%d\tSel:%d\n",Programs_DIR[Programs_DIR_size].filename,Programs_DIR[Programs_DIR_size].filesize,Programs_DIR[Programs_DIR_size].sel);
     
     Programs_DIR_size++;
   }
@@ -212,7 +212,7 @@ void Initialize_program_to_run(){
     Program_run_name=NULL;
   }
   Program_run_size=0;
-  DBG Serial.println("[PRG] Initialized new in-memory program");
+  DBG dbgLog(LOG_INFO,"[PRG] Initialized new in-memory program\n");
 }
 
 
@@ -251,7 +251,7 @@ int Find_selected_program(){
 void rotate_selected_program(int dir){
 int a = Find_selected_program();
 
-  DBG Serial.printf("[PRG] Rotating programs. For a:%d, dir: %d, selected?:%d, dir_size:%d\n",a,dir,Programs_DIR[a].sel,Programs_DIR_size);
+  DBG dbgLog(LOG_INFO,"[PRG] Rotating programs. For a:%d, dir: %d, selected?:%d, dir_size:%d\n",a,dir,Programs_DIR[a].sel,Programs_DIR_size);
   if(dir<0 && a>0){   // if we are DOWN down and we can a>0 - do it, if we can't - do nothing
     Programs_DIR[a].sel=0;  // delete old selection
     Programs_DIR[a-1].sel=1;
@@ -269,7 +269,7 @@ byte Cleanup_program(byte err){
   Program_desc="";
   Program_name="";
   for(byte a=0;a<MAX_PRG_LENGTH;a++) Program[a].temp=Program[a].togo=Program[a].dwell=0;
-  DBG Serial.printf("[PRG] Cleaning up program with error %d\n",err);
+  DBG dbgLog(LOG_INFO,"[PRG] Cleaning up program with error %d\n",err);
   return err;
 }
 
@@ -280,7 +280,7 @@ boolean Erase_program_file(){
 char file[32];
 
   sprintf(file,"%s/%s",PRG_Directory,Programs_DIR[Find_selected_program()].filename);
-  DBG Serial.printf("[PRG] !!! Erasing file from disk: %s",file);
+  DBG dbgLog(LOG_INFO,"[PRG] !!! Erasing file from disk: %s",file);
   return SPIFFS.remove(file);
 }
 
@@ -289,7 +289,7 @@ char file[32];
 //
 void END_Program(){
 
-  DBG Serial.println("[PRG] Ending program cleanly");
+  DBG dbgLog(LOG_INFO,"[PRG] Ending program cleanly\n");
   Program_run_state=PR_ENDED;
   KilnPID.SetMode(MANUAL);
   Disable_SSR();
@@ -307,7 +307,7 @@ void END_Program(){
 void ABORT_Program(uint8_t error){
 
   Program_error=error;
-  DBG Serial.printf("[PRG] Aborting program with error: %d\n",Program_error);
+  DBG dbgLog(LOG_INFO,"[PRG] Aborting program with error: %d\n",Program_error);
   if(Program_run_state==PR_RUNNING || Program_run_state==PR_PAUSED){
     END_Program();
     Program_run_state=PR_ABORTED;
@@ -379,7 +379,7 @@ static boolean is_it_dwell=false;
     if(Prefs[PRF_PID_TEMP_THRESHOLD].value.int16>-1 && set_temp){       // check if we are in threshold window and there is temperature set already - if not, pause
       //DBG Serial.printf("[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
       if(kiln_temp+Prefs[PRF_PID_TEMP_THRESHOLD].value.int16 < set_temp || kiln_temp-Prefs[PRF_PID_TEMP_THRESHOLD].value.int16 > set_temp){   // set_temp must be between kiln_temp +/- temp_threshold 
-        DBG Serial.printf("[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,(int)Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
+        DBG dbgLog(LOG_INFO,"[PRG] Temperature in TEMP_THRESHOLD. Kiln_temp:%.1f Set_temp:%.1f Window:%d\n",kiln_temp,set_temp,(int)Prefs[PRF_PID_TEMP_THRESHOLD].value.int16);
         //PAUSE_Program();
         Program_run_state=PR_THRESHOLD;
         Program_recalculate_ETA(false);
@@ -390,7 +390,7 @@ static boolean is_it_dwell=false;
 
     // calculate next step
     if(time(NULL)>next_step_end){
-      DBG Serial.println("[DBG] Calculating new step!");
+      DBG dbgLog(LOG_DEBUG,"[DBG] Calculating new step!\n");
       if(!is_it_dwell){  // we have finished full step togo+dwell (or this is first step)
         Program_run_step++; // lets icrement step
         
@@ -398,7 +398,7 @@ static boolean is_it_dwell=false;
           END_Program();
           return;
         }
-        DBG Serial.println("[PRG] Calculating new NORMAL step!");
+        DBG dbgLog(LOG_DEBUG,"[PRG] Calculating new NORMAL step!\n");
         is_it_dwell=true;   // next step will be dwell
         step_start=time(NULL);
         next_step_end=step_start+Program_run[Program_run_step].togo*60;

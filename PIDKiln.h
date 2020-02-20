@@ -297,7 +297,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.1";
-const char *PDate = "2020.02.19";
+const char *PDate = "2020.02.20";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)

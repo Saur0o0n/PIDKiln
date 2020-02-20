@@ -92,7 +92,7 @@ void Rotate(){
       return;
     }
   }else if(LCD_State==SCR_MENU){
-    DBG Serial.printf("[INPUT] Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, M_END, LCD_Menu);
+    DBG dbgLog(LOG_DEBUG,"[INPUT] Rotate, SCR_MENU: Encoder turn: %d, Sizeof menu %d, Menu nr %d, \n",encoderValue, M_END, LCD_Menu);
     if(encoderValue<0){
       if(LCD_Menu>M_SCR_MAIN_VIEW) LCD_Menu=(LCD_SCR_MENU_Item_enum)((int)LCD_Menu-1);
     }else{
@@ -101,7 +101,7 @@ void Rotate(){
     LCD_display_menu();
     return;
   }else if(LCD_State==SCR_PROGRAM_LIST){
-    DBG Serial.printf("[INPUT] Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
+    DBG dbgLog(LOG_DEBUG,"[INPUT] Rotate, PROGRAMS: Encoder turn: %d\n",encoderValue);
     rotate_selected_program(encoderValue);
     LCD_display_programs();
   }else if(LCD_State==SCR_PROGRAM_SHOW) LCD_Display_program_summary(encoderValue,1);
@@ -110,15 +110,6 @@ void Rotate(){
   else if(LCD_State==SCR_PREFERENCES) LCD_Display_prefs(encoderValue);
   else if(LCD_State==SCR_QUICK_PROGRAM) LCD_Display_quick_program(encoderValue,1);
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -135,10 +126,10 @@ void Input_Loop(void * parameter) {
       vTaskDelay( ENCODER_BUTTON_DELAY / portTICK_PERIOD_MS );
       if(digitalRead(ENCODER0_BUTTON)!=LOW){ // Button is still pressed - skip, perhaps it's a long press
         if(encoderButton+Long_Press>=millis()){ // quick press
-          DBG Serial.printf("[INPUT] Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
+          DBG dbgLog(LOG_DEBUG,"[INPUT] Button pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
           button_Short_Press();
         }else{  // long press
-          DBG Serial.printf("[INPUT] Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
+          DBG dbgLog(LOG_DEBUG,"[INPUT] Button long pressed %f seconds\n",(float)(millis()-encoderButton)/1000);
           button_Long_Press();
         }
         encoderButton=0;
@@ -146,7 +137,7 @@ void Input_Loop(void * parameter) {
     }else if(encoderValue!=0){
       vTaskDelay(ENCODER_ROTATE_DELAY / portTICK_PERIOD_MS);
       Rotate(); // encoderValue is global..
-      DBG Serial.printf("[INPUT] Encoder rotated %d\n",encoderValue);
+      DBG dbgLog(LOG_DEBUG,"[INPUT] Encoder rotated %d\n",encoderValue);
       encoderValue=0;
     }
     yield();

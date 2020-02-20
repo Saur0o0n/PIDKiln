@@ -30,28 +30,28 @@ char *tmp,msg[20];
 
   strcpy(msg,Prefs[PRF_INIT_DATE].value.str);
   tmp=strtok(msg,".-:");
-  DBG Serial.printf("[NET] Y:%s ",tmp);
+  DBG dbgLog(LOG_INFO,"[NET] Y:%s ",tmp);
   mytm.tm_year = atoi(tmp)-1900;  // year after 1900
   
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("[NET] M:%s ",tmp);
+  DBG dbgLog(LOG_INFO,"[NET] M:%s ",tmp);
   mytm.tm_mon = atoi(tmp)-1;        //0-11 WHY???
   
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("[NET] D:%s ",tmp);
+  DBG dbgLog(LOG_INFO,"[NET] D:%s ",tmp);
   mytm.tm_mday = atoi(tmp);       //1-31 - depending on month
 
   strcpy(msg,Prefs[PRF_INIT_TIME].value.str);
   tmp=strtok(msg,".-:");
-  DBG Serial.printf("[NET] H:%s ",tmp);
+  DBG dbgLog(LOG_INFO,"[NET] H:%s ",tmp);
   mytm.tm_hour = atoi(tmp);       //0-23
 
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("[NET] m:%s ",tmp);
+  DBG dbgLog(LOG_INFO,"[NET] m:%s ",tmp);
   mytm.tm_min = atoi(tmp);        //0-59
 
   tmp=strtok(NULL,".-:");
-  DBG Serial.printf("[NET] s:%s\n",tmp);
+  DBG dbgLog(LOG_INFO,"[NET] s:%s\n",tmp);
   mytm.tm_sec = atoi(tmp);        //0-59
   
   time_t t = mktime(&mytm);
@@ -96,7 +96,7 @@ boolean Start_WiFi_AP(){
 
   WiFi.softAPConfig(local_IP, gateway, subnet);
   
-  DBG Serial.println("[NET] Creating WiFi Access Point (AP)");
+  DBG dbgLog(LOG_INFO,"[NET] Creating WiFi Access Point (AP)");
   WiFi.softAP(DEFAULT_AP, DEFAULT_PASS, 8);
   return 0;
 }
@@ -112,15 +112,15 @@ boolean Start_WiFi_CLIENT(){
   WiFi.mode(WIFI_STA);
    
   WiFi.begin(Prefs[PRF_WIFI_SSID].value.str, Prefs[PRF_WIFI_PASS].value.str);
-  DBG Serial.println("[NET] Connecting to WiFi as Client...");
+  DBG dbgLog(LOG_INFO,"[NET] Connecting to WiFi as Client...");
     
   for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
     delay(1000);
     if (WiFi.status() == WL_CONNECTED) return 0;
-    DBG Serial.printf("[NET] Connecting to AP WiFi... %d/%d\n",a+1,Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
+    DBG dbgLog(LOG_INFO,"[NET] Connecting to AP WiFi... %d/%d\n",a+1,Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
   }
 
-  DBG Serial.println("[NET] Connecting to AP WiFi failed!");
+  DBG dbgLog(LOG_INFO,"[NET] Connecting to AP WiFi failed!\n");
   Disable_WiFi();
   return 1;
 }

@@ -69,7 +69,7 @@ String Preferences_parser(const String& var){
   
  else if(var=="ERRORS" && Errors){
   String out="<div class=error> There where errors: "+String(Errors)+"</div>";
-  DBG Serial.printf("[HTTP] Errors pointer1:%p\n",Errors);
+  DBG dbgLog(LOG_ERR,"[HTTP] Errors pointer1:%p\n",Errors);
   free(Errors);Errors=NULL;
   return out;
  }
@@ -124,8 +124,8 @@ String Debug_ESP32(const String& var){
    else if(fMode==FM_FAST_READ) mode="FAST_READ (4)";
    else if(fMode==FM_SLOW_READ) mode="SLOW_READ (5)";
    else mode="Unknown";
-   DBG Serial.printf("flashChipMode: %s\n",mode.c_str());
-   DBG Serial.printf("flashChipMode: %d\n",(byte)fMode);
+   DBG dbgLog(LOG_DEBUG,"flashChipMode: %s\n",mode.c_str());
+   DBG dbgLog(LOG_DEBUG,"flashChipMode: %d\n",(byte)fMode);
    return String(mode);
  }
  // PSRAM parameters
@@ -136,34 +136,34 @@ String Debug_ESP32(const String& var){
    return String(psramSize);
  }else if (var=="FREE_PSRAM"){
    float freePsram = (float)ESP.getFreePsram() / 1024;
-   DBG Serial.printf("[HTTP] freePsram: %f\n",freePsram);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] freePsram: %f\n",freePsram);
    return String(freePsram);
  }else if (var=="SMALEST_PSRAM"){
    float minFreePsram = (float)ESP.getMinFreePsram() / 1024;
-   DBG Serial.printf("[HTTP] minFreePsram: %f\n",minFreePsram);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] minFreePsram: %f\n",minFreePsram);
    return String(minFreePsram);
  }else if (var=="LARGEST_PSRAM"){
    float maxAllocPsram = (float)ESP.getMaxAllocPsram() / 1024;
-   DBG Serial.printf("[HTTP] maxAllocPsram: %f\n",maxAllocPsram);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] maxAllocPsram: %f\n",maxAllocPsram);
    return String(maxAllocPsram);
  }
  // RAM parameters
  //
  else if (var=="TOTAL_HEAP"){
    float heapSize = (float)ESP.getHeapSize() / 1024;
-   DBG Serial.printf("[HTTP] heapSize: %f\n",heapSize);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] heapSize: %f\n",heapSize);
    return String(heapSize);
  }else if (var=="FREE_HEAP"){
    float freeHeap = (float)ESP.getFreeHeap() / 1024;
-   DBG Serial.printf("[HTTP] freeHeap: %f\n",freeHeap);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] freeHeap: %f\n",freeHeap);
    return String(freeHeap);
  }else if (var=="SMALEST_HEAP"){
    float minFreeHeap = (float)ESP.getMinFreeHeap() / 1024;
-   DBG Serial.printf("[HTTP] minFreeHeap: %f\n",minFreeHeap);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] minFreeHeap: %f\n",minFreeHeap);
    return String(minFreeHeap);
  }else if (var=="LARGEST_HEAP"){
    float maxAllocHeap = (float)ESP.getMaxAllocHeap() / 1024;
-   DBG Serial.printf("[HTTP] maxAllocHeap: %f\n",maxAllocHeap);
+   DBG dbgLog(LOG_DEBUG,"[HTTP] maxAllocHeap: %f\n",maxAllocHeap);
    return String(maxAllocHeap);
  }
  // SPIFFS parameters
@@ -195,13 +195,13 @@ template_str=String();
   // Open index for writting
   tmp=String(PRG_Directory)+String("/index.html");
   if(!(index = SPIFFS.open(tmp.c_str(), "w"))){
-    DBG Serial.println("[HTTP] Failed to open for writing index.html");
+    DBG dbgLog(LOG_DEBUG,"[HTTP] Failed to open for writing index.html\n");
     return;
   }
 
   // Copy index head
   if(tmpf=SPIFFS.open("/prog_beg.txt", "r")){
-    DBG Serial.println("[HTTP] Head of index - copying...");
+    DBG dbgLog(LOG_DEBUG,"[HTTP] Head of index - copying...\n");
     tmp=tmpf.readString();
     //DBG Serial.println(tmp);
     index.print(tmp);
@@ -227,7 +227,7 @@ template_str=String();
   index.print(template_str);
   // Copy end of the index template
   if(tmpf=SPIFFS.open("/prog_end.txt", "r")){
-    DBG Serial.println("[HTTP] End of index - copying...");
+    DBG dbgLog(LOG_DEBUG,"[HTTP] End of index - copying...\n");
     tmp=tmpf.readString();
     //DBG Serial.println(tmp);
     index.print(tmp);
@@ -251,13 +251,13 @@ template_str=String();
   // Open index for writting
   tmp=String(LOG_Directory)+String("/index.html");
   if(!(index = SPIFFS.open(tmp.c_str(), "w"))){
-    DBG Serial.println("[HTTP] Failed to open for writing log/index.html");
+    DBG dbgLog(LOG_DEBUG,"[HTTP] Failed to open for writing log/index.html\n");
     return;
   }
 
   // Copy index head
   if(tmpf=SPIFFS.open("/logs_beg.txt", "r")){
-    DBG Serial.println("[HTTP] Head of logs - copying...");
+    DBG dbgLog(LOG_DEBUG,"[HTTP] Head of logs - copying...\n");
     tmp=tmpf.readString();
     //DBG Serial.println(tmp);
     index.print(tmp);
@@ -281,7 +281,7 @@ template_str=String();
 
   // Copy end of the index template
   if(tmpf=SPIFFS.open("/logs_end.txt", "r")){
-    DBG Serial.println("[HTTP] End of log index - copying...");
+    DBG dbgLog(LOG_DEBUG,"[HTTP] End of log index - copying...\n");
     tmp=tmpf.readString();
     //DBG Serial.println(tmp);
     index.print(tmp);
@@ -340,14 +340,14 @@ String About_parser(const String& var) {
 String tmp;
 
   template_str=String();
-  DBG Serial.println(var);
+  DBG dbgLog(LOG_DEBUG,var.c_str());
   if (var == "VERSION"){
     template_str+=PVer;
     template_str+=" ";
     template_str+=PDate;
   }
   
-  DBG Serial.print(template_str);
+  DBG dbgLog(LOG_DEBUG,template_str.c_str());
   return template_str;
 }
 
@@ -374,7 +374,7 @@ String tmp=String(PRG_Directory);
 
   // Checking how much has been uploaded - if more then MAX_Prog_File_Size - abort
   if(len+index>MAX_Prog_File_Size){
-     DBG Serial.println("[HTTP] Uploaded file too large! Aborting");
+     DBG dbgLog(LOG_DEBUG,"[HTTP] Uploaded file too large! Aborting\n");
      request->send(406, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/>Return to main view</a></body></html");
      abort=true;
      return;
@@ -387,7 +387,7 @@ String tmp=String(PRG_Directory);
     if(request->hasHeader("Content-Length")){
       AsyncWebHeader* h = request->getHeader("Content-Length");
       if(h->value().toInt()>MAX_Prog_File_Size){
-        DBG Serial.println("[HTTP] Uploaded file too large! Aborting");
+        DBG dbgLog(LOG_DEBUG,"[HTTP] Uploaded file too large! Aborting\n");
         request->send(406, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/programs/>Return to programs view</a></body></html");
         abort=true;
         return;
@@ -396,7 +396,7 @@ String tmp=String(PRG_Directory);
 
     // Abort if filename is too long (otherwise esp will not write file to SPIFFS silently!)
     if(tmp.length()>MAX_FILENAME){
-      DBG Serial.println("[HTTP] Uploaded filename is too large! Aborting");
+      DBG dbgLog(LOG_DEBUG,"[HTTP] Uploaded filename is too large! Aborting\n");
       request->send(406, "text/html", "<html><body><h1>Filename is too long!</h1> Current limit is "+String(MAX_FILENAME)+"letters for directory and filename, so program name can be only "+String(MAX_PROGNAME)+" <br><br><a href=/programs/>Return to programs view</a></body></html");
       abort=true;
       return;
@@ -406,7 +406,7 @@ String tmp=String(PRG_Directory);
     strcpy(tmp_filename,filename.c_str());
     // Abort if filename contains not allowed characters or trys to overwrite index.html
     if(!valid_filename(tmp_filename) || filename.compareTo("index.html")==0){
-      DBG Serial.println("[HTTP] Uploaded filename containg bad characters! Aborting");
+      DBG dbgLog(LOG_DEBUG,"[HTTP] Uploaded filename containg bad characters! Aborting\n");
       request->send(406, "text/html", "<html><body><h1>Filename is bad!</h1> Filename contains not allowed characters - use letters, numbers and . _ signs <br><br><a href=/programs/>Return to programs view</a></body></html");
       abort=true;
       return;
@@ -415,7 +415,7 @@ String tmp=String(PRG_Directory);
     if (newFile) newFile.close();
     newFile = SPIFFS.open( tmp.c_str(), "w");
   }
-  DBG Serial.println("[HTTP] Next iteration of file upload...");
+  DBG dbgLog(LOG_DEBUG,"[HTTP] Next iteration of file upload...\n");
   for(size_t i=0; i<len; i++){
     if(!check_valid_chars(data[i])){ // Basic sanitization - check for allowed characters
       request->send(200, "text/html", "<html><body><h1>File contains not allowed character(s)!</h1> You can use all letters, numbers and basic symbols in ASCII code.<br><br><a href=/>Return to main view</a></body></html");
@@ -427,7 +427,7 @@ String tmp=String(PRG_Directory);
   }
   if(final){
     newFile.flush();
-    DBG Serial.printf("[HTTP] UploadEnd: %s, %d B\n", newFile.name(), newFile.size());
+    DBG dbgLog(LOG_DEBUG,"[HTTP] UploadEnd: %s, %d B\n", newFile.name(), newFile.size());
     newFile.close();
 
     char fname[22];
@@ -438,7 +438,7 @@ String tmp=String(PRG_Directory);
     if(err){  // program did not validate correctly
       request->send(200, "text/html", "<html><body><h1>Program stucture is incorrect!</h1> Error code "+String(err)+".<br><br><a href=/programs/>Return to programs</a></body></html");
       delete_file(newFile=SPIFFS.open( tmp.c_str(), "r"));  // we need to open file again - to close it with already existing function
-      DBG Serial.printf("[HTTP] Detailed program check failed!\n");
+      DBG dbgLog(LOG_ERR,"[HTTP] Detailed program check failed!\n");
       abort=true; // this will never happend...
       request->redirect("/programs");
     }else{ // Everything went fine - commit file
@@ -462,7 +462,7 @@ void POST_Handle_Delete(AsyncWebServerRequest *request){
       AsyncWebParameter* p = request->getParam("prog_name", true);
       char path[32];
       sprintf(path,"%s/%.*s",PRG_Directory,MAX_PROGNAME,p->value().c_str());
-      DBG Serial.printf("[HTTP] Removing program: %s with fpath:%s\n",p->value().c_str(),path);
+      DBG dbgLog(LOG_DEBUG,"[HTTP] Removing program: %s with fpath:%s\n",p->value().c_str(),path);
       if(SPIFFS.exists(path)){
         SPIFFS.remove(path);
         Generate_INDEX();
@@ -479,11 +479,11 @@ void GET_Handle_Delete(AsyncWebServerRequest *request){
 File tmpf;
 String tmps;
 
-  DBG Serial.printf("[HTTP]  Request type: %d\n",request->method());
-  DBG Serial.printf("[HTTP]  Request url: %s\n",request->url().c_str());
+  DBG dbgLog(LOG_DEBUG,"[HTTP]  Request type: %d\n",request->method());
+  DBG dbgLog(LOG_DEBUG,"[HTTP]  Request url: %s\n",request->url().c_str());
 
   if(!request->hasParam("prog_name") || !(tmpf=SPIFFS.open("/delete.html", "r")) ){  // if no program to delete - skip
-    DBG Serial.println("[HTTP]  Failed to find GET or open delete.html");
+    DBG dbgLog(LOG_ERR,"[HTTP]  Failed to find GET or open delete.html");
     request->redirect("/programs");
     return;
   }
@@ -493,7 +493,7 @@ String tmps;
   AsyncResponseStream *response = request->beginResponseStream("text/html");
   response->addHeader("Server","ESP Async Web Server");
 
-  DBG Serial.printf("[HTTP] Opened file is %s, program name is:%s\n",tmpf.name(),p->value().c_str());
+  DBG dbgLog(LOG_DEBUG,"[HTTP] Opened file is %s, program name is:%s\n",tmpf.name(),p->value().c_str());
   
   while(tmpf.available()){
     tmps=tmpf.readStringUntil('\n');
@@ -513,7 +513,7 @@ void GET_Handle_Load(AsyncWebServerRequest *request){
 char prname[MAX_FILENAME];
 
   if(!request->hasParam("prog_name")){  // if no program to load - skip
-    DBG Serial.println("[HTTP] Failed to load program - no program name");
+    DBG dbgLog(LOG_ERR,"[HTTP] Failed to load program - no program name");
     request->redirect("/programs");
     return;
   }
@@ -525,7 +525,7 @@ char prname[MAX_FILENAME];
     Load_program_to_run();
     return;
   }else{
-    DBG Serial.println("[HTTP] Failed to load program - Load_program() failed");
+    DBG dbgLog(LOG_ERR,"[HTTP] Failed to load program - Load_program() failed");
     request->redirect("/programs");
     return;
   }
@@ -543,25 +543,25 @@ boolean save=false;
   for(int i=0;i<params;i++){
     AsyncWebParameter* p = request->getParam(i);
     if(p->isPost()){
-      DBG Serial.printf("[HTTP] Prefs parser POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      DBG dbgLog(LOG_DEBUG,"[HTTP] Prefs parser POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       if(p->name().equalsIgnoreCase("save")){
         save=true;
         continue;
       }else if(p->name().equalsIgnoreCase("update")){
         continue;
       }else if(!Change_prefs_value(p->name(),p->value())){
-        DBG Serial.printf("[HTTP]!!! We have post error for %s with '%s'\n",p->name().c_str(),p->value().c_str());
+        DBG dbgLog(LOG_DEBUG,"[HTTP]!!! We have post error for %s with '%s'\n",p->name().c_str(),p->value().c_str());
         // we have some errors add new field to error list
         if(Errors!=NULL){
-          DBG Serial.printf("[HTTP] Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
+          DBG dbgLog(LOG_DEBUG,"[HTTP] Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
           Errors=(char *)ps_realloc(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
           strcat(Errors," ");
           strcat(Errors,p->name().c_str());
-          DBG Serial.printf("[HTTP] Errors now:%s\n",Errors);
+          DBG dbgLog(LOG_DEBUG,"[HTTP] Errors now:%s\n",Errors);
         }else{
-          DBG Serial.printf("[HTTP] Malloc call of size %d\n",(p->name().length()+3)*sizeof(char));
+          DBG dbgLog(LOG_DEBUG,"[HTTP] Malloc call of size %d\n",(p->name().length()+3)*sizeof(char));
           Errors=strdup(p->name().c_str());
-          DBG Serial.printf("[HTTP] Errors now:%s\n",Errors);
+          DBG dbgLog(LOG_DEBUG,"[HTTP] Errors now:%s\n",Errors);
         }
       }
     }
@@ -584,7 +584,7 @@ int params = request->params();
   for(int i=0;i<params;i++){
     AsyncWebParameter* p = request->getParam(i);
     if(p->isPost()){
-      DBG Serial.printf("[HTTP] Index post parser: POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      DBG dbgLog(LOG_DEBUG,"[HTTP] Index post parser: POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       if(p->name().equalsIgnoreCase("prog_start")){ // start program
         if(Program_run_state==PR_PAUSED) RESUME_Program();
         else START_Program();
@@ -674,7 +674,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
 size_t content_len;
   
   if (!index){
-    DBG Serial.println("[HTTP] Beginning firmware update");
+    DBG dbgLog(LOG_INFO,"[HTTP] Beginning firmware update\n");
     content_len = request->contentLength();
     // if filename includes spiffs, update the spiffs partition
     int cmd = (filename.indexOf("spiffs") > -1) ? U_SPIFFS : U_FLASH;

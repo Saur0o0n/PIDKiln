@@ -50,11 +50,11 @@ boolean delete_file(File &newFile){
 char filename[32];
  if(newFile){
     strcpy(filename,newFile.name());
-    DBG Serial.printf("[MAIN] Deleting uploaded file: \"%s\"\n",filename);
+    DBG dbgLog(LOG_DEBUG,"[MAIN] Deleting uploaded file: \"%s\"\n",filename);
     newFile.flush();
     newFile.close();
     if(SPIFFS.remove(filename)){
-      DBG Serial.println("[MAIN] Deleted!");
+      DBG dbgLog(LOG_DEBUG,"[MAIN] Deleted!");
     }
     Generate_INDEX(); // Just in case user wanted to overwrite existing file
     return true;
@@ -106,11 +106,11 @@ void setup() {
   disableCore1WDT();
 
   // Serial port for debugging purposes
-  DBG Serial.begin(115200);
+  initSerial();
 
   // Initialize SPIFFS
   if (!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)) {
-    DBG Serial.println("[MAIN] An Error has occurred while mounting SPIFFS");
+    DBG dbgLog(LOG_DEBUG,"[MAIN] An Error has occurred while mounting SPIFFS\n");
     return;
   }
 
@@ -123,13 +123,13 @@ void setup() {
   // Setup input devices
   Setup_Input();
   
-  DBG Serial.printf("WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_MODE].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
+  DBG dbgLog(LOG_DEBUG,"WiFi mode: %d, Retry count: %d, is wifi enabled: %d\n",Prefs[PRF_WIFI_MODE].value.uint8,Prefs[PRF_WIFI_RETRY_CNT].value.uint8,Prefs[PRF_WIFI_SSID].type);
   
   // Connect to WiFi if enabled
   if(Prefs[PRF_WIFI_MODE].value.uint8){ // If we want to have WiFi
     load_msg("connecting WiFi..");
     if(Setup_WiFi()){    // !!! Wifi connection FAILED
-      DBG Serial.println("[MAIN] WiFi connection failed");
+      DBG dbgLog(LOG_ERR,"[MAIN] WiFi connection failed\n");
       load_msg(" WiFi con. failed");
     }else{
       IPAddress lips;
