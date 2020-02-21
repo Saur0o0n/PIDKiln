@@ -105,6 +105,9 @@ void setup() {
   disableCore0WDT();
   disableCore1WDT();
 
+  // Initialize prefs array with default values
+  Setup_prefs();
+
   // Serial port for debugging purposes
   initSerial();
 
@@ -114,8 +117,8 @@ void setup() {
     return;
   }
 
-  // Load all preferences
-  Setup_Prefs();
+  // Load all preferences from disk
+  Load_prefs();
   
   // Setup function for LCD display from PIDKiln_LCD.ino
   Setup_LCD();

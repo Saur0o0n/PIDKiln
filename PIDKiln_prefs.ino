@@ -118,11 +118,11 @@ void Prefs_updated_hook(){
 ** Setup preferences for PIDKiln
 **
 */
-void Setup_Prefs(void){
+void Setup_prefs(void){
 char tmp[30];
 
   // Fill the preferences with default values - if there is such a need
-  DBG dbgLog(LOG_INFO,"[PREFS] Preference initialization");
+  // DBG dbgLog(LOG_INFO,"[PREFS] Preference initialization");
   for(uint16_t a=1; a<PRF_end; a++)
     switch(a){
       case PRF_WIFI_SSID:
@@ -178,11 +178,11 @@ char tmp[30];
         break;
       case PRF_INIT_DATE:
         Prefs[PRF_INIT_DATE].type=STRING;
-        Prefs[PRF_INIT_DATE].value.str=strdup("2019-10-10");
+        Prefs[PRF_INIT_DATE].value.str=strdup("2012-02-20");
         break;
       case PRF_INIT_TIME:
         Prefs[PRF_INIT_TIME].type=STRING;
-        Prefs[PRF_INIT_TIME].value.str=strdup("12:00:00");
+        Prefs[PRF_INIT_TIME].value.str=strdup("00:00:00");
         break;
 
       case PRF_PID_WINDOW:  // how often recalculate SSR on/off - 5 second window default
@@ -225,7 +225,7 @@ char tmp[30];
         break;
       case PRF_DBG_SYSLOG:
         Prefs[PRF_DBG_SYSLOG].type=UINT8;
-        Prefs[PRF_DBG_SYSLOG].value.uint8=1;
+        Prefs[PRF_DBG_SYSLOG].value.uint8=0;
         break;
 
       case PRF_MIN_TEMP:
@@ -251,5 +251,4 @@ char tmp[30];
       default:
         break;
     }
-  Load_prefs();
 }

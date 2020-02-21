@@ -192,6 +192,9 @@ File dir,file;
 
 
 void dbgLog(uint16_t pri, const char *fmt, ...) {
+
+  if(!Prefs[PRF_DBG_SERIAL].value.uint8 && !Prefs[PRF_DBG_SYSLOG].value.uint8) return; // don't waste time and resources if logging off
+  
   char *message;
   va_list args;
   size_t initialLen;
@@ -213,7 +216,7 @@ void dbgLog(uint16_t pri, const char *fmt, ...) {
   va_end(args);
     
   if(Prefs[PRF_DBG_SERIAL].value.uint8) Serial.print(message);
-  if(Prefs[PRF_DBG_SYSLOG].value.uint8) syslog.logf(pri,message);
+  if(Prefs[PRF_DBG_SYSLOG].value.uint8) syslog.log(pri,message);
 
   delete[] message;
 }
@@ -231,7 +234,5 @@ void initSysLog(){
 
 
 void initSerial(){
-  if(Prefs[PRF_DBG_SERIAL].value.uint8){
-    Serial.begin(115200);
-  }
+  if(Prefs[PRF_DBG_SERIAL].value.uint8) Serial.begin(115200);
 }

@@ -743,8 +743,8 @@ void SETUP_WebServer(void) {
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     });
-    server.on("/js/Chart.2.8.0.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
-      AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/js/Chart.2.8.0.bundle.min.js", "text/javascript");
+    server.on("/js/Chart.2.9.3.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      AsyncWebServerResponse* response = request->beginResponse(SPIFFS, "/js/Chart.2.9.3.bundle.min.js", "text/javascript");
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     });

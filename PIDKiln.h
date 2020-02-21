@@ -24,10 +24,10 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 
 // MAX31855 variables/defs
 #define MAXCS1  27    // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
-#define MAXCS2  15    // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
+//#define MAXCS2  15    // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
-#define ENERGY_MON_PIN 33       // if you don't use - comment out
+//#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
 #define ALARM_PIN 26        // Pin goes high on abort
 uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm
@@ -305,11 +305,12 @@ const char *PDate = "2020.02.20";
 // Empty syslog instance
 WiFiUDP udpClient;
 Syslog syslog(udpClient, SYSLOG_PROTO_IETF);
+// Syslog server and port to send data to
 #define SYSLOG_SERVER "192.168.70.100"
 #define SYSLOG_PORT 514
 
 #define JS_JQUERY "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
-#define JS_CHART "https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.bundle.min.js"
+#define JS_CHART "https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.bundle.min.js"
 #define JS_CHART_DS "https://cdn.jsdelivr.net/npm/chartjs-plugin-datasource"
 
 
