@@ -223,12 +223,21 @@ void dbgLog(uint16_t pri, const char *fmt, ...) {
 
 
 void initSysLog(){
+
+  DBG dbgLog(LOG_DEBUG,"[LOG] Trying to enable Syslog\n");
   if(Prefs[PRF_DBG_SYSLOG].value.uint8){
-    syslog.server(SYSLOG_SERVER, SYSLOG_PORT);
+    // check wheter we have all syslog params defined, if not - nullyfi prefs
+    if(!strlen(Prefs[PRF_SYSLOG_SRV].value.str) || !Prefs[PRF_SYSLOG_PORT].value.uint16){
+      Prefs[PRF_DBG_SYSLOG].value.uint8=0;
+      DBG dbgLog(LOG_ERR,"[LOG] Syslog enabled but not configured - disabling syslog\n");
+      return;
+    }
+    syslog.server(Prefs[PRF_SYSLOG_SRV].value.str, Prefs[PRF_SYSLOG_PORT].value.uint16);
     syslog.deviceHostname("PIDKiln-ESP32");
     syslog.appName("PIDKiln");
     syslog.defaultPriority(LOG_KERN);
     syslog.log(LOG_INFO, "Begin syslog");
+    DBG dbgLog(LOG_DEBUG,"[LOG] Syslog enabled\n");
   }
 }
 

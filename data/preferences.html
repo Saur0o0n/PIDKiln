@@ -33,7 +33,7 @@
 	<label for="WiFi_SSID"> WiFi access point SSID </label>
       </div>
       <div class="col-75">
-	<input type="text" name="WiFi_SSID" value="~WiFi_SSID~" width="20">
+	<input type="text" name="WiFi_SSID" value="~WiFi_SSID~" width="20" title="Name of your WiFi network, that PIDKiln should connect to">
       </div>
      </div>
      <div class="row">
@@ -42,7 +42,7 @@
       </div>
       <div class="col-75">
        <div style="display: inline-block;">
-	<input type="password" id="WiFi_Password" name="WiFi_Password" value="~WiFi_Password~" width="20">
+	<input type="password" id="WiFi_Password" name="WiFi_Password" value="~WiFi_Password~" width="20" title="Password for WiFi network">
 	<img id="WiFi_Password_toggler" class="field-icon toggle-password" src="icons/eyec.png" onclick="toggle_password(WiFi_Password)">
        </div>
       </div>
@@ -63,7 +63,7 @@
 	<label for="WiFi_Retry_cnt"> WiFi connection timeout <br><sup>(0 - unlimited)</sup> </label>
       </div>
       <div class="col-75">
-	<input type="number" name="WiFi_Retry_cnt" value="~WiFi_Retry_cnt~" min="0" max="254"> seconds
+	<input type="number" name="WiFi_Retry_cnt" value="~WiFi_Retry_cnt~" min="0" max="254" title="How many times retry connecting to WiFi (once per second)"> seconds
       </div>
      </div>
    </fieldset>
@@ -72,23 +72,10 @@
     <legend> HTTP server configuration </legend>
      <div class="row">
       <div class="col-25">
-	<label for="HTTP_Local_JS"> Send large JS from local server<br>(change requires restart) </label>
-      </div>
-      <div class="col-75">
-	<input type="radio" name="HTTP_Local_JS" value="0" ~HTTP_Local_JS0~> Redirect to Internet sources (recommended) <br>
-	<input type="radio" name="HTTP_Local_JS" value="1" ~HTTP_Local_JS1~> Send from local HTTP server <br>
-      </div>
-     </div>
-   </fieldset>
-
-   <fieldset>
-    <legend> Web authentication </legend>
-     <div class="row">
-      <div class="col-25">
 	<label for="Auth_Username"> Auth Username </label>
       </div>
       <div class="col-75">
-	<input type="text" name="Auth_Username" value="~Auth_Username~" width="20">
+	<input type="text" name="Auth_Username" value="~Auth_Username~" width="20" title="Username form your PIDKiln authentication">
       </div>
      </div>
      <div class="row">
@@ -98,8 +85,17 @@
       <div class="col-75">
        <div style="display: inline-block;">
 	<input type="password" id="Auth_Password" name="Auth_Password" value="~Auth_Password~" width="20">
-	<img id="Auth_Password_toggler" class="field-icon toggle-password" src="icons/eyec.png" onclick="toggle_password(Auth_Password)">
+	<img id="Auth_Password_toggler" class="field-icon toggle-password" src="icons/eyec.png" onclick="toggle_password(Auth_Password)" title="Password used with above username">
        </div>
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="HTTP_Local_JS"> Send large JS from local server<br>(change requires restart) </label>
+      </div>
+      <div class="col-75">
+	<input type="radio" name="HTTP_Local_JS" value="0" ~HTTP_Local_JS0~ title="Should large JS files be fetched from Internet or directly from ESP32"> Redirect to Internet sources (recommended) <br>
+	<input type="radio" name="HTTP_Local_JS" value="1" ~HTTP_Local_JS1~> Send from local HTTP server <br>
       </div>
      </div>
    </fieldset>
@@ -111,7 +107,7 @@
 	<label for="NTP_Server1"> NTP Server1 </label>
       </div>
       <div class="col-75">
-	<input type="text" name="NTP_Server1" value="~NTP_Server1~">
+	<input type="text" name="NTP_Server1" value="~NTP_Server1~" title="IP of the NTP server to synchronize time">
       </div>
      </div>
      <div class="row">
@@ -119,7 +115,7 @@
 	<label for="NTP_Server1"> NTP Server2 </label>
       </div>
       <div class="col-75">
-	<input type="text" name="NTP_Server2" value="~NTP_Server2~">
+	<input type="text" name="NTP_Server2" value="~NTP_Server2~" title="IP of the NTP server to synchronize time">
       </div>
      </div>
      <div class="row">
@@ -127,7 +123,7 @@
 	<label for="NTP_Server1"> NTP Server3 </label>
       </div>
       <div class="col-75">
-	<input type="text" name="NTP_Server3" value="~NTP_Server3~">
+	<input type="text" name="NTP_Server3" value="~NTP_Server3~" title="IP of the NTP server to synchronize time">
       </div>
      </div>
      <div class="row">
@@ -135,7 +131,7 @@
 	<label for="GMT_Offset_sec"> Difference (in seconds) from GMT time </label>
       </div>
       <div class="col-75">
-	<input type="number" name="GMT_Offset_sec" min="-39600" max="50400" value="~GMT_Offset_sec~">
+	<input type="number" name="GMT_Offset_sec" min="-39600" max="50400" value="~GMT_Offset_sec~" title="Difference between your timezone and GMT in seconds">
       </div>
      </div>
      <div class="row">
@@ -151,7 +147,7 @@
 	<label for="Initial_Date"> Initial date - if no NTP </label>
       </div>
       <div class="col-75">
-	<input type="date" name="Initial_Date" value="~Initial_Date~">
+	<input type="date" name="Initial_Date" value="~Initial_Date~" title="What date should be assumed after boot, if no Internet and NTP servers">
       </div>
      </div>
      <div class="row">
@@ -159,7 +155,7 @@
 	<label for="Initial_Time"> Initial time - if no NTP </label>
       </div>
       <div class="col-75">
-	<input type="time" name="Initial_Time" value="~Initial_Time~" step="1">
+	<input type="time" name="Initial_Time" value="~Initial_Time~" step="1" title="What time should be assumed after boot, if no Internet and NTP servers">
       </div>
      </div>
    </fieldset>
@@ -171,7 +167,7 @@
 	<label for="PID_Window"> PID Window size (ms) </label>
       </div>
       <div class="col-75">
-	<input type="number" name="PID_Window" min="1" max="9999" value="~PID_Window~" size="5">ms
+	<input type="number" name="PID_Window" min="1" max="9999" value="~PID_Window~" size="5" title="Time window used to recalculate PID parameters">ms
       </div>
      </div>
      <div class="row">
@@ -212,23 +208,23 @@
 	<label for="PID_Temp_Threshold"> Temperature threshold </label>
       </div>
       <div class="col-75">
-	<input type="number" name="PID_Temp_Threshold" min="-1" max="1350" step="1" value="~PID_Temp_Threshold~">
+	<input type="number" name="PID_Temp_Threshold" min="-1" max="1350" step="1" value="~PID_Temp_Threshold~" title="If set, and Set temperature is different from Current temperature _that much_ - controller will wait until threshold is reached">
       </div>
      </div>
      <div class="row">
       <div class="col-25">
-	<label for="LOG_Window"> Logging window </label>
+	<label for="LOG_Window"> Program logging window </label>
       </div>
       <div class="col-75">
-	<input type="number" name="LOG_Window" min="0" max="3600" step="1" value="~LOG_Window~">s
+	<input type="number" name="LOG_Window" min="0" max="3600" step="1" value="~LOG_Window~" title="How often, during program run, PIDKiln should log current status to csv file">s
       </div>
      </div>
      <div class="row">
       <div class="col-25">
-	<label for="LOG_Files_Limit"> Log files limit </label>
+	<label for="LOG_Files_Limit"> Program log files limit </label>
       </div>
       <div class="col-75">
-	<input type="number" name="LOG_Files_Limit" min="0" max="3600" step="1" value="~LOG_Files_Limit~">
+	<input type="number" name="LOG_Files_Limit" min="0" max="3600" step="1" value="~LOG_Files_Limit~" title="How many log files should be keep on drive">
       </div>
      </div>
    </fieldset>
@@ -240,7 +236,7 @@
 	<label for="MIN_Temperature"> Minimal temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4">&#176;C
+	<input type="number" name="MIN_Temperature" min="0" max="50" value="~MIN_Temperature~" size="4" title="Minimal reasonable temperature that can be registered. If below - assume failure">&#176;C
       </div>
      </div>
      <div class="row">
@@ -248,7 +244,7 @@
 	<label for="MAX_Temperature"> Maximum temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4">&#176;C
+	<input type="number" name="MAX_Temperature" min="51" max="1350" value="~MAX_Temperature~" size="4" title="Maximum reasonable temperature that can be registered. If above - assume failure">&#176;C
       </div>
      </div>
      <div class="row">
@@ -256,7 +252,7 @@
 	<label for="MAX_Housing_Temperature"> Maximum housing temperature </label>
       </div>
       <div class="col-75">
-	<input type="number" name="MAX_Housing_Temperature" min="10" max="250" value="~MAX_Housing_Temperature~" size="4">&#176;C
+	<input type="number" name="MAX_Housing_Temperature" min="10" max="250" value="~MAX_Housing_Temperature~" size="4" title="Maximum allowed housing temperature in normal condition, if above, assume insulation failure">&#176;C
       </div>
      </div>
      <div class="row">
@@ -264,7 +260,49 @@
 	<label for="Alarm_Timeout"> Alarm timeout </label>
       </div>
       <div class="col-75">
-	<input type="number" name="Alarm_Timeout" min="0" max="3600" value="~Alarm_Timeout~" size="4">s
+	<input type="number" name="Alarm_Timeout" min="0" max="3600" value="~Alarm_Timeout~" size="4" title="How many seconds alarm should be on after program ends or error">s
+      </div>
+     </div>
+   </fieldset>
+
+   <fieldset>
+    <legend> Monitoring </legend>
+     <div class="row">
+      <div class="col-25">
+	<label for="DBG_Serial"> Use serial console output </label>
+      </div>
+      <div class="col-75">
+	<select name="DBG_Serial" size="1" title="Should we output monitoring to serial console?">
+	  <option value="0" ~DBG_Serial0~> no </option>
+	  <option value="1" ~DBG_Serial1~> yes </option>
+	</select>
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="DBG_Syslog"> Use remote Syslog output </label>
+      </div>
+      <div class="col-75">
+	<select name="DBG_Syslog" size="1" title="Should we output monitoring to remote syslog server?">
+	  <option value="0" ~DBG_Syslog0~> no </option>
+	  <option value="1" ~DBG_Syslog1~> yes </option>
+	</select>
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="DBG_Syslog_Srv"> Syslog host IP </label>
+      </div>
+      <div class="col-75">
+	<input type="text" name="DBG_Syslog_Srv" value="~DBG_Syslog_Srv~" title="IP of the syslog server">
+      </div>
+     </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="DBG_Syslog_Port"> Syslog UDP port </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="DBG_Syslog_Port" min="1" max="49151" value="~DBG_Syslog_Port~" size="5" placeholder="514" title="Port number for syslog service on remote host">
       </div>
      </div>
    </fieldset>

@@ -65,12 +65,13 @@ uint32_t raw;
 double kiln_tmp1,kiln_tmp2;
 
   raw = ThermocoupleA.readRaw();
-  kiln_tmp1 = ThermocoupleA.decodeInternal(raw); 
-  if (isnan(kiln_tmp1)) {
-    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with MAX31855-A! Internal readout failed\n");
-    ABORT_Program(PR_ERR_MAX31A_INT_ERR);
+  if (!raw) {
+    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with MAX31855-A!\n");
+    ABORT_Program(PR_ERR_MAX31A_INT_ERR); // this will do nothing, if program is not running
     return;
   }
+  kiln_tmp1 = ThermocoupleA.decodeInternal(raw); 
+
   int_temp = (int_temp+kiln_tmp1)/2;
   
   kiln_tmp1 = ThermocoupleA.decodeCelsius(raw);
@@ -83,7 +84,7 @@ double kiln_tmp1,kiln_tmp2;
   }
   kiln_temp=(kiln_temp*0.9+kiln_tmp2*0.1);    // We try to make bigger hysteresis
 
-//  DBG Serial.printf("Temperature readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
+//  DBG dbgLog(LOG_DEBUG,"[ADDONS] TemperatureA readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }
 
 
@@ -95,17 +96,17 @@ uint32_t raw;
 double case_tmp1,case_tmp2;
 
   raw = ThermocoupleB.readRaw();
-  case_tmp1 = ThermocoupleB.decodeInternal(raw); 
-  if (isnan(case_tmp1)) {
-    DBG dbgLog(LOG_DEBUG,"[ADDONS] !! Something wrong with MAX31855-B! Internal readout failed\n");
-    ABORT_Program(PR_ERR_MAX31B_INT_ERR);
+  if (!raw) {
+    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with MAX31855-B!\n");
+    ABORT_Program(PR_ERR_MAX31B_INT_ERR); // this will do nothing, if program is not running
     return;
   }
+  case_tmp1 = ThermocoupleB.decodeInternal(raw);
   int_temp = (int_temp+case_tmp1)/2;
-  
+
   case_tmp1 = ThermocoupleB.decodeCelsius(raw);
   case_tmp2 = ThermocoupleB.linearizeCelcius(int_temp, case_tmp1);
-  
+
   if (isnan(case_tmp1) || isnan(case_tmp2)) {
     DBG dbgLog(LOG_DEBUG,"[ADDONS] !! Something wrong with thermocoupleB! External readout failed\n");
     ABORT_Program(PR_ERR_MAX31B_KPROBE);
@@ -113,7 +114,7 @@ double case_tmp1,case_tmp2;
   }
   case_temp=(case_temp*0.8+case_tmp2*0.2);    // We try to make bigger hysteresis
 
-  DBG dbgLog(LOG_INFO,"[ADDONS] TemperatureB readout: Internal = %.1f \t Case raw = %.1f \t Case final = %.1f\n", int_temp, case_tmp1, case_temp); 
+  DBG dbgLog(LOG_DEBUG,"[ADDONS] TemperatureB readout: Internal = %.1f \t Case raw = %.1f \t Case final = %.1f\n", int_temp, case_tmp1, case_temp); 
 }
 #endif
 

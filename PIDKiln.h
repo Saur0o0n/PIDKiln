@@ -241,15 +241,17 @@ typedef enum { // program menu positions
   PRF_LOG_WINDOW,
   PRF_LOG_LIMIT,
 
-  PRF_DBG_SERIAL,
-  PRF_DBG_SYSLOG,
-
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
   PRF_MAX_HOUS_TEMP,
   PRF_THERMAL_RUN,
   PRF_ALARM_TIMEOUT,
-  
+
+  PRF_DBG_SERIAL,
+  PRF_DBG_SYSLOG,
+  PRF_SYSLOG_SRV,
+  PRF_SYSLOG_PORT,
+
   PRF_end
 } PREFERENCES;
 
@@ -260,8 +262,8 @@ const char *PrefsName[]={
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window","LOG_Files_Limit",
-"DBG_Serial","DBG_Syslog",
 "MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout",
+"DBG_Serial","DBG_Syslog","DBG_Syslog_Srv","DBG_Syslog_Port",
 };
 
 // Preferences types definitions
@@ -297,7 +299,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.1";
-const char *PDate = "2020.02.20";
+const char *PDate = "2020.02.22";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)
@@ -305,9 +307,7 @@ const char *PDate = "2020.02.20";
 // Empty syslog instance
 WiFiUDP udpClient;
 Syslog syslog(udpClient, SYSLOG_PROTO_IETF);
-// Syslog server and port to send data to
-#define SYSLOG_SERVER "192.168.70.100"
-#define SYSLOG_PORT 514
+
 
 #define JS_JQUERY "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
 #define JS_CHART "https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.bundle.min.js"

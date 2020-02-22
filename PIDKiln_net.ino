@@ -112,7 +112,7 @@ boolean Start_WiFi_CLIENT(){
   WiFi.mode(WIFI_STA);
    
   WiFi.begin(Prefs[PRF_WIFI_SSID].value.str, Prefs[PRF_WIFI_PASS].value.str);
-  DBG dbgLog(LOG_INFO,"[NET] Connecting to WiFi as Client...");
+  DBG dbgLog(LOG_INFO,"[NET] Connecting to WiFi as Client...\n");
     
   for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
     delay(1000);

@@ -66,7 +66,14 @@ String Preferences_parser(const String& var){
  
  else if(var=="LOG_Window") return String(Prefs[PRF_LOG_WINDOW].value.uint16);
  else if(var=="LOG_Files_Limit") return String(Prefs[PRF_LOG_LIMIT].value.uint16);
-  
+
+ else if(var=="DBG_Serial0" && Prefs[PRF_DBG_SERIAL].value.uint8==0) return "selected";
+ else if(var=="DBG_Serial1" && Prefs[PRF_DBG_SERIAL].value.uint8==1) return "selected";
+ else if(var=="DBG_Syslog0" && Prefs[PRF_DBG_SYSLOG].value.uint8==0) return "selected";
+ else if(var=="DBG_Syslog1" && Prefs[PRF_DBG_SYSLOG].value.uint8==1) return "selected";
+ else if(var=="DBG_Syslog_Port") return String(Prefs[PRF_SYSLOG_PORT].value.uint16);
+ else if(var=="DBG_Syslog_Srv") return String(Prefs[PRF_SYSLOG_SRV].value.str);
+
  else if(var=="ERRORS" && Errors){
   String out="<div class=error> There where errors: "+String(Errors)+"</div>";
   DBG dbgLog(LOG_ERR,"[HTTP] Errors pointer1:%p\n",Errors);
