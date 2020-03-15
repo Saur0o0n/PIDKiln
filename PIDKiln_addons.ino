@@ -2,11 +2,11 @@
 ** Function for relays (SSR, EMR) and temperature sensors
 **
 */
-#include <Adafruit_MAX31855.h>
+#include <MAX31855.h>
 
 // Initialize SPI and MAX31855
 SPIClass *ESP32_SPI = new SPIClass(HSPI);
-Adafruit_MAX31855 ThermocoupleA(MAXCS1);
+MAX31855 ThermocoupleA(MAXCS1);
 
 // If we have defines power meter pins
 #ifdef ENERGY_MON_PIN
@@ -21,7 +21,7 @@ double Energy_Usage=0;            // total energy used (Watt/time)
 
 // If you have second thermoucouple
 #ifdef MAXCS2
-Adafruit_MAX31855 ThermocoupleB(MAXCS2);
+MAX31855 ThermocoupleB(MAXCS2);
 #endif
 
 boolean SSR_On; // just to narrow down state changes.. I don't know if this is needed/faster
@@ -62,29 +62,39 @@ void Disable_EMR(){
 //
 void Update_TemperatureA(){
 uint32_t raw;
-double kiln_tmp1,kiln_tmp2;
+double kiln_tmp1;
 
-  raw = ThermocoupleA.readRaw();
-  if (!raw) {
-    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with MAX31855-A!\n");
-    ABORT_Program(PR_ERR_MAX31A_INT_ERR); // this will do nothing, if program is not running
-    return;
+  if(ThermocoupleA.detectThermocouple() != MAX31855_THERMOCOUPLE_OK){
+    switch (ThermocoupleA.detectThermocouple())
+    {
+      case MAX31855_THERMOCOUPLE_SHORT_TO_VCC:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA short to VCC\n");
+        break;
+
+      case MAX31855_THERMOCOUPLE_SHORT_TO_GND:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA short to GND\n");
+        break;
+
+      case MAX31855_THERMOCOUPLE_NOT_CONNECTED:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA not connected\n");
+        break;
+
+      case MAX31855_THERMOCOUPLE_UNKNOWN:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA unknown error, check spi cable\n");
+        break;
+    }
+    ABORT_Program(PR_ERR_MAX31A_INT_ERR);
   }
-  kiln_tmp1 = ThermocoupleA.decodeInternal(raw); 
 
+  raw = ThermocoupleA.readRawData();
+
+  kiln_tmp1 = ThermocoupleA.getColdJunctionTemperature(raw); 
   int_temp = (int_temp+kiln_tmp1)/2;
   
-  kiln_tmp1 = ThermocoupleA.decodeCelsius(raw);
-  kiln_tmp2 = ThermocoupleA.linearizeCelcius(int_temp, kiln_tmp1);
-  
-  if (isnan(kiln_tmp1) || isnan(kiln_tmp2)) {
-    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with thermocoupleA! External readout failed\n");
-    ABORT_Program(PR_ERR_MAX31A_KPROBE);
-    return;
-  }
-  kiln_temp=(kiln_temp*0.9+kiln_tmp2*0.1);    // We try to make bigger hysteresis
+  kiln_tmp1 = ThermocoupleA.getTemperature(raw);
+  kiln_temp=(kiln_temp*0.9+kiln_tmp1*0.1);    // We try to make bigger hysteresis
 
-//  DBG dbgLog(LOG_DEBUG,"[ADDONS] TemperatureA readout: Internal = %.1f \t Kiln raw = %.1f \t Kiln final = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
+  DBG dbgLog(LOG_DEBUG, "[ADDONS] Temperature sensor A readout: Internal temp = %.1f \t Last temp = %.1f \t Average kiln temp = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }
 
 
@@ -93,28 +103,39 @@ double kiln_tmp1,kiln_tmp2;
 //
 void Update_TemperatureB(){
 uint32_t raw;
-double case_tmp1,case_tmp2;
+double case_tmp1;
 
-  raw = ThermocoupleB.readRaw();
-  if (!raw) {
-    DBG dbgLog(LOG_ERR,"[ADDONS] !! Something wrong with MAX31855-B!\n");
-    ABORT_Program(PR_ERR_MAX31B_INT_ERR); // this will do nothing, if program is not running
-    return;
+  if(ThermocoupleB.detectThermocouple() != MAX31855_THERMOCOUPLE_OK){
+    switch (ThermocoupleB.detectThermocouple())
+    {
+      case MAX31855_THERMOCOUPLE_SHORT_TO_VCC:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB short to VCC\n");
+        break;
+
+      case MAX31855_THERMOCOUPLE_SHORT_TO_GND:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB short to GND\n");
+        break;
+
+      case MAX31855_THERMOCOUPLE_NOT_CONNECTED:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB not connected\n");
+        break;
+
+      case MAX31855_THERMOCOUPLE_UNKNOWN:
+        DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB unknown error, check spi cable\n");
+        break;
+    }
+    ABORT_Program(PR_ERR_MAX31A_INT_ERR);
   }
-  case_tmp1 = ThermocoupleB.decodeInternal(raw);
+
+  raw = ThermocoupleB.readRawData();
+
+  case_tmp1 = ThermocoupleB.getColdJunctionTemperature(raw); 
   int_temp = (int_temp+case_tmp1)/2;
+  
+  case_tmp1 = ThermocoupleB.getTemperature(raw);
+  case_temp=(case_temp*0.8+case_tmp1*0.2);    // We try to make bigger hysteresis
 
-  case_tmp1 = ThermocoupleB.decodeCelsius(raw);
-  case_tmp2 = ThermocoupleB.linearizeCelcius(int_temp, case_tmp1);
-
-  if (isnan(case_tmp1) || isnan(case_tmp2)) {
-    DBG dbgLog(LOG_DEBUG,"[ADDONS] !! Something wrong with thermocoupleB! External readout failed\n");
-    ABORT_Program(PR_ERR_MAX31B_KPROBE);
-    return;
-  }
-  case_temp=(case_temp*0.8+case_tmp2*0.2);    // We try to make bigger hysteresis
-
-  DBG dbgLog(LOG_DEBUG,"[ADDONS] TemperatureB readout: Internal = %.1f \t Case raw = %.1f \t Case final = %.1f\n", int_temp, case_tmp1, case_temp); 
+  DBG dbgLog(LOG_DEBUG,"[ADDONS] Temperature sensor B readout: Internal temp = %.1f \t Last temp = %.1f \t Average case temp = %.1f\n", int_temp, case_tmp1, case_temp); 
 }
 #endif
 

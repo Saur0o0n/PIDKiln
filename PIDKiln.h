@@ -23,8 +23,8 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 //#define SSR2_RELAY_PIN 22   // if you want to use additional SSR for second heater, uncoment this
 
 // MAX31855 variables/defs
-#define MAXCS1  27    // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-15
-//#define MAXCS2  15    // same SPI - 2nd device CS-27 (comment out if no second thermocouple)
+#define MAXCS1  27    // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-27
+#define MAXCS2  15    // same SPI - 2nd device CS-15 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
 //#define ENERGY_MON_PIN 33       // if you don't use - comment out

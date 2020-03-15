@@ -5,6 +5,8 @@
 - replaced index_local.html (with locally provided large JavaScript files for WiFi without Internet) with preference switch - whether to send file locally or remotely (recommended)
 - fixed MAX31855 library to detect disconnection
 - introduced Syslog feature - to transfer remotely (by UDP) all debug information. You can choose whether you want to have them on serial, syslog or both.
+- add 10nF capacitor to thermocouple input pins - it's a must to have reliable readout (I've learned it hard way)
+- switched from Adafruit-MAX31855 to enjoyneering/MAX31855 library - much cleaner design
 
 1.0 (2019.10.26)
 - implemented basic authentication for WWW interface (add preferences for it) - default username/pw is admin/hotashell
