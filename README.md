@@ -167,7 +167,7 @@ This is short version - for detailed one, please see [Wiki documentation](https:
 - You have to already have installed ESP32 framework - if don't, do it now (https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/boards_manager.md).
 - Don't forget about ESP32FS plugin (drop it to "/home/username/Arduino/tools")
 - Install required additional libraries (not all can be installed from Arduino IDE Library Manager): [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer), [AsyncTCP](https://github.com/me-no-dev/AsyncTCP), [PID Library](https://github.com/br3ttb/Arduino-PID-Library/), [u8g2](https://github.com/olikraus/u8g2) and perhaps [emon](https://github.com/openenergymonitor/EmonLib) if you plan to use power meter. Since PIDKiln 1.1 you also need [Syslog](https://github.com/arcao/Syslog) library.
-- Install also (this has changed in PIDKiln v1.1)[my clone of MAX31855](https://github.com/Saur0o0n/MAX31855) - this implements second HW SPI for ESP32.
+- Install also (this has changed in PIDKiln v1.1) [my clone of MAX31855](https://github.com/Saur0o0n/MAX31855) - this implements second HW SPI for ESP32.
 - Update (there is no other way to do it) libraries/ESPAsyncWebServer/src/WebResponseImpl.h variable TEMPLATE_PLACEHOLDER to '~'.
 - For production use, disable serial debug in PIDKiln.ino - set it on false (''#define DEBUG false'')
 - Compile and upload.
@@ -184,5 +184,5 @@ This is short version - for detailed one, please see [Wiki documentation](https:
 Almost all, what I had in mind is done.. so not much to write here :)
 Perhaps...
 - RTC clock for better timing and no Internet installations
-- UDP Syslog support for logging/debug
+
 

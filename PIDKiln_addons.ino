@@ -56,6 +56,15 @@ void Disable_EMR(){
   digitalWrite(EMR_RELAY_PIN, LOW);
 }
 
+void print_bits(uint32_t raw){
+    for (int i = 31; i >= 0; i--)
+    {
+        bool b = bitRead(raw, i);
+        Serial.print(b);
+    }
+
+Serial.println();
+}
 
 
 // ThermocoupleA temperature readout
@@ -64,7 +73,15 @@ void Update_TemperatureA(){
 uint32_t raw;
 double kiln_tmp1;
 
-  if(ThermocoupleA.detectThermocouple() != MAX31855_THERMOCOUPLE_OK){
+  raw = ThermocoupleA.readRawData();
+//Serial.print("A");
+//print_bits(raw);
+
+  if(!raw){ // probably MAX31855 not connected
+    DBG dbgLog(LOG_ERR,"[ADDONS] MAX31855 for ThermocoupleA did not respond\n");
+    return;
+  }
+  if(ThermocoupleA.detectThermocouple(raw) != MAX31855_THERMOCOUPLE_OK){
     switch (ThermocoupleA.detectThermocouple())
     {
       case MAX31855_THERMOCOUPLE_SHORT_TO_VCC:
@@ -84,9 +101,8 @@ double kiln_tmp1;
         break;
     }
     ABORT_Program(PR_ERR_MAX31A_INT_ERR);
+    return;
   }
-
-  raw = ThermocoupleA.readRawData();
 
   kiln_tmp1 = ThermocoupleA.getColdJunctionTemperature(raw); 
   int_temp = (int_temp+kiln_tmp1)/2;
@@ -105,7 +121,14 @@ void Update_TemperatureB(){
 uint32_t raw;
 double case_tmp1;
 
-  if(ThermocoupleB.detectThermocouple() != MAX31855_THERMOCOUPLE_OK){
+  raw = ThermocoupleB.readRawData();
+//Serial.print("B");
+//print_bits(raw);
+  if(!raw){ // probably MAX31855 not connected
+    DBG dbgLog(LOG_ERR,"[ADDONS] MAX31855 for ThermocoupleB did not respond\n");
+    return;
+  }
+  if(ThermocoupleB.detectThermocouple(raw) != MAX31855_THERMOCOUPLE_OK){
     switch (ThermocoupleB.detectThermocouple())
     {
       case MAX31855_THERMOCOUPLE_SHORT_TO_VCC:
@@ -125,9 +148,8 @@ double case_tmp1;
         break;
     }
     ABORT_Program(PR_ERR_MAX31A_INT_ERR);
+    return;
   }
-
-  raw = ThermocoupleB.readRawData();
 
   case_tmp1 = ThermocoupleB.getColdJunctionTemperature(raw); 
   int_temp = (int_temp+case_tmp1)/2;
