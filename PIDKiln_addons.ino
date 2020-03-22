@@ -96,7 +96,7 @@ double kiln_tmp1;
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA not connected\n");
         break;
 
-      case MAX31855_THERMOCOUPLE_UNKNOWN:
+      default:
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA unknown error, check spi cable\n");
         break;
     }
@@ -143,11 +143,11 @@ double case_tmp1;
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB not connected\n");
         break;
 
-      case MAX31855_THERMOCOUPLE_UNKNOWN:
+      default:
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB unknown error, check spi cable\n");
         break;
     }
-    ABORT_Program(PR_ERR_MAX31A_INT_ERR);
+    ABORT_Program(PR_ERR_MAX31B_INT_ERR);
     return;
   }
 
