@@ -40,7 +40,7 @@ Total expenses for this set should be around 30-40$
 - LCD 12864B: ~5$
 - Encoder: 1$
 - SSR: 4$ + 4$ for radiator
-- 2x10nF capacitors
+- 2x10nF capacitors (at least 10nF - with higher capacitance you will have bigger hysteresis, but this actually may be favorable - for now I use 100nF on both MAX31855)
 
 - Mechanical relay EMR SLA-05VDC-SL-C (Songle): 3$
 
@@ -184,5 +184,8 @@ This is short version - for detailed one, please see [Wiki documentation](https:
 Almost all, what I had in mind is done.. so not much to write here :)
 Perhaps...
 - RTC clock for better timing and no Internet installations
+- MQTT reporting
+- HomeAssistant integration
+
 
 
