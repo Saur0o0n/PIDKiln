@@ -14,6 +14,7 @@ PIDKiln is PID temperature controller, for any task involving high temperatures 
 - ...simply cool and cheap (comparing to commercially available products) all in one solution
 
 ![LCD menu sample](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/images/PIDKiln_LCD_sample2.png)
+![Web interface](https://github.com/Saur0o0n/PIDKiln/blob/master/Documentation/images/PIDKiln-web-chart.jpg)
 
 ## Required components:
 - ESP32-Wrover board (I've used TTGO with MicroSD)
