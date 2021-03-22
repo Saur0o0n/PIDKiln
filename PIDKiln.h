@@ -130,6 +130,7 @@ time_t Program_run_end=0;         // date/time when program ends - during progra
 int Program_run_step=-1;          // at which step are we now... (has to be it - so we can give it -1)
 uint16_t Program_start_temp=0;    // temperature on start of the program
 uint8_t Program_error=0;          // if program finished with errors - remember number
+byte Read_errors=0;               // how many temperature read errors we have skipped
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -246,6 +247,7 @@ typedef enum { // program menu positions
   PRF_MAX_HOUS_TEMP,
   PRF_THERMAL_RUN,
   PRF_ALARM_TIMEOUT,
+  PRF_ERROR_GRACE_COUNT,
 
   PRF_DBG_SERIAL,
   PRF_DBG_SYSLOG,
@@ -262,7 +264,7 @@ const char *PrefsName[]={
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window","LOG_Files_Limit",
-"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout",
+"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout","MAX31855_Error_Grace_Coun",
 "DBG_Serial","DBG_Syslog","DBG_Syslog_Srv","DBG_Syslog_Port",
 };
 
@@ -299,7 +301,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.2";
-const char *PDate = "2020.03.19";
+const char *PDate = "2021.03.22";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)

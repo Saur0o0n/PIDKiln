@@ -239,6 +239,10 @@ char tmp[30];
         Prefs[PRF_ALARM_TIMEOUT].type=UINT16;
         Prefs[PRF_ALARM_TIMEOUT].value.uint16=0;
         break;
+      case PRF_ERROR_GRACE_COUNT:
+        Prefs[PRF_ERROR_GRACE_COUNT].type=UINT8;
+        Prefs[PRF_ERROR_GRACE_COUNT].value.uint8=0;
+        break;
 
       case PRF_DBG_SERIAL:
         Prefs[PRF_DBG_SERIAL].type=UINT8;

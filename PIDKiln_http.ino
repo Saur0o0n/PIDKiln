@@ -55,6 +55,7 @@ String Preferences_parser(const String& var){
  else if(var=="MAX_Temperature") return String(Prefs[PRF_MAX_TEMP].value.uint16);
  else if(var=="MAX_Housing_Temperature") return String(Prefs[PRF_MAX_HOUS_TEMP].value.uint16);
  else if(var=="Alarm_Timeout") return String(Prefs[PRF_ALARM_TIMEOUT].value.uint16);
+ else if(var=="MAX31855_Error_Grace_Count") return String(Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
 
  else if(var=="PID_Window") return String(Prefs[PRF_PID_WINDOW].value.uint16);
  else if(var=="PID_Kp") return String(Prefs[PRF_PID_KP].value.vfloat);

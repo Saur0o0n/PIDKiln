@@ -100,7 +100,12 @@ double kiln_tmp1;
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA unknown error, check spi cable\n");
         break;
     }
-    ABORT_Program(PR_ERR_MAX31A_INT_ERR);
+    if(Read_errors<Prefs[PRF_ERROR_GRACE_COUNT].value.uint8){
+      Read_errors++;
+      DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA/B had an error but we are still below grace threshold - continue. Error %d of %d\n",Read_errors,Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
+    }else{
+      ABORT_Program(PR_ERR_MAX31A_INT_ERR);
+    }
     return;
   }
 
@@ -147,7 +152,12 @@ double case_tmp1;
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB unknown error, check spi cable\n");
         break;
     }
-    ABORT_Program(PR_ERR_MAX31B_INT_ERR);
+    if(Read_errors<Prefs[PRF_ERROR_GRACE_COUNT].value.uint8){
+      Read_errors++;
+      DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA/B had an error but we are still below grace threshold - continue. Error %d of %d\n",Read_errors,Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
+    }else{
+      ABORT_Program(PR_ERR_MAX31B_INT_ERR);
+    }
     return;
   }
 
