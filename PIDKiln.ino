@@ -1,7 +1,7 @@
 /*
-** PIDKiln v1.1 - high temperature kiln PID controller for ESP32
+** PIDKiln v1.2 - high temperature kiln PID controller for ESP32
 **
-** Copyright (C) 2019-2020 - Adrian Siemieniak
+** Copyright (C) 2019-2021 - Adrian Siemieniak
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
