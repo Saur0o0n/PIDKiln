@@ -100,9 +100,9 @@ double kiln_tmp1;
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA unknown error, check spi cable\n");
         break;
     }
-    if(Read_errors<Prefs[PRF_ERROR_GRACE_COUNT].value.uint8){
-      Read_errors++;
-      DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA/B had an error but we are still below grace threshold - continue. Error %d of %d\n",Read_errors,Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
+    if(TempA_errors<Prefs[PRF_ERROR_GRACE_COUNT].value.uint8){
+      TempA_errors++;
+      DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA had an error but we are still below grace threshold - continue. Error %d of %d\n",TempA_errors,Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
     }else{
       ABORT_Program(PR_ERR_MAX31A_INT_ERR);
     }
@@ -115,6 +115,8 @@ double kiln_tmp1;
   kiln_tmp1 = ThermocoupleA.getTemperature(raw);
   kiln_temp=(kiln_temp*0.9+kiln_tmp1*0.1);    // We try to make bigger hysteresis
 
+  if(TempA_errors>0) TempA_errors--;  // Lower errors count after proper readout
+  
   DBG dbgLog(LOG_DEBUG, "[ADDONS] Temperature sensor A readout: Internal temp = %.1f \t Last temp = %.1f \t Average kiln temp = %.1f\n", int_temp, kiln_tmp1, kiln_temp); 
 }
 
@@ -152,9 +154,9 @@ double case_tmp1;
         DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB unknown error, check spi cable\n");
         break;
     }
-    if(Read_errors<Prefs[PRF_ERROR_GRACE_COUNT].value.uint8){
-      Read_errors++;
-      DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleA/B had an error but we are still below grace threshold - continue. Error %d of %d\n",Read_errors,Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
+    if(TempB_errors<Prefs[PRF_ERROR_GRACE_COUNT].value.uint8){
+      TempB_errors++;
+      DBG dbgLog(LOG_ERR,"[ADDONS] ThermocoupleB had an error but we are still below grace threshold - continue. Error %d of %d\n",TempB_errors,Prefs[PRF_ERROR_GRACE_COUNT].value.uint8);
     }else{
       ABORT_Program(PR_ERR_MAX31B_INT_ERR);
     }
@@ -166,6 +168,8 @@ double case_tmp1;
   
   case_tmp1 = ThermocoupleB.getTemperature(raw);
   case_temp=(case_temp*0.8+case_tmp1*0.2);    // We try to make bigger hysteresis
+  
+  if(TempB_errors>0) TempB_errors--;  // Lower errors count after proper readout
 
   DBG dbgLog(LOG_DEBUG,"[ADDONS] Temperature sensor B readout: Internal temp = %.1f \t Last temp = %.1f \t Average case temp = %.1f\n", int_temp, case_tmp1, case_temp); 
 }

@@ -442,7 +442,7 @@ void START_Program(){
   Program_start_temp=kiln_temp;
   Energy_Usage=0;
   Program_error=0;
-  Read_errors=0;
+  TempA_errors=TempB_errors=0;  // Reset temperature errors
   
   Enable_EMR();
 

@@ -130,7 +130,7 @@ time_t Program_run_end=0;         // date/time when program ends - during progra
 int Program_run_step=-1;          // at which step are we now... (has to be it - so we can give it -1)
 uint16_t Program_start_temp=0;    // temperature on start of the program
 uint8_t Program_error=0;          // if program finished with errors - remember number
-byte Read_errors=0;               // how many temperature read errors we have skipped
+byte TempA_errors=0,TempB_errors=0; // how many temperature read errors we have skipped
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -301,7 +301,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.2";
-const char *PDate = "2021.03.22";
+const char *PDate = "2021.03.24";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)
