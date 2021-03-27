@@ -264,7 +264,7 @@ const char *PrefsName[]={
 "NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
 "PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
 "LOG_Window","LOG_Files_Limit",
-"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout","MAX31855_Error_Grace_Coun",
+"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout","MAX31855_Error_Grace_Count",
 "DBG_Serial","DBG_Syslog","DBG_Syslog_Srv","DBG_Syslog_Port",
 };
 
@@ -301,7 +301,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.2";
-const char *PDate = "2021.03.24";
+const char *PDate = "2021.03.27";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)
