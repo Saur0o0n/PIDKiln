@@ -263,6 +263,14 @@
 	<input type="number" name="Alarm_Timeout" min="0" max="3600" value="~Alarm_Timeout~" size="4" title="How many seconds alarm should be on after program ends or error">s
       </div>
      </div>
+     <div class="row">
+      <div class="col-25">
+	<label for="MAX31855_Error_Grace_Count"> MAX31855 error grace count </label>
+      </div>
+      <div class="col-75">
+	<input type="number" name="MAX31855_Error_Grace_Count" min="0" max="250" value="~MAX31855_Error_Grace_Count~" size="4" title="How many failed sensor readings, in a row, we can tolerate without aborting">
+      </div>
+     </div>
    </fieldset>
 
    <fieldset>

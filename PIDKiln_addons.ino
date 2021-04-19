@@ -251,7 +251,7 @@ void Setup_Addons(){
 #ifdef ENERGY_MON_PIN
   emon1.current(ENERGY_MON_PIN, ENERGY_MON_AMPS);
   xTaskCreatePinnedToCore(
-              Power_Loop,    /* Task function. */
+              Power_Loop,      /* Task function. */
               "Power_metter",  /* String with name of task. */
               2048,            /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
