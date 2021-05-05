@@ -138,7 +138,7 @@ struct tm timeinfo;
     if(Prefs[PRF_WIFI_MODE].value.uint8==1 || Prefs[PRF_WIFI_MODE].value.uint8==2){ // 1 - tries as client if failed, be AP; 2 - just try as client
       err=Start_WiFi_CLIENT();
       if(!err){
-        configTime(Prefs[PRF_GMT_OFFSET].value.uint16, Prefs[PRF_DAYLIGHT_OFFSET].value.uint16, Prefs[PRF_NTPSERVER1].value.str, Prefs[PRF_NTPSERVER2].value.str, Prefs[PRF_NTPSERVER3].value.str); // configure RTC clock with NTP server - or at least try
+        configTime(Prefs[PRF_GMT_OFFSET].value.int16, Prefs[PRF_DAYLIGHT_OFFSET].value.int16, Prefs[PRF_NTPSERVER1].value.str, Prefs[PRF_NTPSERVER2].value.str, Prefs[PRF_NTPSERVER3].value.str); // configure RTC clock with NTP server - or at least try
         SETUP_WebServer(); // Setup function for Webserver from PIDKiln_http.ino
         initSysLog();
         return 0;    // all is ok - connected

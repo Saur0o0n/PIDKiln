@@ -13,7 +13,9 @@ PIDKiln is PID temperature controller, for any task involving high temperatures 
 - Syslog type, over the network (UDP) logging to remote server
 - ...simply cool and cheap (comparing to commercially available products) all in one solution
 
+### Sample LCD screens
 ![LCD menu sample](https://raw.githubusercontent.com/Saur0o0n/pidkiln/master/Documentation/images/PIDKiln_LCD_sample2.png)
+### Sample Web interface window
 ![Web interface](https://github.com/Saur0o0n/PIDKiln/blob/master/Documentation/images/PIDKiln-web-chart.jpg)
 
 ## Required components:
