@@ -40,6 +40,14 @@
 */
 #define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW FROM HERE - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
 
+// If you have Wrover with PSRAM
+#define MALLOC ps_malloc
+#define REALLOC ps_realloc
+
+// if you have Wroom without it
+//#define MALLOC malloc
+//#define REALLOC realloc
+
 #define DEBUG true
 //#define DEBUG false
 
@@ -136,10 +144,11 @@ void setup() {
       load_msg(" WiFi con. failed");
     }else{
       IPAddress lips;
-      
-      Return_Current_IP(lips);
+     
+      Return_Current_IP(lips); 
       DBG Serial.println(lips); // Print ESP32 Local IP Address
-      char lip[20];
+      
+      char lip[30];
       sprintf(lip," IP: %s",lips.toString().c_str());
       load_msg(lip);
     }
@@ -156,12 +165,12 @@ void setup() {
   // Loads logs index
   Load_LOGS_Dir();
   
-  // Clean logs on start - this will also call logs index generator
+  // Clean logs (if neede) on start - this will also call logs index generator
   Clean_LOGS();
 
   // Generate log index after cleanup
   Generate_LOGS_INDEX();
-  
+
   // Setup program module
   Program_Setup();
 
@@ -174,5 +183,5 @@ void setup() {
 // Just a tiny loop - to be deleted ;)
 //
 void loop() {
-  vTaskDelete(NULL);
+//  vTaskDelete(NULL);
 }

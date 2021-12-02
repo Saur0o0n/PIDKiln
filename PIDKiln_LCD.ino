@@ -715,11 +715,11 @@ char msg[100];
       Initialize_program_to_run();  // clear current program
       sprintf(msg,"Manually created quick program.");
       DBG dbgLog(LOG_DEBUG,"[LCD] Replacing current program in memory:%d \n",strlen(msg));
-      Program_run_desc=(char *)ps_malloc((strlen(msg)+1)*sizeof(char));
+      Program_run_desc=(char *)MALLOC((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_desc,msg);
       sprintf(msg,"QuickProgram");
       DBG dbgLog(LOG_DEBUG,"[LCD] Replacing current program in memory:%d \n",strlen(msg));
-      Program_run_name=(char *)ps_malloc((strlen(msg)+1)*sizeof(char));
+      Program_run_name=(char *)MALLOC((strlen(msg)+1)*sizeof(char));
       strcpy(Program_run_name,msg);
       Update_program_step(0, qp[0], qp[1], qp[2]);
       Program_run_state=PR_READY;

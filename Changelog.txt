@@ -1,9 +1,17 @@
-1.2 (2020.03.22)
+1.2 (2021.12.02)
 - extended error reporting for MAX31855 and thermocouples
 	[ADDONS] Temperature sensor A readout: Internal temp = 26.1 	 Last temp = 24.2 	 Average kiln temp = 20.9
 	[ADDONS] ThermocoupleA not connected
 	[ADDONS] MAX31855 for ThermocoupleC did not respond
 - lowered SPI clock value for less errors during communication handling (in MAX31855 library)
+- new feature allowing grace count of errors in MAX31855 readout, from pidkiln.conf
+  # How many thermocouple A and B errors combined, we can tolerate without aborting program.
+  # If you have sporadic thermocouple read errors, you can increase this value. 
+  MAX31855_Error_Grace_Count = 5
+- you can now use Wroom modules (without PSRAM) - change MALLOC definition in PIDKiln.ino
+- fixed stupid stack overflow in IP display routine
+- Update SPIFFS handling to make it compatible with ESP32 2.0+ Arduino framework (it has change silently)
+
 
 1.1 (2020.03.15)
 - synced my local repo with github for MAX31855 library (link in documentation/readme) - there were missing part with linear computation, without it PIDKiln would not compile

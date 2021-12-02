@@ -135,27 +135,25 @@ File dir,file;
 
   dir = SPIFFS.open(LOG_Directory);
   if(!dir) return 1;  // directory open failed
-  DBG dbgLog(LOG_INFO,"[LOG] Loading dir: Loading directory...\n");
+  DBG dbgLog(LOG_INFO,"[LOG] Loading dir: Loading logs directory...\n");
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   
   DBG dbgLog(LOG_INFO,"[LOG] Loading dir:\tcounted %d files\n",count);
   if(Logs_DIR) free(Logs_DIR);
-  Logs_DIR=(DIRECTORY*)ps_malloc(sizeof(DIRECTORY)*count);
+  Logs_DIR=(DIRECTORY*)MALLOC(sizeof(DIRECTORY)*count);
   Logs_DIR_size=0;
   dir.rewindDirectory();
   while((file=dir.openNextFile()) && Logs_DIR_size<=count){    // now we do acctual loading into memory
-    char* fname;
     char tmp[32];
     uint8_t len2;
     
     strcpy(tmp,file.name());
     len2=strlen(tmp);
     if(len2>31 || len2<2) return 2; // file name with dir too long or just /
-    fname=strchr(tmp+1,'/');        // seek for the NEXT directory separator...
-    fname++;                        //  ..and skip it
-    if(!strcmp(fname,"index.html")) continue;   // skip index file
     
-    strcpy(Logs_DIR[Logs_DIR_size].filename,fname);
+    if(!strcmp(tmp,"index.html")) continue;   // skip index file
+    
+    strcpy(Logs_DIR[Logs_DIR_size].filename,tmp);
     Logs_DIR[Logs_DIR_size].filesize=file.size();
     Logs_DIR[Logs_DIR_size].sel=0;
     

@@ -253,7 +253,7 @@ void Setup_Addons(){
   xTaskCreatePinnedToCore(
               Power_Loop,      /* Task function. */
               "Power_metter",  /* String with name of task. */
-              2048,            /* Stack size in bytes. */
+              8192,            /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
               2,               /* Priority of the task. */
               NULL,1);         /* Task handle. */

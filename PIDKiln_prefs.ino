@@ -178,7 +178,7 @@ char tmp[30];
         break;
       case PRF_INIT_DATE:
         Prefs[PRF_INIT_DATE].type=STRING;
-        Prefs[PRF_INIT_DATE].value.str=strdup("2012-02-20");
+        Prefs[PRF_INIT_DATE].value.str=strdup("2021-11-18");
         break;
       case PRF_INIT_TIME:
         Prefs[PRF_INIT_TIME].type=STRING;

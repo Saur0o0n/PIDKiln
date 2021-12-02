@@ -562,7 +562,7 @@ boolean save=false;
         // we have some errors add new field to error list
         if(Errors!=NULL){
           DBG dbgLog(LOG_DEBUG,"[HTTP] Realloc call of size %d\n",(strlen(Errors)+p->name().length()+3)*sizeof(char));
-          Errors=(char *)ps_realloc(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
+          Errors=(char *)REALLOC(Errors,(strlen(Errors)+p->name().length()+3)*sizeof(char));
           strcat(Errors," ");
           strcat(Errors,p->name().c_str());
           DBG dbgLog(LOG_DEBUG,"[HTTP] Errors now:%s\n",Errors);
@@ -655,7 +655,7 @@ char *screenshot;
 void out(const char *s){strcat(screenshot,s);}
 void do_screenshot(AsyncWebServerRequest *request){
 
-  screenshot=(char *)ps_malloc(SCREEN_W*SCREEN_H*2*sizeof(char)+1);
+  screenshot=(char *)MALLOC(SCREEN_W*SCREEN_H*2*sizeof(char)+1);
   if(screenshot==NULL){
     DBG dbgLog(LOG_ERR,"[HTTP] Failed to allocate memory for screenshot");
     request->send(500);

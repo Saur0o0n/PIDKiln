@@ -132,6 +132,7 @@ boolean Setup_WiFi(){
 struct tm timeinfo;
 
   Setup_start_date();
+
   if(Prefs[PRF_WIFI_MODE].value.uint8){ // we have WiFi enabled in config - start it
     int err=0;
 

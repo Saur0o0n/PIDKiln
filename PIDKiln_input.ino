@@ -185,7 +185,7 @@ void Setup_Input() {
 //  xTaskCreate(
               Input_Loop,       /* Task function. */
               "Input_loop",     /* String with name of task. */
-              4096,             /* Stack size in bytes. */
+              8192,             /* Stack size in bytes. */
               NULL,             /* Parameter passed as input of the task */
               1,                /* Priority of the task. */
               NULL,0);            /* Task handle. */

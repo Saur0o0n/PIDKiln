@@ -135,21 +135,23 @@ File dir,file;
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   DBG dbgLog(LOG_DEBUG,"[PRG]\tcounted %d files\n",count);
   if(Programs_DIR) free(Programs_DIR);
-  Programs_DIR=(DIRECTORY*)ps_malloc(sizeof(DIRECTORY)*count);
+  Programs_DIR=(DIRECTORY*)MALLOC(sizeof(DIRECTORY)*count);
   Programs_DIR_size=0;
   dir.rewindDirectory();
   while((file=dir.openNextFile()) && Programs_DIR_size<=count){    // now we do acctual loading into memory
-    char* fname;
     char tmp[32];
     uint8_t len2;
     
     strcpy(tmp,file.name());
     len2=strlen(tmp);
     if(len2>31 || len2<2) return 2; // file name with dir too long or just /
+    DBG dbgLog(LOG_DEBUG,"[PRG] Processing filename: %s\n",tmp);
+/* Outdated with ESP32 IC 2.0+
     fname=strchr(tmp+1,'/');        // seek for the NEXT directory separator...
     fname++;                        //  ..and skip it
-    if(!strcmp(fname,"index.html")) continue;   // skip index file
-    strcpy(Programs_DIR[Programs_DIR_size].filename,fname);
+*/
+    if(!strcmp(tmp,"index.html")) continue;   // skip index file
+    strcpy(Programs_DIR[Programs_DIR_size].filename,tmp);
     Programs_DIR[Programs_DIR_size].filesize=file.size();
     Programs_DIR[Programs_DIR_size].sel=0;
     
@@ -186,7 +188,7 @@ void Update_program_step(uint8_t sstep, uint16_t stemp, uint16_t stime, uint16_t
   if(Program_run_size<=sstep)
     if(Program_run_size==sstep){ // we are out of the program - but this is just NEXT step, we can add
       Program_run_size++;
-      Program_run=(PROGRAM *)ps_realloc(Program_run,sizeof(PROGRAM)*Program_run_size);
+      Program_run=(PROGRAM *)REALLOC(Program_run,sizeof(PROGRAM)*Program_run_size);
     }else return;   // we are out of the program - we can edit it
 
   Program_run[sstep].temp=stemp;
@@ -221,12 +223,12 @@ void Initialize_program_to_run(){
 void Load_program_to_run(){
   
   Initialize_program_to_run();
-  Program_run=(PROGRAM *)ps_malloc(sizeof(PROGRAM)*Program_size);
+  Program_run=(PROGRAM *)MALLOC(sizeof(PROGRAM)*Program_size);
   for(uint8_t a=0;a<Program_size;a++) Program_run[a]=Program[a];
   
-  Program_run_desc=(char *)ps_malloc((Program_desc.length()+1)*sizeof(char));
+  Program_run_desc=(char *)MALLOC((Program_desc.length()+1)*sizeof(char));
   strcpy(Program_run_desc,Program_desc.c_str());
-  Program_run_name=(char *)ps_malloc((Program_name.length()+1)*sizeof(char));
+  Program_run_name=(char *)MALLOC((Program_name.length()+1)*sizeof(char));
   strcpy(Program_run_name,Program_name.c_str());
   Program_run_size=Program_size;
   Program_run_state=PR_READY;
@@ -578,7 +580,7 @@ void Program_Setup(){
 //  xTaskCreate(
               Program_Loop,    /* Task function. */
               "Program_loop",  /* String with name of task. */
-              4096,            /* Stack size in bytes. */
+              8192,            /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
               1,               /* Priority of the task. */
               NULL,0);         /* Task handle. */
