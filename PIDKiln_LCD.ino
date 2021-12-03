@@ -672,10 +672,14 @@ char msg[125],rest[125];  // this should be 5 lines with 125 chars..  it should 
     else if(prog_menu<0) prog_menu=0;
 
     y=SCREEN_H;
-    DrawMenuEl(Prog_Menu_Names[0],y,4,1,(prog_menu==0));
-    DrawMenuEl(Prog_Menu_Names[1],y,4,2,(prog_menu==1));
-    DrawMenuEl(Prog_Menu_Names[2],y,4,3,(prog_menu==2));
-    DrawMenuEl(Prog_Menu_Names[3],y,4,4,(prog_menu==3));
+    strcpy(msg,Prog_Menu_Names[0]);
+    DrawMenuEl(msg,y,4,1,(prog_menu==0));
+    strcpy(msg,Prog_Menu_Names[1]);
+    DrawMenuEl(msg,y,4,2,(prog_menu==1));
+    strcpy(msg,Prog_Menu_Names[2]);
+    DrawMenuEl(msg,y,4,3,(prog_menu==2));
+    strcpy(msg,Prog_Menu_Names[3]);
+    DrawMenuEl(msg,y,4,4,(prog_menu==3));
       
     // If user wants to delete program - ask about it
     if(load_prg==2 && prog_menu==P_DELETE) LCD_Display_program_delete();
@@ -952,27 +956,31 @@ void Restart_ESP(){
 // Reconect to WiFi - if initial connection failed user may do it manually
 //
 void LCD_Reconect_WiFi(){
+  char msg[MAX_CHARS_PL];
+
   LCD_State=SCR_OTHER;
   u8g2.clearBuffer();
   u8g2.setFont(FONT8);
   u8g2.drawFrame(0,0,SCREEN_W,SCREEN_H);
   u8g2.sendBuffer();
   if(!Prefs[PRF_WIFI_MODE].value.uint8){
-    load_msg(" WiFi is disabled!");
+    strcpy(msg," WiFi is disabled!");
+    load_msg(msg);
     return;
   }
-  load_msg("Reconnecting WiFi");
+  strcpy(msg,"Reconnecting WiFi");
+  load_msg(msg);
   if(Setup_WiFi()){    // !!! Wifi connection FAILED
     DBG dbgLog(LOG_INFO,"[LCD] WiFi connection failed\n");
-    load_msg(" WiFi con. failed ");
+    strcpy(msg," WiFi con. failed ");
+    load_msg(msg);
   }else{
     IPAddress lips;
       
     Return_Current_IP(lips);
     DBG Serial.println(lips); // Print ESP32 Local IP Address
-    char lip[20];
-    sprintf(lip," IP: %s",lips.toString().c_str());
-    load_msg(lip);
+    sprintf(msg," IP: %s",lips.toString().c_str());
+    load_msg(msg);
   }
 }
 

@@ -79,6 +79,7 @@ double kiln_tmp1;
 
   if(!raw){ // probably MAX31855 not connected
     DBG dbgLog(LOG_ERR,"[ADDONS] MAX31855 for ThermocoupleA did not respond\n");
+    ABORT_Program(PR_ERR_MAX31A_NC);
     return;
   }
   if(ThermocoupleA.detectThermocouple(raw) != MAX31855_THERMOCOUPLE_OK){
@@ -133,6 +134,7 @@ double case_tmp1;
 //print_bits(raw);
   if(!raw){ // probably MAX31855 not connected
     DBG dbgLog(LOG_ERR,"[ADDONS] MAX31855 for ThermocoupleB did not respond\n");
+    ABORT_Program(PR_ERR_MAX31B_NC);
     return;
   }
   if(ThermocoupleB.detectThermocouple(raw) != MAX31855_THERMOCOUPLE_OK){

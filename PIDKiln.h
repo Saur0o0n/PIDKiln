@@ -95,7 +95,7 @@ typedef enum { // program menu positions
   P_end
 } LCD_PSCR_MENU_Item_enum;
 
-char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
+const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
 const uint8_t Prog_Menu_Size=4;
 
 #define SCREEN_W 128   // LCD screen width and height
@@ -154,10 +154,12 @@ typedef enum {
   PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and separator ":")
   PR_ERR_TOO_HOT,         // exceeded max temperature defined in MAX_Temp
   PR_ERR_TOO_COLD,        // temperature redout below MIN_Temp
-  PR_ERR_MAX31A_INT_ERR,   // failed to read MAX31855 internal temperature on kiln
-  PR_ERR_MAX31A_KPROBE,    // failed to read K-probe temperature on kiln
-  PR_ERR_MAX31B_INT_ERR,   // failed to read MAX31855 internal temperature on case
-  PR_ERR_MAX31B_KPROBE,    // failed to read K-probe temperature on case
+  PR_ERR_MAX31A_NC,       // MAX31855 A not connected
+  PR_ERR_MAX31A_INT_ERR,  // failed to read MAX31855 internal temperature on kiln
+  PR_ERR_MAX31A_KPROBE,   // failed to read K-probe temperature on kiln
+  PR_ERR_MAX31B_NC,       // MAX31855 B not connected
+  PR_ERR_MAX31B_INT_ERR,  // failed to read MAX31855 internal temperature on case
+  PR_ERR_MAX31B_KPROBE,   // failed to read K-probe temperature on case
   PR_ERR_USER_ABORT,      // user aborted
   PR_ERR_end
 } PROGRAM_ERROR_STATE;

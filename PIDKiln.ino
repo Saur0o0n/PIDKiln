@@ -102,6 +102,7 @@ char c;
 // Main setup that invokes other subsetups to initialize other modules
 //
 void setup() {
+  char msg[MAX_CHARS_PL];
 
 // This should disable watchdog killing asynctcp and others - one of this should work :)
 // This is not recommended, but if Webserver/AsyncTCP will hang (that has happen to me) - this will at least do not reset the device (and potentially ruin program).
@@ -138,25 +139,27 @@ void setup() {
   
   // Connect to WiFi if enabled
   if(Prefs[PRF_WIFI_MODE].value.uint8){ // If we want to have WiFi
-    load_msg("connecting WiFi..");
+    strcpy(msg,"connecting WiFi..");
+    load_msg(msg);
     if(Setup_WiFi()){    // !!! Wifi connection FAILED
       DBG dbgLog(LOG_ERR,"[MAIN] WiFi connection failed\n");
-      load_msg(" WiFi con. failed");
+      strcpy(msg," WiFi con. failed");
+      load_msg(msg);
     }else{
       IPAddress lips;
      
       Return_Current_IP(lips); 
       DBG Serial.println(lips); // Print ESP32 Local IP Address
       
-      char lip[30];
-      sprintf(lip," IP: %s",lips.toString().c_str());
-      load_msg(lip);
+      sprintf(msg," IP: %s",lips.toString().c_str());
+      load_msg(msg);
     }
   }else{
     // If we don't have Internet - assume there is no time set
     Setup_start_date(); // in PIDKiln_net
     Disable_WiFi();
-    load_msg("   -- Started! --");
+    strcpy(msg,"   -- Started! --");
+    load_msg(msg);
   }
 
   // (re)generate programs index file /programs/index.html
@@ -176,12 +179,11 @@ void setup() {
 
   // Setup all sensors/relays
   Setup_Addons();
-
 }
 
 
 // Just a tiny loop - to be deleted ;)
 //
 void loop() {
-//  vTaskDelete(NULL);
+  vTaskDelete(NULL);
 }
