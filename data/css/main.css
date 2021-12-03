@@ -84,6 +84,9 @@ input[type=submit] {
   padding: 4px 20px;
   cursor: pointer;
   margin-top: 2px;
+  border-right: 10px solid transparent;
+  border-left: 10px solid transparent;
+  border-radius: 7px;
 }
 
 input[type=submit].floatr {
