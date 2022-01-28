@@ -273,6 +273,7 @@ template_str=String();
   }
 
   for(uint16_t a=0; a<Logs_DIR_size; a++){
+    vTaskDelay(50);  // give some time to other processes - watchdog was tripping here often
     tmp=String(LOG_Directory)+String("/")+String(Logs_DIR[a].filename);
     
     template_str += "<td><a href=\""+tmp+"\" target=\"_blank\">"+String(Logs_DIR[a].filename)+"</a></td>";  
@@ -330,7 +331,7 @@ char *str;
     }
     return tmp;
   }else if(var == "LOG_FILE"){
-    if(CSVFile) return CSVFile.name();
+    if(CSVFile) return CSVFile.path();
     else return String("/logs/test.csv");
   }else if(var == "PROGRAM_NAME"){
     return String(Program_run_name);
@@ -501,7 +502,7 @@ String tmps;
   AsyncResponseStream *response = request->beginResponseStream("text/html");
   response->addHeader("Server","ESP Async Web Server");
 
-  DBG dbgLog(LOG_DEBUG,"[HTTP] Opened file is %s, program name is:%s\n",tmpf.name(),p->value().c_str());
+  DBG dbgLog(LOG_DEBUG,"[HTTP] Opened file is %s, program name is:%s\n",tmpf.path(),p->value().c_str());
   
   while(tmpf.available()){
     tmps=tmpf.readStringUntil('\n');
@@ -642,7 +643,7 @@ struct tm timeinfo, *tmm;
     strftime (str, 29, "%F %T", tmm);
     return String(str);
   }else if(var=="LOG_FILE"){
-    if(CSVFile) return CSVFile.name();
+    if(CSVFile) return CSVFile.path();
     else return String("/logs/test.csv");
   }if(var=="PROGRAM_STATUS") return String(Program_run_state);
   else return String(" "); 
@@ -670,7 +671,7 @@ void do_screenshot(AsyncWebServerRequest *request){
 
   u8g2_WriteBufferPBM2(u8g2.getU8g2(),out);
   response->println(screenshot);
-  free(screenshot);
+  free(screenshot); screenshot=NULL;
   
   request->send(response);
 }
@@ -765,7 +766,7 @@ void SETUP_WebServer(void) {
     server.on("/js/jquery-3.4.1.js", HTTP_GET, [](AsyncWebServerRequest* request) {
       request->redirect(JS_JQUERY);
     });
-    server.on("/js/Chart.2.8.0.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+    server.on("/js/Chart.2.9.3.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
       request->redirect(JS_CHART);
     });
     server.on("/js/chartjs-datasource.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {

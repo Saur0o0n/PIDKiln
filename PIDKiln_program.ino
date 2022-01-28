@@ -134,7 +134,10 @@ File dir,file;
   DBG dbgLog(LOG_INFO,"[PRG] Loading directory...\n");
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   DBG dbgLog(LOG_DEBUG,"[PRG]\tcounted %d files\n",count);
-  if(Programs_DIR) free(Programs_DIR);
+  if(Programs_DIR){
+    free(Programs_DIR);
+    Programs_DIR=NULL;
+  }
   Programs_DIR=(DIRECTORY*)MALLOC(sizeof(DIRECTORY)*count);
   Programs_DIR_size=0;
   dir.rewindDirectory();
@@ -486,6 +489,8 @@ static uint16_t cnt1=0;
 uint32_t now;
 
  for(;;){
+
+    vTaskDelay(10);
     
     now = millis();
  
@@ -582,7 +587,7 @@ void Program_Setup(){
               "Program_loop",  /* String with name of task. */
               8192,            /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
-              1,               /* Priority of the task. */
+              tskIDLE_PRIORITY,               /* Priority of the task. */
               NULL,0);         /* Task handle. */
                     
 }

@@ -10,7 +10,10 @@ boolean Change_prefs_value(String item, String value){
   for(uint16_t a=0; a<PRF_end; a++){
     if(item.equalsIgnoreCase(String(PrefsName[a]))){  // we have found an matching prefs value
       if(Prefs[a].type==STRING){
-        if(Prefs[a].value.str) free(Prefs[a].value.str);
+        if(Prefs[a].value.str){
+          free(Prefs[a].value.str);
+          Prefs[a].value.str=NULL;
+        }
         Prefs[a].value.str=strdup(value.c_str());
         DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved STRING item value:%s type:%d\n",PrefsName[a],Prefs[a].value.str,(int)Prefs[a].type);
         return true;

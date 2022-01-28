@@ -139,14 +139,18 @@ File dir,file;
   while(dir.openNextFile()) count++;  // not the prettiest - but we count files first to do proper malloc without fragmenting memory
   
   DBG dbgLog(LOG_INFO,"[LOG] Loading dir:\tcounted %d files\n",count);
-  if(Logs_DIR) free(Logs_DIR);
+  if(Logs_DIR){
+    free(Logs_DIR);
+    Logs_DIR=NULL;
+  }
   Logs_DIR=(DIRECTORY*)MALLOC(sizeof(DIRECTORY)*count);
   Logs_DIR_size=0;
   dir.rewindDirectory();
   while((file=dir.openNextFile()) && Logs_DIR_size<=count){    // now we do acctual loading into memory
     char tmp[32];
     uint8_t len2;
-    
+
+    vTaskDelay(20);
     strcpy(tmp,file.name());
     len2=strlen(tmp);
     if(len2>31 || len2<2) return 2; // file name with dir too long or just /

@@ -302,8 +302,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v1.2";
-const char *PDate = "2021.12.02";
+const char *PVer = "PIDKiln v1.3";
+const char *PDate = "2022.01.27";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)
