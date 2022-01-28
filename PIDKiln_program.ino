@@ -547,7 +547,7 @@ uint32_t now;
       else Disable_SSR();
     }
     //yield();
-    vTaskDelay(10); // This should enable to process other tasks on this core
+    vTaskDelay(10); // This should enable to run other tasks on this core
   }
 }
 

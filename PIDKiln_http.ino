@@ -836,6 +836,11 @@ void SETUP_WebServer(void) {
   server.serveStatic(PREFS_FILE, SPIFFS, PREFS_FILE).setAuthentication(Prefs[PRF_AUTH_USER].value.str,Prefs[PRF_AUTH_PASS].value.str);
   server.serveStatic("/favicon.ico", SPIFFS, "/icons/heat.png");
 
+  server.onNotFound([](AsyncWebServerRequest *request){
+    //request->send(404);
+    request->send(404, "text/plain", "File not found");
+  });
+
   // Start server
   server.begin();
 }
