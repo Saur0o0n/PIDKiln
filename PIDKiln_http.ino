@@ -273,7 +273,7 @@ template_str=String();
   }
 
   for(uint16_t a=0; a<Logs_DIR_size; a++){
-    vTaskDelay(50);  // give some time to other processes - watchdog was tripping here often
+    //vTaskDelay(50);  // give some time to other processes - watchdog was tripping here often
     tmp=String(LOG_Directory)+String("/")+String(Logs_DIR[a].filename);
     
     template_str += "<td><a href=\""+tmp+"\" target=\"_blank\">"+String(Logs_DIR[a].filename)+"</a></td>";  

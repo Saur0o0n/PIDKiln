@@ -490,8 +490,6 @@ uint32_t now;
 
  for(;;){
 
-    vTaskDelay(10);
-    
     now = millis();
  
     // Interrupts triggered ones per second
@@ -587,7 +585,7 @@ void Program_Setup(){
               "Program_loop",  /* String with name of task. */
               8192,            /* Stack size in bytes. */
               NULL,            /* Parameter passed as input of the task */
-              tskIDLE_PRIORITY,               /* Priority of the task. */
+              1,               /* Priority of the task. */
               NULL,0);         /* Task handle. */
                     
 }

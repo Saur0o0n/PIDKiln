@@ -140,8 +140,7 @@ void Input_Loop(void * parameter) {
       DBG dbgLog(LOG_DEBUG,"[INPUT] Encoder rotated %d\n",encoderValue);
       encoderValue=0;
     }
-    //yield();
-    vTaskDelay(10);
+    yield();
   }
 }
 

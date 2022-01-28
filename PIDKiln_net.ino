@@ -115,7 +115,7 @@ boolean Start_WiFi_CLIENT(){
   DBG dbgLog(LOG_INFO,"[NET] Connecting to WiFi as Client...\n");
     
   for(byte a=0; !Prefs[PRF_WIFI_RETRY_CNT].value.uint8 || a<Prefs[PRF_WIFI_RETRY_CNT].value.uint8; a++){  // if PRF_WIFI_RETRY_CNT - try indefinitely
-    delay(1000);
+    delay(1500);
     if (WiFi.status() == WL_CONNECTED) return 0;
     DBG dbgLog(LOG_INFO,"[NET] Connecting to AP WiFi... %d/%d\n",a+1,Prefs[PRF_WIFI_RETRY_CNT].value.uint8);
   }
@@ -164,8 +164,8 @@ struct tm timeinfo;
 //
 boolean Restart_WiFi(){
   STOP_WebServer();
-  sleep(100);
+  delay(100);
   Disable_WiFi();
-  sleep(200);
+  delay(500);
   return Setup_WiFi();
 }
