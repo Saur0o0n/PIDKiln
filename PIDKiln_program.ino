@@ -546,7 +546,8 @@ uint32_t now;
       if (pid_out*PID_WINDOW_DIVIDER > now - windowStartTime) Enable_SSR();
       else Disable_SSR();
     }
-    yield();
+    //yield();
+    vTaskDelay(10); // This should enable to process other tasks on this core
   }
 }
 

@@ -226,8 +226,8 @@ void dbgLog(uint16_t pri, const char *fmt, ...) {
 
 void initSysLog(){
 
-  DBG dbgLog(LOG_DEBUG,"[LOG] Trying to enable Syslog\n");
   if(Prefs[PRF_DBG_SYSLOG].value.uint8){
+    DBG dbgLog(LOG_DEBUG,"[LOG] Trying to enable Syslog\n");
     // check wheter we have all syslog params defined, if not - nullyfi prefs
     if(!strlen(Prefs[PRF_SYSLOG_SRV].value.str) || !Prefs[PRF_SYSLOG_PORT].value.uint16){
       Prefs[PRF_DBG_SYSLOG].value.uint8=0;
@@ -240,7 +240,7 @@ void initSysLog(){
     syslog.defaultPriority(LOG_KERN);
     syslog.log(LOG_INFO, "Begin syslog");
     DBG dbgLog(LOG_DEBUG,"[LOG] Syslog enabled\n");
-  }
+  }else DBG dbgLog(LOG_DEBUG,"[LOG] Syslog disabled\n");
 }
 
 

@@ -27,7 +27,7 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 #define MAXCS2  15    // same SPI - 2nd device CS-15 (comment out if no second thermocouple)
 
 // If you have power meter - uncoment this
-#define ENERGY_MON_PIN 33       // if you don't use - comment out
+//#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
 #define ALARM_PIN 26        // Pin goes high on abort
 uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm

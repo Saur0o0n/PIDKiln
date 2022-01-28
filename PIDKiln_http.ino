@@ -103,7 +103,10 @@ String Debug_ESP32(const String& var){
  }else if (var=="SDK_VERSION") return String(ESP.getSdkVersion());
  else if (var=="CPU_FREQ") return String(ESP.getCpuFreqMHz());
  else if (var=="CHIP_REV") return String(ESP.getChipRevision());
+ else if (var=="CHIP_MODEL") return String(ESP.getChipModel());
+ else if (var=="CHIP_CORES") return String(ESP.getChipCores());
  else if (var=="CHIP_REVF") return String(REG_READ(EFUSE_BLK0_RDATA3_REG) >> 15, BIN);
+ else if (var=="MAC_ADDRESS") return String(WiFi.macAddress());
  // SPI Flash RAM parameters
  //
  else if (var=="SFLASH_RAM"){

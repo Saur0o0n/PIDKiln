@@ -864,9 +864,8 @@ struct tm timeinfo;
     u8g2.drawStr(x,y+=chh,msg);
   }
 
-  uint64_t chipid;
-  chipid=ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
-  sprintf(msg,"MAC: %04X%08X",(uint16_t)(chipid>>32),(uint32_t)chipid);
+  sprintf(msg,"MAC: %s",WiFi.macAddress().c_str());
+  DBG dbgLog(LOG_DEBUG,"[LCD] Printing MAC address: %s\n",msg);
   u8g2.drawStr(x,y+=chh,msg);
   
   sprintf(msg,"Max prg. size: %d",MAX_Prog_File_Size);
