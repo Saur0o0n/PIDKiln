@@ -1,3 +1,11 @@
+1.3 (2022.01.29) - mostly bugfix release
+- fixed more issues created with FS/SPIFFS changes in ESP32 2.0.x framework (graph where missing data, logs and csv where not filled with data)
+- fixed grave bug in program subroutine (it had too low priority to work reliable - causing slow updates, and not reliable execution of the program itself)
+- fixed MAC address display (was shown in reversed order), add some new chip information to debug screen
+- fixed some more possible memory errors in freeing memory
+- cleaned/fixed html language and encoding definitions
+- add web server simple error handling
+
 1.2 (2021.12.02)
 - extended error reporting for MAX31855 and thermocouples
 	[ADDONS] Temperature sensor A readout: Internal temp = 26.1 	 Last temp = 24.2 	 Average kiln temp = 20.9
@@ -10,7 +18,7 @@
   MAX31855_Error_Grace_Count = 5
 - you can now use Wroom modules (without PSRAM) - change MALLOC definition in PIDKiln.ino
 - fixed stupid stack overflow in IP display routine
-- Updated SPIFFS handling to make it compatible with ESP32 2.0+ Arduino framework (it has change silently)
+- Updated SPIFFS handling to make it compatible with ESP32 2.0.x+ Arduino framework (it has change silently)
 
 
 1.1 (2020.03.15)
