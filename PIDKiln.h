@@ -154,6 +154,7 @@ typedef enum {
   PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and separator ":")
   PR_ERR_TOO_HOT,         // exceeded max temperature defined in MAX_Temp
   PR_ERR_TOO_COLD,        // temperature redout below MIN_Temp
+  PR_ERR_TOO_HOT_HOUSING, // housing temperature exceeded
   PR_ERR_MAX31A_NC,       // MAX31855 A not connected
   PR_ERR_MAX31A_INT_ERR,  // failed to read MAX31855 internal temperature on kiln
   PR_ERR_MAX31A_KPROBE,   // failed to read K-probe temperature on kiln
@@ -246,7 +247,7 @@ typedef enum { // program menu positions
 
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
-  PRF_MAX_HOUS_TEMP,
+  PRF_MAX_HOUSING_TEMP,
   PRF_THERMAL_RUN,
   PRF_ALARM_TIMEOUT,
   PRF_ERROR_GRACE_COUNT,
@@ -302,8 +303,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v1.3";
-const char *PDate = "2022.01.27";
+const char *PVer = "PIDKiln v1.4";
+const char *PDate = "2022.05.31";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)

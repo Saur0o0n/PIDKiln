@@ -479,6 +479,10 @@ void SAFETY_Check(){
     DBG dbgLog(LOG_ERR,"[PRG] Safety check failed - MAX temperature > %d\n",Prefs[PRF_MAX_TEMP].value.uint16);
     ABORT_Program(PR_ERR_TOO_HOT);  
   }
+  if(case_temp>Prefs[PRF_MAX_HOUSING_TEMP].value.uint16){
+    DBG dbgLog(LOG_ERR,"[PRG] Safety check failed - MAX housing temperature > %d\n",Prefs[PRF_MAX_HOUSING_TEMP].value.uint16);
+    ABORT_Program(PR_ERR_TOO_HOT_HOUSING);
+  }
 }
 
 

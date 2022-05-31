@@ -230,9 +230,9 @@ char tmp[30];
         Prefs[PRF_MAX_TEMP].type=UINT16;
         Prefs[PRF_MAX_TEMP].value.uint16=1350;
         break;
-      case PRF_MAX_HOUS_TEMP:
-        Prefs[PRF_MAX_HOUS_TEMP].type=UINT16;
-        Prefs[PRF_MAX_HOUS_TEMP].value.uint16=130;
+      case PRF_MAX_HOUSING_TEMP:
+        Prefs[PRF_MAX_HOUSING_TEMP].type=UINT16;
+        Prefs[PRF_MAX_HOUSING_TEMP].value.uint16=130;
         break;
       case PRF_THERMAL_RUN:
         Prefs[PRF_THERMAL_RUN].type=UINT16;
