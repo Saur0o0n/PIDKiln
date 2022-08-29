@@ -1,7 +1,41 @@
-#include <PID_v1.h>
 #include <Syslog.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiUdp.h>
+#include <FS.h>   // Include the SPIFFS library
+#include <SPIFFS.h>
+#include <ESPAsyncWebServer.h>
+#include <soc/rtc_wdt.h>
+#include <esp_task_wdt.h>
+#include <U8g2lib.h>
+#include <MAX31855.h>
+#include <PID_v1.h>
+#include <soc/efuse_reg.h>
+#include <Esp.h>
+#include <ESPAsyncWebServer.h>
+#include <U8g2lib.h>
+#include <Update.h>
 
-//For test commit
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+
+#define FONT4 u8g2_font_p01type_tr
+#define FONT5 u8g2_font_micro_tr
+#define FONT6 u8g2_font_5x8_tr
+#define FONT7 u8g2_font_6x10_tr
+#define FONT8 u8g2_font_bitcasual_tr
+
+// Other variables
+//
+#define LCD_RESET 4   // RST on LCD
+#define LCD_CS 5      // RS on LCD
+#define LCD_CLOCK 18  // E on LCD
+#define LCD_DATA 23   // R/W on LCD
 
 /* 
 ** Some definitions - usually you should not edit this, but you may want to
@@ -20,13 +54,14 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 **
 */
 
-#define EMR_RELAY_PIN 21
+#define EMR_RELAY_PIN 18
 #define SSR1_RELAY_PIN 19
 //#define SSR2_RELAY_PIN 22   // if you want to use additional SSR for second heater, uncoment this
 
 // MAX31855 variables/defs
 #define MAXCS1  27    // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-27
-#define MAXCS2  15    // same SPI - 2nd device CS-15 (comment out if no second thermocouple)
+//#define MAXCS2  15    // same SPI - 2nd device CS-15 (comment out if no second thermocouple)
+#define DRDY_PIN 16
 
 // If you have power meter - uncoment this
 //#define ENERGY_MON_PIN 33       // if you don't use - comment out
@@ -156,7 +191,6 @@ typedef enum {
   PR_ERR_BAD_CHAR,        // not allowed character in program (only allowed characters are numbers and separator ":")
   PR_ERR_TOO_HOT,         // exceeded max temperature defined in MAX_Temp
   PR_ERR_TOO_COLD,        // temperature redout below MIN_Temp
-  PR_ERR_TOO_HOT_HOUSING, // housing temperature exceeded
   PR_ERR_MAX31A_NC,       // MAX31855 A not connected
   PR_ERR_MAX31A_INT_ERR,  // failed to read MAX31855 internal temperature on kiln
   PR_ERR_MAX31A_KPROBE,   // failed to read K-probe temperature on kiln
@@ -249,7 +283,7 @@ typedef enum { // program menu positions
 
   PRF_MIN_TEMP,
   PRF_MAX_TEMP,
-  PRF_MAX_HOUSING_TEMP,
+  PRF_MAX_HOUS_TEMP,
   PRF_THERMAL_RUN,
   PRF_ALARM_TIMEOUT,
   PRF_ERROR_GRACE_COUNT,
@@ -305,8 +339,8 @@ File CSVFile,LOGFile;
 ** Other stuff
 **
 */
-const char *PVer = "PIDKiln v1.4";
-const char *PDate = "2022.05.31";
+const char *PVer = "PIDKiln v1.2";
+const char *PDate = "2021.12.02";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)
@@ -333,3 +367,130 @@ void LCD_Display_quick_program(int dir=0,byte pos=0);
 uint8_t Cleanup_program(uint8_t err=0);
 uint8_t Load_program(char *file=0);
 void ABORT_Program(uint8_t error=0);
+
+boolean delete_file(File &newFile);
+boolean check_valid_chars(byte a);
+boolean valid_filename(char *file);
+
+boolean return_LCD_string(char* msg,char* rest, int mod, uint16_t screen_w);
+void load_msg(char msg[MAX_CHARS_PL]);
+void DrawVline(uint16_t x,uint16_t y,uint16_t h);
+void Draw_Marked_string(char *str,uint8_t pos);
+void DrawMenuEl(char *msg, uint16_t y, uint8_t cnt, uint8_t el, boolean sel);
+
+void LCD_display_mainv3(int dir=0, byte ctrl=0);
+void LCD_display_mainv2();
+void LCD_display_mainv1();
+void LCD_display_main_view();
+void LCD_display_menu();
+void LCD_display_programs();
+void LCD_Display_program_delete(int dir=0, boolean pressed=0);
+void LCD_Display_program_full(int dir=0);
+void LCD_Display_program_summary(int dir,byte load_prg);
+void LCD_Display_quick_program(int dir,byte pos);
+void LCD_Display_info();
+void LCD_Display_prefs(int dir=0);
+void LCD_Display_about();
+
+void Restart_ESP();
+void LCD_Reconect_WiFi();
+void Setup_LCD(void);
+
+void Enable_SSR();
+void Disable_SSR();
+void Enable_EMR();
+void Disable_EMR();
+void print_bits(uint32_t raw);
+void Update_TemperatureA();
+void T_UpdateTemperature(void *params);
+void Update_TemperatureB();
+void Read_Energy_INPUT();
+void Power_Loop(void * parameter);
+void STOP_Alarm();
+void START_Alarm();
+void SetupMAX31856(void);
+void Setup_Addons();
+
+String Preferences_parser(const String& var);
+String Debug_ESP32(const String& var);
+
+void Generate_INDEX();
+void Generate_LOGS_INDEX();
+String Chart_parser(const String& var);
+String About_parser(const String& var);
+
+void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final);
+void POST_Handle_Delete(AsyncWebServerRequest *request);
+void GET_Handle_Delete(AsyncWebServerRequest *request);
+void GET_Handle_Load(AsyncWebServerRequest *request);
+void handlePrefs(AsyncWebServerRequest *request);
+void handleIndexPost(AsyncWebServerRequest *request);
+String handleVars(const String& var);
+
+void out(const char *s);
+void do_screenshot(AsyncWebServerRequest *request);
+
+void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final);
+bool _webAuth(AsyncWebServerRequest *request);
+
+void SETUP_WebServer(void);
+void STOP_WebServer();
+
+void pressed_menu();
+void button_Short_Press();
+void button_Long_Press();
+void Rotate();
+void Input_Loop(void * parameter);
+void handleInterrupt();
+void Setup_Input();
+
+void Init_log_file();
+void Add_log_line();
+void Close_log_file();
+void Clean_LOGS();
+uint8_t Load_LOGS_Dir();
+
+void dbgLog(uint16_t pri, const char *fmt, ...);
+
+void initSysLog();
+void initSerial();
+
+void printLocalTime();
+void Setup_start_date();
+void Return_Current_IP(IPAddress &lip);
+void Disable_WiFi();
+boolean Start_WiFi_AP();
+boolean Start_WiFi_CLIENT();
+boolean Setup_WiFi();
+boolean Restart_WiFi();
+
+boolean Change_prefs_value(String item, String value);
+void Save_prefs();
+void Load_prefs();
+void Prefs_updated_hook();
+void Setup_prefs(void);
+
+void IRAM_ATTR onTimer();
+byte add_program_line(String& linia);
+uint8_t Load_program(char *file);
+uint8_t Load_programs_dir();
+void Update_program_step(uint8_t sstep, uint16_t stemp, uint16_t stime, uint16_t sdwell);
+void Initialize_program_to_run();
+void Load_program_to_run();
+
+int Find_selected_program();
+void rotate_selected_program(int dir);
+byte Cleanup_program(byte err);
+boolean Erase_program_file();
+void END_Program();
+void ABORT_Program(uint8_t error);
+void PAUSE_Program();
+void RESUME_Program();
+void Program_recalculate_ETA(boolean dwell=false);
+void Program_calculate_steps(boolean prg_start=false);
+void START_Program();
+void SAFETY_Check();
+void Program_Loop(void * parameter);
+void Program_Setup();
+
+
