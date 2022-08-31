@@ -50,6 +50,12 @@ const uint16_t Long_Press=400; // long press button takes about 0,9 second
 const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 
 /*
+**Uncomment this if you want buttons instead of encoder
+*/
+//#define USE_BUTTONS
+
+
+/*
 ** Relays and thermocouple defs. and other addons
 **
 */

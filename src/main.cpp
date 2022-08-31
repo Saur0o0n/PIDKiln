@@ -2544,7 +2544,8 @@ void handleInterrupt() {
       encoderButton=millis();
   }else{ // Those two events can be simultaneous - but this is also ok, usually user does not press and turn
 
-    /*int MSB = digitalRead(ENCODER0_PINA); //MSB = most significant bit
+    #ifndef USE_BUTTONS
+    int MSB = digitalRead(ENCODER0_PINA); //MSB = most significant bit
     int LSB = digitalRead(ENCODER0_PINB); //LSB = least significant bit
     int encoded = (MSB << 1) |LSB; //converting the 2 pin value to single number
     int sum  = (lastEncoded << 2) | encoded; //adding it to the previous encoded value
@@ -2552,15 +2553,18 @@ void handleInterrupt() {
     if(sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) encoderValue=1;
     if(sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) encoderValue=-1;
 
-    lastEncoded = encoded; //store this value for next time*/
+    lastEncoded = encoded; //store this value for next time
+    #endif
 
-    //Такой костыль который заменяет вращение энкодера на кнопки вправо-влево
+    #ifdef USE_BUTTONS
+    //Not ideal but works
     if (digitalRead(ENCODER0_PINA)){
       encoderValue = 1;
     }
     if (digitalRead(ENCODER0_PINB)){
       encoderValue = -1;
     }
+    #endif
 
   }
 }
