@@ -25,8 +25,12 @@
 */
 
 
-#include "main.h"
+#include "PIDKiln.h"
 #include "settings.h"
+
+#include "main.h"
+
+#include "LCD.h"
 
 
 /*
@@ -192,6 +196,7 @@ void setup() {
   
   // Setup function for LCD display from PIDKiln_LCD.ino
   Setup_LCD();
+  Test_Setup_LCD();
 
   // Setup input devices
   Setup_Input();

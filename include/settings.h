@@ -1,6 +1,6 @@
 /* 
 ** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
-** Please set them up before uploading.
+** Please set them up according to your hardware configuration before compiling and uploading.
 */
 
 // If you have Wrover with PSRAM
