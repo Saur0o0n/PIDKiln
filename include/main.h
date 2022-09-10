@@ -40,34 +40,14 @@
 /* 
 ** Some definitions - usually you should not edit this, but you may want to
 */
-#define ENCODER0_PINA    34
-#define ENCODER0_PINB    35
-#define ENCODER0_BUTTON  32
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
 const uint16_t Long_Press=400; // long press button takes about 0,9 second
 
 const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 
-/*
-**Uncomment this if you want buttons instead of encoder
-*/
-//#define USE_BUTTONS
 
 
-/*
-** Relays and thermocouple defs. and other addons
-**
-*/
-
-#define EMR_RELAY_PIN 18
-#define SSR1_RELAY_PIN 19
-//#define SSR2_RELAY_PIN 22   // if you want to use additional SSR for second heater, uncoment this
-
-// MAX31855 variables/defs
-#define MAXCS1  27    // for hardware SPI - HSPI (MOSI-13, MISO-12, CLK-14) - 1st device CS-27
-//#define MAXCS2  15    // same SPI - 2nd device CS-15 (comment out if no second thermocouple)
-#define DRDY_PIN 16
 
 // If you have power meter - uncoment this
 //#define ENERGY_MON_PIN 33       // if you don't use - comment out

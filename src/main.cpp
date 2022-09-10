@@ -26,23 +26,8 @@
 
 
 #include "main.h"
+#include "settings.h"
 
-/* 
-** Static, editable parameters. Some of them, can be replaces with PIDKiln preferences.
-** Please set them up before uploading.
-*/
-#define TEMPLATE_PLACEHOLDER '~' // THIS DOESN'T WORK NOW FROM HERE - replace it in library! Arduino/libraries/ESPAsyncWebServer/src/WebResponseImpl.h
-
-// If you have Wrover with PSRAM
-//#define MALLOC ps_malloc
-//#define REALLOC ps_realloc
-
-// if you have Wroom without it
-#define MALLOC malloc
-#define REALLOC realloc
-
-#define DEBUG true
-//#define DEBUG false
 
 /*
 ** LCD Display components
