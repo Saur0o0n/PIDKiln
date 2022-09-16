@@ -7,44 +7,20 @@
 #include <ESPAsyncWebServer.h>
 #include <soc/rtc_wdt.h>
 #include <esp_task_wdt.h>
-#include <U8g2lib.h>
 #include <MAX31855.h>
 #include <PID_v1.h>
 #include <soc/efuse_reg.h>
 #include <Esp.h>
 #include <ESPAsyncWebServer.h>
-#include <U8g2lib.h>
 #include <Update.h>
+#include <U8g2lib.h>
 
-
-#ifdef U8X8_HAVE_HW_SPI
-#include <SPI.h>
-#endif
-#ifdef U8X8_HAVE_HW_I2C
-#include <Wire.h>
-#endif
-
-#define FONT4 u8g2_font_p01type_tr
-#define FONT5 u8g2_font_micro_tr
-#define FONT6 u8g2_font_5x8_tr
-#define FONT7 u8g2_font_6x10_tr
-#define FONT8 u8g2_font_bitcasual_tr
-
-// Other variables
-//
-#define LCD_RESET 4   // RST on LCD
-#define LCD_CS 5      // RS on LCD
-#define LCD_CLOCK 18  // E on LCD
-#define LCD_DATA 23   // R/W on LCD
 
 /* 
 ** Some definitions - usually you should not edit this, but you may want to
 */
 #define ENCODER_BUTTON_DELAY 150  // 150ms between button press readout
 #define ENCODER_ROTATE_DELAY 120  // 120ms between rotate readout
-const uint16_t Long_Press=400; // long press button takes about 0,9 second
-
-const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be uploaded as program, this limit is also defined in JS script (js/program.js)
 
 
 
@@ -53,46 +29,10 @@ const int MAX_Prog_File_Size=10240;  // maximum file size (bytes) that can be up
 //#define ENERGY_MON_PIN 33       // if you don't use - comment out
 
 #define ALARM_PIN 26        // Pin goes high on abort
-uint16_t ALARM_countdown=0; // countdown in seconds to stop alarm
 
-/*
-** Temperature, PID and probes variables/definitions
-*/
-// Temperature & PID variables
-double int_temp=20, kiln_temp=20, case_temp=20;
-double set_temp, pid_out;
-float temp_incr=0;
-uint32_t windowStartTime;
 #define PID_WINDOW_DIVIDER 1
 
-//Specify the links and initial tuning parameters
-PID KilnPID(&kiln_temp, &pid_out, &set_temp, 0, 0, 0, P_ON_E, DIRECT);
 
-
-LCD_State_enum LCD_State=SCR_MAIN_VIEW;          // global variable to keep track on where we are in LCD screen
-LCD_MAIN_View_enum LCD_Main=MAIN_VIEW1;          // main screen has some views - where are we
-LCD_SCR_MENU_Item_enum LCD_Menu=M_SCR_MAIN_VIEW; // menu items
-
-const char *Menu_Names[] = {"1) Main view", "2) List programs", "3) Quick program", "4) Information", "5) Preferences", "6) Reconnect WiFi", "7) About", "8) Restart"};
-
-typedef enum { // program menu positions
-  P_EXIT,
-  P_SHOW,
-  P_LOAD,
-  P_DELETE,
-  P_end
-} LCD_PSCR_MENU_Item_enum;
-
-const char *Prog_Menu_Names[] = {"Exit","Show","Load","Del."};
-const uint8_t Prog_Menu_Size=4;
-
-#define SCREEN_W 128   // LCD screen width and height
-#define SCREEN_H 64
-#define MAX_CHARS_PL SCREEN_W/3  // char can have min. 3 points on screen
-
-const uint8_t SCR_MENU_LINES=5;   // how many menu lines should be print
-const uint8_t SCR_MENU_SPACE=2;   // pixels spaces between lines
-const uint8_t SCR_MENU_MIDDLE=3;  // middle of the menu, where choosing will be possible
 
 /*
 ** Kiln program variables
@@ -106,19 +46,6 @@ struct PROGRAM {
 // maxinum number of program lines (this goes to memory - so be careful)
 #define MAX_PRG_LENGTH 40
 
-PROGRAM Program[MAX_PRG_LENGTH];  // We could use here malloc() but...
-uint8_t Program_size=0;           // number of actual entries in Program
-String Program_desc,Program_name; // First line of the selected program file - it's description
-
-PROGRAM* Program_run;             // running program (made as copy of selected Program)
-uint8_t Program_run_size=0;       // number of entries in running program (since elements count from 0 - this value is actually bigger by 1 then numbers of steps)
-char *Program_run_desc=NULL,*Program_run_name=NULL;
-time_t Program_run_start=0;       // date/time of started program
-time_t Program_run_end=0;         // date/time when program ends - during program it's ETA
-int Program_run_step=-1;          // at which step are we now... (has to be it - so we can give it -1)
-uint16_t Program_start_temp=0;    // temperature on start of the program
-uint8_t Program_error=0;          // if program finished with errors - remember number
-byte TempA_errors=0,TempB_errors=0; // how many temperature read errors we have skipped
 
 typedef enum { // program menu positions
   PR_NONE,
@@ -130,8 +57,6 @@ typedef enum { // program menu positions
   PR_THRESHOLD,
   PR_end
 } PROGRAM_RUN_STATE;
-PROGRAM_RUN_STATE Program_run_state=PR_NONE; // running program state
-const char *Prog_Run_Names[] = {"unknown","Ready","Running","Paused","Aborted","Ended","Waiting"};
 
 /* 
 **  Program errors:
@@ -159,25 +84,12 @@ typedef enum {
 #define MAX_FILENAME 30   // directory+name can be max 32 on SPIFFS
 #define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
 
-const char allowed_chars_in_filename[]="abcdefghijklmnoprstuwxyzABCDEFGHIJKLMNOPRSTUWXYZ1234567890._";
-
 struct DIRECTORY {
   char filename[MAX_PROGNAME+1];
   uint16_t filesize=0;
   uint8_t sel=0;
 };
 
-DIRECTORY* Programs_DIR=NULL;
-uint16_t Programs_DIR_size=0;
-
-DIRECTORY* Logs_DIR=NULL;
-uint16_t Logs_DIR_size=0;
-
-/* Directory loading errors:
-** 1 - cant open "/programs" directory
-** 2 - file name is too long or too short (this should not happened)
-** 3 - 
-*/
 
  
 /* 
@@ -186,9 +98,6 @@ uint16_t Logs_DIR_size=0;
 */
 #define PRG_DIRECTORY "/programs"
 #define PRG_DIRECTORY_X(x) PRG_DIRECTORY x
-const char *PRG_Directory = PRG_DIRECTORY;  // I started to use it so often... so this will take less RAM then define
-
-const char *LOG_Directory = "/logs";
 
 #define FORMAT_SPIFFS_IF_FAILED true
 
@@ -247,16 +156,6 @@ typedef enum { // program menu positions
   PRF_end
 } PREFERENCES;
 
-const char *PrefsName[]={
-"None","WiFi_SSID","WiFi_Password","WiFi_Mode","WiFi_Retry_cnt","WiFi_AP_Name","WiFi_AP_Username","WiFi_AP_Pass",
-"HTTP_Local_JS",
-"Auth_Username","Auth_Password",
-"NTP_Server1","NTP_Server2","NTP_Server3","GMT_Offset_sec","Daylight_Offset_sec","Initial_Date","Initial_Time",
-"PID_Window","PID_Kp","PID_Ki","PID_Kd","PID_POE","PID_Temp_Threshold",
-"LOG_Window","LOG_Files_Limit",
-"MIN_Temperature","MAX_Temperature","MAX_Housing_Temperature","Thermal_Runaway","Alarm_Timeout","MAX31855_Error_Grace_Count",
-"DBG_Serial","DBG_Syslog","DBG_Syslog_Srv","DBG_Syslog_Port",
-};
 
 // Preferences types definitions
 typedef enum {
@@ -281,24 +180,11 @@ struct PrefsStruct {
   } value;
 };
 
-struct PrefsStruct Prefs[PRF_end];
 
-// Pointer to a log file
-File CSVFile,LOGFile;
-
-/*
-** Other stuff
-**
-*/
-const char *PVer = "PIDKiln v1.2";
-const char *PDate = "2021.12.02";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)
 
-// Empty syslog instance
-WiFiUDP udpClient;
-Syslog syslog(udpClient, SYSLOG_PROTO_IETF);
 
 
 #define JS_JQUERY "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
@@ -310,10 +196,6 @@ Syslog syslog(udpClient, SYSLOG_PROTO_IETF);
 ** Function defs
 **
 */
-void load_msg(char msg[MAX_CHARS_PL]);
-boolean return_LCD_string(char* msg,char* rest, int mod, uint16_t screen_w=SCREEN_W);
-void LCD_Display_program_summary(int dir=0,byte load_prg=0);
-void LCD_Display_quick_program(int dir=0,byte pos=0);
 
 uint8_t Cleanup_program(uint8_t err=0);
 uint8_t Load_program(char *file=0);
@@ -323,29 +205,7 @@ boolean delete_file(File &newFile);
 boolean check_valid_chars(byte a);
 boolean valid_filename(char *file);
 
-boolean return_LCD_string(char* msg,char* rest, int mod, uint16_t screen_w);
-void load_msg(char msg[MAX_CHARS_PL]);
-void DrawVline(uint16_t x,uint16_t y,uint16_t h);
-void Draw_Marked_string(char *str,uint8_t pos);
-void DrawMenuEl(char *msg, uint16_t y, uint8_t cnt, uint8_t el, boolean sel);
 
-void LCD_display_mainv3(int dir=0, byte ctrl=0);
-void LCD_display_mainv2();
-void LCD_display_mainv1();
-void LCD_display_main_view();
-void LCD_display_menu();
-void LCD_display_programs();
-void LCD_Display_program_delete(int dir=0, boolean pressed=0);
-void LCD_Display_program_full(int dir=0);
-void LCD_Display_program_summary(int dir,byte load_prg);
-void LCD_Display_quick_program(int dir,byte pos);
-void LCD_Display_info();
-void LCD_Display_prefs(int dir=0);
-void LCD_Display_about();
-
-void Restart_ESP();
-void LCD_Reconect_WiFi();
-void Setup_LCD(void);
 
 void Enable_SSR();
 void Disable_SSR();
