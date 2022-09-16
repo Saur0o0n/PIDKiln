@@ -1,0 +1,18 @@
+{
+  "name":        "MAX31855",
+  "keywords":    "thermocouple, max31855, cold junction, spi",
+  "description": "14-bit K-Thermocouple to Digital Converter with 12-bit Cold Junction Compensation",
+  "authors":
+  {
+    "name":  "ejoyneering",
+    "email": "enjoyneering@protonmail.com"
+  },
+  "repository":
+  {
+    "type": "git",
+    "url":  "https://github.com/enjoyneering/MAX31855.git"
+  },
+  "version":    "1.2.2",
+  "frameworks": "arduino",
+  "platforms":  "*"
+}
