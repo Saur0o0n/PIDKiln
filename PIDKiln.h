@@ -172,7 +172,7 @@ typedef enum {
 #define MAX_FILENAME 30   // directory+name can be max 32 on SPIFFS
 #define MAX_PROGNAME 20   //  - cos we already have /programs/ directory...
 
-const char allowed_chars_in_filename[]="abcdefghijklmnoprstuwxyzABCDEFGHIJKLMNOPRSTUWXYZ1234567890._";
+const char allowed_chars_in_filename[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890._";
 
 struct DIRECTORY {
   char filename[MAX_PROGNAME+1];
@@ -277,6 +277,7 @@ typedef enum {
  UINT8,
  UINT16,
  INT16,
+ INT32,
  STRING,
  VFLOAT,
 } TYPE;
@@ -289,6 +290,7 @@ struct PrefsStruct {
     uint8_t uint8;
     uint16_t uint16;
     int16_t int16;
+    int32_t int32;
     char *str;
     double vfloat;
   } value;
@@ -304,7 +306,7 @@ File CSVFile,LOGFile;
 **
 */
 const char *PVer = "PIDKiln v1.4";
-const char *PDate = "2022.05.31";
+const char *PDate = "2024.03.26";
 
 // If defined debug - do debug, otherwise comment out all debug lines
 #define DBG if(DEBUG)

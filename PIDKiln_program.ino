@@ -141,7 +141,7 @@ File dir,file;
   Programs_DIR=(DIRECTORY*)MALLOC(sizeof(DIRECTORY)*count);
   Programs_DIR_size=0;
   dir.rewindDirectory();
-  while((file=dir.openNextFile()) && Programs_DIR_size<=count){    // now we do acctual loading into memory
+  while((file=dir.openNextFile()) && Programs_DIR_size<=count){    // now we do actual loading into memory
     char tmp[32];
     uint8_t len2;
     
@@ -180,7 +180,7 @@ File dir,file;
       }    
    }
 
-  if(Programs_DIR_size) Programs_DIR[0].sel=1; // make first program seleted if we have at least one
+  if(Programs_DIR_size) Programs_DIR[0].sel=1; // make first program selected if we have at least one
   return 0;
 }
 

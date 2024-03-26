@@ -29,6 +29,10 @@ boolean Change_prefs_value(String item, String value){
         Prefs[a].value.int16=(uint16_t)value.toInt();
         DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved INT16 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
         return true;
+      }else if(Prefs[a].type==INT32){
+        Prefs[a].value.int32=(uint32_t)value.toInt();
+        DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved INT32 item value:%d type:%d\n",PrefsName[a],Prefs[a].value.int32,(int)Prefs[a].type);
+        return true;
       }else if(Prefs[a].type==VFLOAT){
         Prefs[a].value.vfloat=(double)value.toDouble();
         DBG dbgLog(LOG_DEBUG,"[PREFS]  -> For %s saved VFLOAT item value:%f type:%d\n",PrefsName[a],Prefs[a].value.vfloat,(int)Prefs[a].type);
@@ -56,6 +60,8 @@ File prf;
         prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.uint16);
       }else if(Prefs[a].type==INT16){
         prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.int16);
+      }else if(Prefs[a].type==INT32){
+        prf.printf("%s = %d\n",PrefsName[a],Prefs[a].value.int32);
       }else if(Prefs[a].type==VFLOAT){
         prf.printf("%s = %.2f\n",PrefsName[a],Prefs[a].value.vfloat);
       }
@@ -103,6 +109,7 @@ int pos=0;
       if(Prefs[a].type==UINT8) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint8,(int)Prefs[a].type);
       if(Prefs[a].type==UINT16) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.uint16,(int)Prefs[a].type);
       if(Prefs[a].type==INT16) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
+      if(Prefs[a].type==INT32) DBG dbgLog(LOG_DEBUG,"[PREFS] %d) '%s' = '%d'\t%d\n",a,PrefsName[a],Prefs[a].value.int16,(int)Prefs[a].type);
     }
 }
 
@@ -172,8 +179,8 @@ char tmp[30];
         Prefs[PRF_NTPSERVER3].value.str=strdup("");
         break;
       case PRF_GMT_OFFSET:
-        Prefs[PRF_GMT_OFFSET].type=INT16;
-        Prefs[PRF_GMT_OFFSET].value.int16=0;
+        Prefs[PRF_GMT_OFFSET].type=INT32;
+        Prefs[PRF_GMT_OFFSET].value.int32=0;
         break;
       case PRF_DAYLIGHT_OFFSET:
         Prefs[PRF_DAYLIGHT_OFFSET].type=INT16;
