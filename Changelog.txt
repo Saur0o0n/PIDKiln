@@ -1,6 +1,9 @@
+1.5 (2024.12.18)
+- updated code to compile against ESP3+ API, Arduino 2+ and latest asynce libraries
+
 1.4 (2024.03.26)
 - fixed/add MAX housing temperature check (was missing in the code)
-- added missing q letter in allowed chars for programe name
+- added missing q letter in allowed chars for program name
 - extended GMT offset datatype to uint32, to allow more then +/-10h offset
 
 1.3 (2022.01.29) - mostly bugfix release

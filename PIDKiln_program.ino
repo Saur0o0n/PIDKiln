@@ -565,20 +565,16 @@ void Program_Setup(){
   // Create semaphore to inform us when the timer has fired
   timerSemaphore = xSemaphoreCreateBinary();
 
-  // Use 1st timer of 4 (counted from zero).
-  // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
-  // info).
-  timer = timerBegin(0, 80, true);
+  // has now only 1 parameter (frequency). There is an automatic calculation of the divider using different clock sources to achieve the selected frequency.
+  timer = timerBegin(1000000);
 
   // Attach onTimer function to our timer.
-  timerAttachInterrupt(timer, &onTimer, true);
+  timerAttachInterrupt(timer, &onTimer);
 
   // Set alarm to call onTimer function every second (value in microseconds).
   // Repeat the alarm (third parameter)
-  timerAlarmWrite(timer, 1000000, true);
+  timerAlarm(timer, 1000000, true, 0);
 
-  // Start an alarm
-  timerAlarmEnable(timer);
 
 // For testing!!!
 //  Load_program("test_up_down.txt");

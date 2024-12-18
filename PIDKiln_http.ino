@@ -397,7 +397,7 @@ String tmp=String(PRG_Directory);
     
     // Check if declared file size in header is not too large
     if(request->hasHeader("Content-Length")){
-      AsyncWebHeader* h = request->getHeader("Content-Length");
+      const AsyncWebHeader* h = request->getHeader("Content-Length");
       if(h->value().toInt()>MAX_Prog_File_Size){
         DBG dbgLog(LOG_DEBUG,"[HTTP] Uploaded file too large! Aborting\n");
         request->send(406, "text/html", "<html><body><h1>File is too large!</h1> Current limit is "+String(MAX_Prog_File_Size)+"<br><br><a href=/programs/>Return to programs view</a></body></html");
@@ -469,9 +469,9 @@ void POST_Handle_Delete(AsyncWebServerRequest *request){
 
   //Check if POST (but not File) parameter exists
   if(request->hasParam("prog_name", true) && request->hasParam("yes", true)){
-    AsyncWebParameter* p = request->getParam("yes", true);
+    const AsyncWebParameter* p = request->getParam("yes", true);
     if(p->value().compareTo(String("Yes!"))==0){ // yes user want's to delete program
-      AsyncWebParameter* p = request->getParam("prog_name", true);
+      const AsyncWebParameter* p = request->getParam("prog_name", true);
       char path[32];
       sprintf(path,"%s/%.*s",PRG_Directory,MAX_PROGNAME,p->value().c_str());
       DBG dbgLog(LOG_DEBUG,"[HTTP] Removing program: %s with fpath:%s\n",p->value().c_str(),path);
@@ -500,7 +500,7 @@ String tmps;
     return;
   }
  
-  AsyncWebParameter* p = request->getParam("prog_name");
+  const AsyncWebParameter* p = request->getParam("prog_name");
   
   AsyncResponseStream *response = request->beginResponseStream("text/html");
   response->addHeader("Server","ESP Async Web Server");
@@ -530,7 +530,7 @@ char prname[MAX_FILENAME];
     return;
   }
 
-  AsyncWebParameter* p = request->getParam("prog_name");
+  const AsyncWebParameter* p = request->getParam("prog_name");
   strcpy(prname,p->value().c_str());
   if(!Load_program(prname)){
     request->redirect("/index.html");
@@ -553,7 +553,7 @@ boolean save=false;
 
   int params = request->params();
   for(int i=0;i<params;i++){
-    AsyncWebParameter* p = request->getParam(i);
+    const AsyncWebParameter* p = request->getParam(i);
     if(p->isPost()){
       DBG dbgLog(LOG_DEBUG,"[HTTP] Prefs parser POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       if(p->name().equalsIgnoreCase("save")){
@@ -594,7 +594,7 @@ int params = request->params();
   if(!_webAuth(request)) return;
 
   for(int i=0;i<params;i++){
-    AsyncWebParameter* p = request->getParam(i);
+    const AsyncWebParameter* p = request->getParam(i);
     if(p->isPost()){
       DBG dbgLog(LOG_DEBUG,"[HTTP] Index post parser: POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
       if(p->name().equalsIgnoreCase("prog_start")){ // start program

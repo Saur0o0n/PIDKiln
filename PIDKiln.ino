@@ -1,7 +1,7 @@
 /*
-** PIDKiln v1.4 - high temperature kiln PID controller for ESP32
+** PIDKiln v1.5 - high temperature kiln PID controller for ESP32
 **
-** Copyright (C) 2019-2024 - Adrian Siemieniak
+** Copyright (C) 2019-2025 - Adrian Siemieniak
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 #include <FS.h>   // Include the SPIFFS library
 #include <SPIFFS.h>
 #include <ESPAsyncWebServer.h>
-#include <soc/rtc_wdt.h>
+#include <rtc_wdt.h>
 #include <esp_task_wdt.h>
 
 #include "PIDKiln.h"
@@ -107,8 +107,11 @@ void setup() {
 // This should disable watchdog killing asynctcp and others - one of this should work :)
 // This is not recommended, but if Webserver/AsyncTCP will hang (that has happen to me) - this will at least do not reset the device (and potentially ruin program).
 // ESP32 will continue to work properly even in AsynTCP will hang - there will be no HTTP connection. If you do not like this - comment out next 6 lines.
-  esp_task_wdt_init(1,false);
-  esp_task_wdt_init(2,false);
+  esp_task_wdt_config_t config = {
+    .timeout_ms = 60* 1000,  //  60 seconds
+    .trigger_panic = true,     // Trigger panic if watchdog timer is not reset
+  };
+  esp_task_wdt_reconfigure(&config);
   rtc_wdt_protect_off();
   rtc_wdt_disable();
   disableCore0WDT();
